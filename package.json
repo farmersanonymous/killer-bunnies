@@ -1,0 +1,77 @@
+{
+  "name": "killer-bunnies",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "start": "npm-run-all --parallel lint:watch dev-server",
+    "dev-server": "webpack-dev-server --config webpack.config.js --mode development --host 0.0.0.0 --color",
+    "lint": "esw \"src/**/*.ts\" --color --max-warnings 0",
+    "lint:watch": "npm run lint -- --watch",
+    "build": "webpack --progress --config webpack.config.js --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farmersanonymous/killer-bunnies.git"
+  },
+  "bugs": {
+    "url": "https://github.com/farmersanonymous/killer-bunnies/issues"
+  },
+  "homepage": "https://github.com/farmersanonymous/killer-bunnies#readme",
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      [
+        "@babel/preset-typescript"
+      ]
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
+  },
+  "eslintConfig": {
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended"
+    ]
+  },
+  "dependencies": {
+    "babylonjs": "4.1.0",
+    "babylonjs-loaders": "4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.9.6",
+    "@babel/plugin-proposal-class-properties": "7.8.3",
+    "@babel/preset-env": "7.9.6",
+    "@babel/preset-typescript": "7.9.0",
+    "@typescript-eslint/eslint-plugin": "2.30.0",
+    "@typescript-eslint/parser": "2.30.0",
+    "babel-loader": "8.1.0",
+    "clean-webpack-plugin": "3.0.0",
+    "eslint": "6.8.0",
+    "eslint-loader": "4.0.2",
+    "eslint-watch": "6.0.1",
+    "html-webpack-plugin": "4.3.0",
+    "npm-run-all": "4.1.5",
+    "source-map-loader": "0.2.4",
+    "source-map-support": "0.5.19",
+    "ts-loader": "7.0.2",
+    "typescript": "3.8.3",
+    "webpack": "4.43.0",
+    "webpack-cli": "3.3.11",
+    "webpack-dev-server": "3.10.3"
+  }
+}
