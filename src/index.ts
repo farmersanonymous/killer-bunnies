@@ -1,27 +1,39 @@
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, MeshBuilder } from 'babylonjs';
+import { Vector3, ActionManager } from 'babylonjs';
+import { BabylonStore } from './store/babylonStore';
+import { ProxyGround } from './environment/proxyGround';
+import { Farmer } from './player/farmer';
 
+/**
+ * The entrypoint for the game.
+ */
 export class Game {
-    #_engine: Engine;
-    #_scene: Scene;
-
+    /**
+     * Constructor.
+     * @param canvas The canvas element used to initialize the Babylon engine.
+     */
     constructor(canvas: HTMLCanvasElement) {
-        this.#_engine = new Engine(canvas);
-        this.#_scene = new Scene(this.#_engine);
-        const camera = new ArcRotateCamera('MainCamera', 0, 0, 5, new Vector3(0, 0, 0), this.#_scene);
-        camera.attachControl(canvas, false);
-        
-        new HemisphericLight('BasicLight', new Vector3(0, 1, 0), this.#_scene);
-        const box = MeshBuilder.CreateBox('box', { });
-        box.position.y = 1;
+        BabylonStore.createEngine(canvas);
+
+        BabylonStore.createScene(BabylonStore.engine);
+        BabylonStore.scene.actionManager = new ActionManager(BabylonStore.scene);
+
+        BabylonStore.createCamera('mainCamera', new Vector3(0, 15, -5), BabylonStore.scene);
+        BabylonStore.camera.setTarget(Vector3.Zero());
+
+        new ProxyGround('ground', 20, 20);
+        new Farmer();
 
         window.addEventListener('resize', () => {
-            this.#_engine.resize();
+            BabylonStore.engine.resize();
         });
     }
 
+    /**
+     * Runs the game loop.
+     */
     public run(): void {
-        this.#_engine.runRenderLoop(() => {
-            this.#_scene.render();
+        BabylonStore.engine.runRenderLoop(() => {
+            BabylonStore.scene.render();
         });
     }
 }
