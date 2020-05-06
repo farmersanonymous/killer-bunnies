@@ -38,7 +38,7 @@ jobs:
         CLI: gsutil
       with:
         args:
-          cp ./dist/index.html gs://farmer-hosting/$PULL_NUMBER/index.html
+          cp ./dist/index.html gs://farmer-hosting/pr/$PULL_NUMBER/index.html
     
     - name: Upload index.js
       uses: actions-hub/gcloud@master
@@ -48,4 +48,4 @@ jobs:
         CLI: gsutil
       with:
         args: 
-          cp ./dist/index.js gs://farmer-hosting/$PULL_NUMBER/index.js
+          cp ./dist/index.js gs://farmer-hosting/pr/$PULL_NUMBER/index.js
