@@ -24,6 +24,7 @@ jobs:
         node-version: 12.x
     - run: npm install
     - run: npm run build
+    - run: PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
       
     - uses: actions-hub/gcloud@master
       env:
@@ -31,7 +32,9 @@ jobs:
         APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         CLI: gsutil
       with:
-        args: cp index.html gs://farmer-hosting/index.html
+        args: |
+          cp ./dist/index.html gs://farmer-hosting/index.html
+          cp ./dist/index.js gs://farmer-hosting/index.js
 
     # Runs a single command using the runners shell
     - name: Run a one-line script
