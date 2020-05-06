@@ -3,7 +3,7 @@
 name: CI
 on:
   push:
-    branches: [ develop ]
+    branches: [ issue/48 ]
   pull_request:
     branches: [ develop ]
 
@@ -17,9 +17,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     - uses: actions/checkout@v2
-
-    - name: Google Cloud Platform (GCP) CLI - gcloud
-      uses: actions-hub/gcloud@289.0.0
+      
+    - uses: actions-hub/gcloud@master
+      env:
+        PROJECT_ID: farmers-anonymous
+        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
     # Runs a single command using the runners shell
     - name: Run a one-line script
