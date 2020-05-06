@@ -9,6 +9,10 @@ export class Bullet {
 
     /**
      * Constructor.
+     * @param spawnPosition The position to spawn the bullet at.
+     * @param speed The speed at which the bullet will travel. Scaled by delta time.
+     * @param direction The direction the bullet will travel in.
+     * @param timelimit The time in seconds before the bullet will dispose itself and disappear.
      */
     constructor(spawnPosition: Vector3, speed: number, direction: Vector3, timelimit: number) {
         this.#_mesh = MeshBuilder.CreateSphere('Bullet', { diameter: 0.15 });
@@ -16,7 +20,7 @@ export class Bullet {
 
         BabylonStore.scene.registerBeforeRender(() => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
-            this.#_mesh.translate(direction.scale(deltaTime), speed);
+            this.#_mesh.translate(direction, speed * deltaTime);
         });
 
         // Setup the material for the bullet.
