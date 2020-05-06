@@ -32,9 +32,17 @@ jobs:
         APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         CLI: gsutil
       with:
-        args: |
-          cp ./dist/index.html gs://farmer-hosting/index.html
-          cp ./dist/index.js gs://farmer-hosting/index.js
+        args:
+          cp ./dist/index.html gs://farmer-hosting/$PR_NUMBER/index.html
+          
+    - uses: actions-hub/gcloud@master
+      env:
+        PROJECT_ID: farmers-anonymous
+        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        CLI: gsutil
+      with:
+        args: 
+          cp ./dist/index.js gs://farmer-hosting/$PR_NUMBER/index.js
 
     # Runs a single command using the runners shell
     - name: Run a one-line script
