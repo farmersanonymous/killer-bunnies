@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: issue/48
+    branches: develop
 
 jobs:
   build:
