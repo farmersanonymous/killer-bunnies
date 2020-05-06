@@ -1,4 +1,4 @@
-import { ExecuteCodeAction, ActionManager, Vector2, Vector3, Matrix, GamepadManager, GenericPad } from 'babylonjs';
+import { ExecuteCodeAction, ActionManager, Vector2, Vector3, Matrix, GamepadManager, GenericPad, Xbox360Pad, DualShockPad } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { Farmer } from './farmer';
 
@@ -19,6 +19,12 @@ export class CharacterController {
         BabylonStore.scene.actionManager.registerAction(new ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, (evt) => {
             keyMap.set(evt.sourceEvent.key, evt.sourceEvent.type === 'keydown');
         }));
+        BabylonStore.scene.onPointerDown = (evt): void => {
+            keyMap.set('pointerDown', true && evt.pointerType === 'mouse' && evt.button === 0);
+        };
+        BabylonStore.scene.onPointerUp = (): void => {
+            keyMap.set('pointerDown', false);
+        };
 
         // Callback whenever the pointer has been moved. TODO: Figure out a better way to handle this. 
         // The player can move without moving the mouse, which won't update the rotation of the player.
@@ -53,6 +59,10 @@ export class CharacterController {
             if (keyMap.get('d') || keyMap.get('D')) {
                 x += 1;
             }
+            if(keyMap.get('pointerDown')) {
+                // Spawn bullet.
+                player.fire();
+            }
 
             // If a game pad exists, handle input.
             if (genericPad) {
@@ -62,6 +72,13 @@ export class CharacterController {
                 }
                 if (genericPad.leftStick.y > 0.1 || genericPad.leftStick.y < -0.1) {
                     y = -genericPad.leftStick.y;
+                }
+
+                // Fires the gun on xbox360 and dual shock controllers. Other controllers are unsupported.
+                if(genericPad instanceof Xbox360Pad || genericPad instanceof DualShockPad) {
+                    if(genericPad.rightTrigger > 0.5) {
+                        player.fire();
+                    }
                 }
 
                 // 0.5 is used to handle any quick twitches that happen when doing fast rotations, might need to tweak still.
@@ -77,6 +94,12 @@ export class CharacterController {
         });
     }
 
+    /**
+     * Event that will get fired whenever the controller is notified to move, based on the platform and device.
+     */
     public onMove: (dir: Vector2) => void;
+    /**
+     * Event that will get fired whenever the controller is notified to rotate, based on the platform and device.
+     */
     public onRotate: (dir: Vector2) => void;
 }
