@@ -28,7 +28,6 @@ jobs:
       
     - name: Build
       run: npm run build
-    - run: PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
       
     - name: Upload index.html
       uses: actions-hub/gcloud@master
@@ -38,7 +37,7 @@ jobs:
         CLI: gsutil
       with:
         args:
-          cp ./dist/index.html gs://farmer-hosting/pr/$PULL_NUMBER/index.html
+          cp ./dist/index.html gs://farmer-hosting/prs/$PULL_NUMBER/index.html
     
     - name: Upload index.js
       uses: actions-hub/gcloud@master
@@ -48,4 +47,4 @@ jobs:
         CLI: gsutil
       with:
         args: 
-          cp ./dist/index.js gs://farmer-hosting/pr/$PULL_NUMBER/index.js
+          cp ./dist/index.js gs://farmer-hosting/prs/$PULL_NUMBER/index.js
