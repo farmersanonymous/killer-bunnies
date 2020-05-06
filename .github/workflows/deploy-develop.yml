@@ -1,5 +1,7 @@
 name: CI
-on: pull_request
+on:
+  push:
+    branches: issue/48
 
 jobs:
   build:
@@ -8,15 +10,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      
-    - name: Get Pull Request Number
-      uses: actions/github-script@0.3.0
-      with:
-        github-token: ${{github.token}}
-        script: |
-          const core = require('@actions/core')
-          const prNumber = context.payload.number;
-          core.exportVariable('PULL_NUMBER', prNumber);
       
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
@@ -28,7 +21,6 @@ jobs:
       
     - name: Build
       run: npm run build
-    - run: PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
       
     - name: Upload index.html
       uses: actions-hub/gcloud@master
