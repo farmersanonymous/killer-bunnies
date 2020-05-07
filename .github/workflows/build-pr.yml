@@ -1,0 +1,50 @@
+name: build-pr
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Get Pull Request Number
+      uses: actions/github-script@0.3.0
+      with:
+        github-token: ${{github.token}}
+        script: |
+          const core = require('@actions/core')
+          const prNumber = context.payload.number;
+          core.exportVariable('PULL_NUMBER', prNumber);
+      
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+        
+    - name: NPM Install
+      run: npm install
+      
+    - name: Build
+      run: npm run build
+      
+    - name: Upload index.html
+      uses: actions-hub/gcloud@master
+      env:
+        PROJECT_ID: farmers-anonymous
+        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        CLI: gsutil
+      with:
+        args:
+          cp ./dist/index.html gs://farmer-hosting/prs/$PULL_NUMBER/index.html
+    
+    - name: Upload index.js
+      uses: actions-hub/gcloud@master
+      env:
+        PROJECT_ID: farmers-anonymous
+        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        CLI: gsutil
+      with:
+        args: 
+          cp ./dist/index.js gs://farmer-hosting/prs/$PULL_NUMBER/index.js
