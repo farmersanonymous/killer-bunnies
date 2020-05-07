@@ -2,6 +2,7 @@ import { Vector3, ActionManager } from 'babylonjs';
 import { BabylonStore } from './store/babylonStore';
 import { ProxyGround } from './environment/proxyGround';
 import { Farmer } from './player/farmer';
+import { Radar } from './ui/radar';
 
 /**
  * The entrypoint for the game.
@@ -19,6 +20,8 @@ export class Game {
 
         BabylonStore.createCamera('mainCamera', new Vector3(0, 15, -5), BabylonStore.scene);
         BabylonStore.camera.setTarget(Vector3.Zero());
+
+        new Radar();
 
         new ProxyGround('ground', 20, 20);
         new Farmer();
