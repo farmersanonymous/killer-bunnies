@@ -1,7 +1,8 @@
-import { MeshBuilder, Mesh, Vector2, Vector3, Color3, PBRMaterial, Angle, Space } from 'babylonjs';
+import { MeshBuilder, Mesh, Vector2, Vector3, Color3, PBRMaterial, Angle } from 'babylonjs';
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
+import { CollisionGroup } from '../util/collisionGroup';
 
 /**
  * The playable Farmer character.
@@ -16,9 +17,14 @@ export class Farmer {
      * Constructor.
      */
     constructor() {
-        // Proxy meshes. Probably even pre-proxy, I mean...they're primitives...
-        this.#_mesh = MeshBuilder.CreateCylinder('Farmer', { });
-        this.#_gun = MeshBuilder.CreateCylinder('Gun', { diameter: 0.25, height: 1 });
+        // The mesh is a player and can collide with the environment.
+        this.#_mesh = MeshBuilder.CreateCylinder('farmer', { });
+        this.#_mesh.checkCollisions = true;
+        this.#_mesh.collisionGroup = CollisionGroup.Player;
+        this.#_mesh.collisionMask = CollisionGroup.Environment;
+
+        // The gun gets parented to the farmer and will rotate as the farmer rotates.
+        this.#_gun = MeshBuilder.CreateCylinder('gun', { diameter: 0.25, height: 1 });
         this.#_gun.translate(Vector3.Forward(), 1);
         this.#_gun.addRotation(Angle.FromDegrees(90).radians(), 0, 0);
         this.#_gun.parent = this.#_mesh;
@@ -37,7 +43,7 @@ export class Farmer {
         this.#_controller = new CharacterController(this);
         this.#_controller.onMove = (dir): void => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
-            this.#_mesh.translate(new Vector3(dir.x * deltaTime * 5, 0, dir.y * deltaTime * 5), 1, Space.WORLD);
+            this.#_mesh.moveWithCollisions(new Vector3(dir.x, 0, dir.y).scale(5 * deltaTime));
         };
         this.#_controller.onRotate = (dir): void => {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
