@@ -61,11 +61,7 @@ module.exports = (env, argv) => {
         }
 
         config.resolve = {
-            extensions: ['.ts', '.tsx', '.jsx', '.js', '.json'],
-            alias: {
-                babylonjs: path.resolve(__dirname, 'node_modules/babylonjs/babylon.max.js'),
-                'babylonjs-loaders': path.resolve(__dirname, 'node_modules/babylonjs-loaders/babylonjs-loaders.js')
-            }
+            extensions: ['.ts', '.tsx', '.jsx', '.js', '.json']
         }
 
         config.devtool = 'inline-source-map';
