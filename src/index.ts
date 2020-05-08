@@ -27,8 +27,6 @@ export class Game {
         // Create the player.
         new Farmer();
 
-        BabylonStore.scene.debugLayer.show({ embedMode: true })
-
         window.addEventListener('resize', () => {
             BabylonStore.engine.resize();
         });
