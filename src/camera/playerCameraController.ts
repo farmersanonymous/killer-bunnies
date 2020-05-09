@@ -41,7 +41,7 @@ export class PlayerCameraController {
         mesh.position = this.#_softTarget;
         const material = new PBRMaterial('targetMaterial', BabylonStore.scene);
         material.emissiveColor = Color3.Green();
-        material.alpha = 0.5;
+        material.alpha = 0;
         mesh.material = material;
 
         this.#_camera = BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, this.#_player.position, BabylonStore.scene, true);
