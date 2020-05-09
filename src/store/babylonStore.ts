@@ -1,4 +1,4 @@
-import { Engine, Scene, UniversalCamera} from 'babylonjs';
+import { Engine, Scene, ArcRotateCamera} from 'babylonjs';
 
 /**
  * Stores Babylon references in one place so that they can be retreived from multiple classes.
@@ -8,7 +8,7 @@ export class BabylonStore {
 
     #_engine: Engine;
     #_scene: Scene;
-    #_camera: UniversalCamera;   
+    #_camera: ArcRotateCamera;   
     
     private constructor() {
         BabylonStore._instance = this;
@@ -62,14 +62,16 @@ export class BabylonStore {
      * Creates a Babylon camera.
      * @param args The arguments for the camera.
      */
-    public static createCamera(...args: ConstructorParameters<typeof UniversalCamera>): void {
-        this.getInstance().#_camera = new UniversalCamera(...args);
+    public static createCamera(...args: ConstructorParameters<typeof ArcRotateCamera>): ArcRotateCamera {
+        this.getInstance().#_camera = new ArcRotateCamera(...args);
+
+        return this.camera;
     }
     /**
      * Gets the created Babylon camera. This is the main camera of the scene.
      * @returns The Babylon Camera.
      */
-    public static get camera(): UniversalCamera {
+    public static get camera(): ArcRotateCamera {
         return this.getInstance().#_camera;
     }
     /**
