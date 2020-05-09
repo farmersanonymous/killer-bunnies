@@ -24,14 +24,14 @@ export class Game {
         BabylonStore.camera.setTarget(Vector3.Zero());
 
         new HemisphericLight("light1", new Vector3(0, 1, 0), BabylonStore.scene);
-        Garden.create('https://storage.googleapis.com/farmer-assets/garden/Environment.gltf');
+        Spawner.create('Garden', 'https://storage.googleapis.com/farmer-assets/garden/Environment.gltf').then(() => {
+            new Garden();
+        });
 
         // Create the player.
         Spawner.create('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/2/Farmer_high.gltf').then(() => {
             new Farmer();
         });
-
-        BabylonStore.scene.debugLayer.show({embedMode: true})
 
         window.addEventListener('resize', () => {
             BabylonStore.engine.resize();
