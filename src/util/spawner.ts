@@ -2,6 +2,15 @@ import { SceneLoader, AssetContainer, InstantiatedEntries } from "babylonjs";
 import 'babylonjs-loaders';
 import { BabylonStore } from '../store/babylonStore';
 
+interface GLTFFile {
+    buffers: GLTFBuffer[];
+}
+
+interface GLTFBuffer {
+    uri: string;
+    byteLength: number;
+}
+
 /**
  * Controlls spawning imported assets.
  */
@@ -35,9 +44,26 @@ export class Spawner {
      * @param onProgress An optional progress callback that will return a number between 0 and 1.
      * @returns A promise that will return a Spawner when it resolves.
      */
-    public static async create(name: string, url: string, onProgress?: (progress: number) => { }): Promise<Spawner> {
+    public static async create(name: string, url: string, onProgress?: (progress: number) => void): Promise<Spawner> {
+        const gltfRequest = new XMLHttpRequest();
+        gltfRequest.open('GET', url);
+        gltfRequest.send();
+        const gltfData: string = await new Promise((resolve) => {
+            gltfRequest.onload = (): void => {
+                resolve(gltfRequest.responseText);
+            };
+        });
+        const gltf: GLTFFile = JSON.parse(gltfData);
+        const byteLengths = gltf.buffers.map(b => b.byteLength);
+        byteLengths.push(parseInt(gltfRequest.getResponseHeader('content-length')));
+        const totalBuffer: number = byteLengths.reduce((acc: number, curr: number) => { return acc + curr; });
+
+        let currentBuffer = 0;
         const assetContainer = await SceneLoader.LoadAssetContainerAsync(url, '', BabylonStore.scene, (evt) => {
-            onProgress?.call(this, evt.loaded / evt.total);
+            onProgress?.call(this, (currentBuffer + evt.loaded) / totalBuffer);
+            if(evt.loaded === evt.total) {
+                currentBuffer += evt.loaded;
+            }
         });
         return new Spawner(name, assetContainer);
     }
