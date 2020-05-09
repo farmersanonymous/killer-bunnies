@@ -1,8 +1,9 @@
-import { MeshBuilder, Mesh, Vector2, Vector3, Color3, PBRMaterial, Angle } from 'babylonjs';
+import { Mesh, Vector2, Vector3, Angle } from 'babylonjs';
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
 import { CollisionGroup } from '../util/collisionGroup';
+import { Spawner } from '../util/spawner';
 
 /**
  * The playable Farmer character.
@@ -10,44 +11,32 @@ import { CollisionGroup } from '../util/collisionGroup';
 export class Farmer {
     #_controller: CharacterController;
     #_mesh: Mesh;
-    #_gun: Mesh;
+    // Waiting for final gun mesh.
+    // #_gun: Mesh;
     #_gunCooldown = false;
 
     /**
      * Constructor.
      */
-    constructor() {
+    public constructor() {
         // The mesh is a player and can collide with the environment.
-        this.#_mesh = MeshBuilder.CreateCylinder('farmer', { });
+        const spawner = Spawner.getSpawner('Farmer');
+        const instance = spawner.instantiate();
+        this.#_mesh = instance.rootNodes[0].getChildMeshes(false)[0] as Mesh;
         this.#_mesh.checkCollisions = true;
         this.#_mesh.collisionGroup = CollisionGroup.Player;
         this.#_mesh.collisionMask = CollisionGroup.Environment;
-
-        // The gun gets parented to the farmer and will rotate as the farmer rotates.
-        this.#_gun = MeshBuilder.CreateCylinder('gun', { diameter: 0.25, height: 1 });
-        this.#_gun.translate(Vector3.Forward(), 1);
-        this.#_gun.addRotation(Angle.FromDegrees(90).radians(), 0, 0);
-        this.#_gun.parent = this.#_mesh;
-
-        // Setup the material for the farmer.
-        const farmerMaterial = new PBRMaterial('farmerMaterial', BabylonStore.scene);
-        farmerMaterial.emissiveColor = Color3.Blue();
-        this.#_mesh.material = farmerMaterial;
-
-        // Setup the material for the farmer's gun.
-        const farmerGunMaterial = new PBRMaterial('farmerGunMaterial', BabylonStore.scene);
-        farmerGunMaterial.emissiveColor = Color3.Purple();
-        this.#_gun.material = farmerGunMaterial;
+        this.#_mesh.ellipsoid = new Vector3(1, 2, 1);
 
         // Initialize the character controller and subscribe to the onMove and onRotate methods.
         this.#_controller = new CharacterController(this);
         this.#_controller.onMove = (dir): void => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
-            this.#_mesh.moveWithCollisions(new Vector3(dir.y, 0, -dir.x).scale(5 * deltaTime));
+            this.#_mesh.moveWithCollisions(new Vector3(dir.y, 0, dir.x).scale(5 * deltaTime));
         };
         this.#_controller.onRotate = (dir): void => {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
-            this.#_mesh.rotation = new Vector3(0, Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians(), 0);
+            this.#_mesh.rotation = new Vector3(Angle.FromDegrees(90).radians(), -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(180).radians(), 0);
         }
     }
 
@@ -59,7 +48,7 @@ export class Farmer {
             return;
         }
 
-        new Bullet(this.position.add(this.#_mesh.forward.scale(1.5)), 20, this.#_mesh.forward, 5);
+        new Bullet(this.position.add(this.#_mesh.forward.scale(1.5)), 30, this.#_mesh.up, 5);
         this.#_gunCooldown = true;
         window.setTimeout(() => {
             this.#_gunCooldown = false;
