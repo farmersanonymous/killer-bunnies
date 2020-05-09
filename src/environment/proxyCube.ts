@@ -18,10 +18,16 @@ export class ProxyCube {
         mesh.checkCollisions = true;
         mesh.collisionGroup = CollisionGroup.Environment;
         mesh.collisionMask = CollisionGroup.Player | CollisionGroup.Enemy | CollisionGroup.Bullet;
+        // mesh.isVisible = false;
 
         // Create a box material for the ProxyCube.
         const boxMaterial = new PBRMaterial('boxMaterial', BabylonStore.scene);
         boxMaterial.emissiveColor = Color3.White();
         mesh.material = boxMaterial;
+
+        const colliderMesh = MeshBuilder.CreateIcoSphere('icotest', { radiusX: mesh.ellipsoid.x, radiusY: mesh.ellipsoid.y, radiusZ: mesh.ellipsoid.z }, BabylonStore.scene);
+        colliderMesh.material = new PBRMaterial('colliderMesh', BabylonStore.scene);
+        colliderMesh.material.wireframe = true;
+        // colliderMesh.parent = mesh;
     }
 }
