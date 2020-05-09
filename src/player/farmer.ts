@@ -1,4 +1,4 @@
-import { Mesh, Vector2, Vector3, Angle } from 'babylonjs';
+import { Mesh, Vector2, Vector3, Angle, Scalar } from 'babylonjs';
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
@@ -16,16 +16,18 @@ export class Farmer {
     #_gunCooldown = false;
 
     // Stats
+    // The max health of the Farmer. Current health will be reset at the beginning of each round to max health.
+    #_maxHealth = 100;
     // The amount of health the Farmer has.
-    #_health: number;
-    // How fast the Farmer will travel m/ps.
-    #_movementSpeed: number;
+    #_health = this.#_maxHealth;
+    // How fast the Farmer will travel m/s.
+    #_movementSpeed = 5;
     // The amount of damage each bullet will do.
-    #_damage: number;
+    #_weaponDamage = 10;
     // How many seconds the bullets will last on screen before they are destroyed.
-    #_weaponRange: number;
-    // How fast the bullets will travel m/ps.
-    #_weaponSpeed: number;
+    #_weaponRange = 5;
+    // How fast the bullets will travel m/s.
+    #_weaponSpeed = 20;
 
     /**
      * Constructor.
@@ -44,7 +46,7 @@ export class Farmer {
         this.#_controller = new CharacterController(this);
         this.#_controller.onMove = (dir): void => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
-            this.#_mesh.moveWithCollisions(new Vector3(dir.y, 0, dir.x).scale(5 * deltaTime));
+            this.#_mesh.moveWithCollisions(new Vector3(dir.y, 0, dir.x).scale(this.movementSpeed * deltaTime));
         };
         this.#_controller.onRotate = (dir): void => {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
@@ -60,11 +62,98 @@ export class Farmer {
             return;
         }
 
-        new Bullet(this.position.add(this.#_mesh.forward.scale(1.5)), 30, this.#_mesh.up, 5);
+        new Bullet(this.position.add(this.#_mesh.forward.scale(1.5)), this.weaponSpeed, this.#_mesh.up, this.weaponRange);
         this.#_gunCooldown = true;
         window.setTimeout(() => {
             this.#_gunCooldown = false;
         }, 250);
+    }
+
+    /**
+     * The maximum amount of health the Farmer can have. The Farmer's health gets reset to maxHealth at the end of each round.
+     * @returns The max health of the Farmer.
+     */
+    public get maxHealth(): number {
+        return this.#_maxHealth;
+    }
+    /**
+     * The amount of health the Farmer has. If his health reaches 0, it's game over!
+     * @returns The health of the Farmer.
+     */
+    public get health(): number {
+        return this.#_health;
+    }
+    /**
+     * The movement speed of the Farmer in m/s.
+     * @returns The movement speed of the Farmer.
+     */
+    public get movementSpeed(): number {
+        return this.#_movementSpeed;
+    }
+    /**
+     * The amount of damage each bullet will do to an enemy.
+     * @returns The amount of damage each bullet will do.
+     */
+    public get weaponDamage(): number {
+        return this.#_weaponDamage;
+    }
+    /**
+     * How many seconds the bullets will last on screen before they are destroyed.
+     * @returns The amount of seconds each bullet will last on screen.
+     */
+    public get weaponRange(): number {
+        return this.#_weaponRange;
+    }
+    /**
+     * How fast each bullet will travel in m/s.
+     * @returns The speed at which each bullet will travel.
+     */
+    public get weaponSpeed(): number {
+        return this.#_weaponSpeed;
+    }
+
+    /**
+     * Increase or decrease the current max health of the Farmer.
+     * @param value The amount of max health to increase/decrease.
+     */
+    public modifyMaxHealth(value: number): void {
+        this.#_maxHealth += value;
+        this.modifyHealth(this.health);
+    }
+    /**
+     * Increase or decrease the current health of the Farmer.
+     * @param value The amount of health to increase/decrease.
+     */
+    public modifyHealth(value: number): void {
+        this.#_health = Scalar.Clamp(this.#_health + value, 0, this.maxHealth);
+    }
+    /**
+     * Increase or decrease the movement speed of the Farmer.
+     * @param value The amount of movement speed to increase/decrease.
+     */
+    public modifyMovementSpeed(value: number): void {
+        this.#_movementSpeed += value;
+    }
+    /**
+     * Increase or decrease the weapon damage of the Farmer.
+     * @param value The amount of weapon damage to increase/decrease.
+     */
+    public modifyWeaponDamage(value: number): void {
+        this.#_weaponDamage += value;
+    }
+    /**
+     * Increase or decrease the weapon range of the Farmer.
+     * @param value The amount of weapon range to increease/decrease.
+     */
+    public modifyWeaponRange(value: number): void {
+        this.#_weaponRange += value;
+    }
+    /**
+     * Increase or decrease the weapon speed of the Farmer.
+     * @param value The amount of weapon speed to increase/decrease.
+     */
+    public modifyWeaponSpeed(value: number): void {
+        this.#_weaponSpeed += value;
     }
 
     /**
