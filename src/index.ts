@@ -1,8 +1,7 @@
 import { Vector3, ActionManager, HemisphericLight } from 'babylonjs';
 import { BabylonStore } from './store/babylonStore';
-import { ProxyGround } from './environment/proxyGround';
-import { ProxyCube } from './environment/proxyCube';
 import { Spawner } from './util/spawner';
+import { Garden } from './environment/garden';
 import { Farmer } from './player/farmer';
 
 /**
@@ -21,17 +20,11 @@ export class Game {
         BabylonStore.scene.collisionsEnabled = true;
         BabylonStore.scene.useRightHandedSystem = true;
 
-        BabylonStore.createCamera('mainCamera', new Vector3(0, 15, -5), BabylonStore.scene);
+        BabylonStore.createCamera('mainCamera', new Vector3(-15, 100, 0), BabylonStore.scene);
         BabylonStore.camera.setTarget(Vector3.Zero());
 
         new HemisphericLight("light1", new Vector3(0, 1, 0), BabylonStore.scene);
-
-        // Pre-proxy environment.
-        new ProxyGround('ground', 20, 20);
-        new ProxyCube('cube1', new Vector3(5, 0, 5), 2);
-        new ProxyCube('cube2', new Vector3(-5, 0, 5), 2);
-        new ProxyCube('cube3', new Vector3(-5, 0, -5), 2);
-        new ProxyCube('cube4', new Vector3(5, 0, -5), 2);
+        Garden.create('https://storage.googleapis.com/farmer-assets/garden/Environment.gltf');
 
         // Create the player.
         Spawner.create('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/2/Farmer_high.gltf').then(() => {

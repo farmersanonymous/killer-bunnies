@@ -32,11 +32,11 @@ export class Farmer {
         this.#_controller = new CharacterController(this);
         this.#_controller.onMove = (dir): void => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
-            this.#_mesh.moveWithCollisions(new Vector3(-dir.x, 0, dir.y).scale(5 * deltaTime));
+            this.#_mesh.moveWithCollisions(new Vector3(dir.y, 0, dir.x).scale(5 * deltaTime));
         };
         this.#_controller.onRotate = (dir): void => {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
-            this.#_mesh.rotation = new Vector3(Angle.FromDegrees(90).radians(), -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() + Angle.FromDegrees(90).radians(), 0);
+            this.#_mesh.rotation = new Vector3(Angle.FromDegrees(90).radians(), -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(180).radians(), 0);
         }
     }
 

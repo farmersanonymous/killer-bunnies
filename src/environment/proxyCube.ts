@@ -9,16 +9,16 @@ export class ProxyCube {
     /**
      * Constructor.
      * @param name The name of the cube to create.
-     * @param size The size of the cube to create. The width, height, and depth will all be the same.
+     * @param size The size of the cube to create. width = x, height = y, depth = z.
      */
-    constructor(name: string, position: Vector3, size: number) {
-        // The mesh is an environment and can collide with the player, enemy, or bullet.
-        const mesh = MeshBuilder.CreateBox(name, { size: size });
+    constructor(name: string, position: Vector3, size: Vector3) {
+        // The mesh is an environment and can collide with the player, enemy, or bullet. Will be hidden from the scene.
+        const mesh = MeshBuilder.CreateBox(name, { width: size.x, height: size.y, depth: size.z });
         mesh.position = position;
         mesh.checkCollisions = true;
         mesh.collisionGroup = CollisionGroup.Environment;
         mesh.collisionMask = CollisionGroup.Player | CollisionGroup.Enemy | CollisionGroup.Bullet;
-        // mesh.isVisible = false;
+        mesh.isVisible = false;
 
         // Create a box material for the ProxyCube.
         const boxMaterial = new PBRMaterial('boxMaterial', BabylonStore.scene);
