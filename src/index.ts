@@ -2,6 +2,7 @@ import { Vector3, ActionManager, HemisphericLight } from 'babylonjs';
 import { BabylonStore } from './store/babylonStore';
 import { Garden } from './environment/garden';
 import { Farmer } from './player/farmer';
+import { PlayerCameraController } from './camera/playerCameraController';
 
 /**
  * The entrypoint for the game.
@@ -18,14 +19,12 @@ export class Game {
         BabylonStore.scene.actionManager = new ActionManager(BabylonStore.scene);
         BabylonStore.scene.collisionsEnabled = true;
 
-        BabylonStore.createCamera('mainCamera', new Vector3(-15, 100, 0), BabylonStore.scene);
-        BabylonStore.camera.setTarget(Vector3.Zero());
-
         new HemisphericLight("light1", new Vector3(0, 1, 0), BabylonStore.scene);
         Garden.create('https://storage.googleapis.com/farmer-assets/garden/Environment.gltf');
 
         // Create the player.
-        new Farmer();
+        const player = new Farmer();
+        new PlayerCameraController(player);
 
         window.addEventListener('resize', () => {
             BabylonStore.engine.resize();
