@@ -78,6 +78,7 @@ export class Farmer {
      */
     public dispose(): void {
         this.#_mesh.dispose();
+        this.#_camera.dispose();
     }
 
     /**

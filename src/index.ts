@@ -2,7 +2,7 @@ import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader } from 'ba
 import { BabylonStore } from './store/babylonStore';
 import { Loader } from './util/loader';
 import { Input } from './util/input';
-import { Farmer } from './player/farmer';
+import { Game } from './game';
 
 /**
  * Callback that will get triggered when the loading screen is to show. Also shows progress through a progress bar.
@@ -10,7 +10,7 @@ import { Farmer } from './player/farmer';
 function showLoadingScreenCallback(): void {
     // If splashDiv exists, reset the splash to default.
     let splashDiv = document.getElementById('splashDiv');
-    if(splashDiv) {
+    if (splashDiv) {
         splashDiv.style.opacity = '1';
         return;
     }
@@ -75,20 +75,25 @@ function hideLoadingScreenCallback(): void {
  * Bootstraps and initializes all the processes that are required in order to start the game.
  */
 export class Bootstrap {
-    #_render = false;
+    #_game: Game;
+    #_canvas: HTMLCanvasElement;
 
     /**
      * Constructor.
      * @param canvas The canvas element used to initialize the Babylon engine.
      */
     constructor(canvas: HTMLCanvasElement) {
-        // Create the Babylon Engine.
+        // Create the Babylon Engine. Need to set the opacity to '0' or '1' in order to show the splash screen, otherwise Babylon likes to freak out.
         BabylonStore.createEngine(canvas);
+        this.#_canvas = canvas;
+        this.#_canvas.style.opacity = '0';
 
         // Create the Babylon Scene. Enable collisions and make sure to use right-handed (OpenGL) coordinate system.
         BabylonStore.createScene(BabylonStore.engine);
         BabylonStore.scene.collisionsEnabled = true;
         BabylonStore.scene.useRightHandedSystem = true;
+
+        BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, Vector3.Zero(), BabylonStore.scene, true);
 
         // Create a default light for the scene. A light is needed for the PBR materials that we will be downloading later.
         new HemisphericLight("light1", new Vector3(0, 1, 0), BabylonStore.scene);
@@ -101,7 +106,7 @@ export class Bootstrap {
 
         // Initialilze the input system. Used for mouse/keyboard, gamepad, and touch.
         Input.init();
-        
+
         // Adds the files that need to be downloaded into the loader.
         Loader.addDownload('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/2/Farmer_high.gltf');
         Loader.addDownload('Garden', 'https://storage.googleapis.com/farmer-assets/garden/Environment.gltf');
@@ -118,20 +123,21 @@ export class Bootstrap {
             anyKeyDiv.style.display = '';
             const borderBarDiv = document.getElementById('borderBarDiv');
             borderBarDiv.style.display = 'none';
-            new Farmer();
-            console.log(BabylonStore.scene.actionManager);
-            // Callback that will get triggered when any key/button/finger (mouse/keyboard, gamepad, or touch) is pressed down.
+
+            // Checks for any button/key input for getting passed the splash screen.
             Input.onAnyDown = (): void => {
-                console.log("ANY KEY!");
-                this.#_render = true;
+                this.#_game = new Game(this, this._onGameOver);
                 BabylonStore.engine.hideLoadingUI();
-                // Input.onAnyDown = null;
+                Input.onAnyDown = null;
+                this.#_canvas.style.opacity = '1';
             }
         });
 
+        BabylonStore.scene.debugLayer.show({embedMode: true});
+
         // Event listener to resize the engine when the window is resized.
         window.addEventListener('resize', () => {
-            if(this.#_render) {
+            if (this.#_canvas.style.display != 'none') {
                 BabylonStore.engine.resize();
             }
         });
@@ -143,9 +149,28 @@ export class Bootstrap {
     public run(): void {
         // Runs the render loop for the Babylon Engine. We only have one scene, so render that.
         BabylonStore.engine.runRenderLoop(() => {
-            if(this.#_render) {
+            if (this.#_canvas.style.display != 'none') {
                 BabylonStore.scene.render();
             }
         });
+    }
+
+    private _onGameOver(): void {
+        // Removes the old game and gets ready to start the next one.
+        this.#_game.dispose();
+        this.#_game = null;
+        this.#_canvas.style.opacity = '0';
+
+        // Show splash screen and wait 3 seconds before allowing input again.
+        BabylonStore.engine.displayLoadingUI();
+        setTimeout(() => {
+            Input.onAnyDown = (): void => {
+                this.#_game = new Game(this, this._onGameOver);
+                BabylonStore.engine.hideLoadingUI();
+                Input.onAnyDown = null;
+                this.#_canvas.style.opacity = '1';
+            }
+        }, 3000)
+
     }
 }

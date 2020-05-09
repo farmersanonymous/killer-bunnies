@@ -2,12 +2,27 @@ import { SceneLoader, AssetContainer, InstantiatedEntries } from "babylonjs";
 import 'babylonjs-loaders';
 import { BabylonStore } from '../store/babylonStore';
 
+/**
+ * A GLTFFile interface. Used to deserialize a GLTF JSON string.
+ */
 interface GLTFFile {
+    /**
+     * A list of buffers that will need to be downloaded.
+     */
     buffers: GLTFBuffer[];
 }
 
+/**
+ * A GLTFBuffer interface. Used to deserialize a GLTF JSON string.
+ */
 interface GLTFBuffer {
+    /**
+     * The uri for the buffer that needs to be downloaded.
+     */
     uri: string;
+    /**
+     * The byte length of the buffer. Used for calculating total download size.
+     */
     byteLength: number;
 }
 
@@ -45,6 +60,10 @@ export class Spawner {
      * @returns A promise that will return a Spawner when it resolves.
      */
     public static async create(name: string, url: string, onProgress?: (progress: number) => void): Promise<Spawner> {
+        // Babylon doesn't have very good progress reporting. It only reports loaded/total of each file, but 
+        // there is no way to determine total amount of files or the total amount of bytes that need to be downloaded
+        // ahead of time. So we download the GLTF manually, read it's buffer contents, and use that for total download
+        // size needed.
         const gltfRequest = new XMLHttpRequest();
         gltfRequest.open('GET', url);
         gltfRequest.send();
@@ -58,6 +77,9 @@ export class Spawner {
         byteLengths.push(parseInt(gltfRequest.getResponseHeader('content-length')));
         const totalBuffer: number = byteLengths.reduce((acc: number, curr: number) => { return acc + curr; });
 
+        // Load an asset container from the server. We now have the total buffer size, so it's just a matter
+        // of calculating the total percentage based on each file that gets downloaded. When loaded and total
+        // are the same, we can assume that the next file is ready to be downloaded.
         let currentBuffer = 0;
         const assetContainer = await SceneLoader.LoadAssetContainerAsync(url, '', BabylonStore.scene, (evt) => {
             onProgress?.call(this, (currentBuffer + evt.loaded) / totalBuffer);

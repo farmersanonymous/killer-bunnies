@@ -1,6 +1,7 @@
 import { MeshBuilder, Mesh, Vector3, Color3, PBRMaterial } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { CollisionGroup } from '../util/collisionGroup';
+import { BabylonObserverStore } from '../store/babylonObserverStore';
 
 /**
  * A bullet that gets spawned by the Farmer.
@@ -36,7 +37,7 @@ export class Bullet {
         }, timelimit * 1000);
         
         // Update loop.
-        BabylonStore.scene.registerBeforeRender(() => {
+        BabylonObserverStore.registerBeforeRender(() => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
             this.#_mesh.moveWithCollisions(direction.scale(speed * deltaTime));
         });

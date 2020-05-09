@@ -2,6 +2,7 @@ import { Vector2, Vector3, Matrix } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { Farmer } from './farmer';
 import { Input } from '../util/input';
+import { BabylonObserverStore } from '../store/babylonObserverStore';
 
 /**
  * Handles input for the player character.
@@ -23,7 +24,7 @@ export class CharacterController {
             this.onRotate?.call(this, dir.normalize());
         }
 
-        BabylonStore.scene.registerAfterRender(() => {
+        BabylonObserverStore.registerAfterRender(() => {
             let x = 0;
             let y = 0;
             if (Input.isKeyDown('w') || Input.isKeyDown('W')) {
