@@ -9,6 +9,8 @@ import { PlayerCameraController } from './camera/playerCameraController';
  * The entrypoint for the game.
  */
 export class Game {
+    #_render = false;
+
     /**
      * Constructor.
      * @param canvas The canvas element used to initialize the Babylon engine.
@@ -28,12 +30,15 @@ export class Game {
 
         // Create the player.
         Spawner.create('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/2/Farmer_high.gltf').then(() => {
-            new Farmer();
+            const player = new Farmer();
             new PlayerCameraController(player);
+            this.#_render = true;
         });
 
         window.addEventListener('resize', () => {
-            BabylonStore.engine.resize();
+            if(this.#_render) {
+                BabylonStore.engine.resize();
+            }
         });
     }
 
@@ -42,7 +47,9 @@ export class Game {
      */
     public run(): void {
         BabylonStore.engine.runRenderLoop(() => {
-            BabylonStore.scene.render();
+            if(this.#_render) {
+                BabylonStore.scene.render();
+            }
         });
     }
 }
