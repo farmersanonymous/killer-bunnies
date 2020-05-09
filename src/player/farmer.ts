@@ -15,6 +15,18 @@ export class Farmer {
     // #_gun: Mesh;
     #_gunCooldown = false;
 
+    // Stats
+    // The amount of health the Farmer has.
+    #_health: number;
+    // How fast the Farmer will travel m/ps.
+    #_movementSpeed: number;
+    // The amount of damage each bullet will do.
+    #_damage: number;
+    // How many seconds the bullets will last on screen before they are destroyed.
+    #_weaponRange: number;
+    // How fast the bullets will travel m/ps.
+    #_weaponSpeed: number;
+
     /**
      * Constructor.
      */
