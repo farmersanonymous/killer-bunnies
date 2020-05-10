@@ -3,6 +3,8 @@ import { Garden } from './environment/garden';
 import { Bootstrap } from './index';
 import { BabylonObserverStore } from './store/babylonObserverStore';
 import { GUIManager } from './ui/guiManager';
+import { Burrow } from './environment/burrow';
+import { Vector3, Scalar } from 'babylonjs';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -22,10 +24,10 @@ export class Game {
         this.#_garden = new Garden();
         this.#_gui = new GUIManager();
 
-        // Temporary Game Loop test. Since we do not have any way to die, you can move around in the scene for 30 seconds before you "die" and get sent back to the splash screen.
+        // Temporary spawning code. Will spawn a Burrow every five second randomly throughout the map.
         const interval = setInterval(() => {
-            this.#_player.modifyHealth(-1);
-        }, 250);
+            new Burrow(new Vector3(Scalar.RandomRange(-20, 20), 1, Scalar.RandomRange(-30, 30)), Scalar.RandomRange(1, 5), Scalar.RandomRange(30, 60));
+        }, 5000);
 
         // Checks to see if the player's health hits 0. If it does, it's GAME OVER!!!
         BabylonObserverStore.registerBeforeRender(() => {
