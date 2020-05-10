@@ -4,12 +4,14 @@ import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
 import { CollisionGroup } from '../util/collisionGroup';
 import { Spawner } from '../util/spawner';
+import { PlayerCameraController } from '../camera/playerCameraController';
 
 /**
  * The playable Farmer character.
  */
 export class Farmer {
     #_controller: CharacterController;
+    #_camera: PlayerCameraController;
     #_mesh: Mesh;
     // Waiting for final gun mesh.
     // #_gun: Mesh;
@@ -52,6 +54,8 @@ export class Farmer {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
             this.#_mesh.rotation = new Vector3(Angle.FromDegrees(90).radians(), -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(180).radians(), 0);
         }
+        // Initialize the camera.
+        this.#_camera = new PlayerCameraController(this);
     }
 
     /**
@@ -67,6 +71,14 @@ export class Farmer {
         window.setTimeout(() => {
             this.#_gunCooldown = false;
         }, 250);
+    }
+
+    /**
+     * Release all resources associated with this Farmer.
+     */
+    public dispose(): void {
+        this.#_mesh.dispose();
+        this.#_camera.dispose();
     }
 
     /**

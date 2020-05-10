@@ -1,15 +1,16 @@
-﻿import { ArcRotateCamera, MeshBuilder, Color3, PBRMaterial, Vector3 } from 'babylonjs';
+﻿import { MeshBuilder, Color3, PBRMaterial, Vector3, Mesh } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { Farmer } from '../player/farmer';
+import { BabylonObserverStore } from '../store/babylonObserverStore';
 
 /**
  * Handles camera movement logic
  */
 export class PlayerCameraController {
-    #_camera: ArcRotateCamera;
     #_player: Farmer;
     #_softTarget: Vector3;
     #_targetRadius = 5;
+    #_mesh: Mesh;
 
     constructor(player: Farmer) {
         this.#_player = player;
@@ -17,7 +18,7 @@ export class PlayerCameraController {
         this._initializeCamera();
 
         // Update loop.
-        BabylonStore.scene.registerBeforeRender(() => {
+        BabylonObserverStore.registerBeforeRender(() => {
             const positiondifference = this.#_softTarget.subtract(this.#_player.position);
 
             const distance = positiondifference.length();
@@ -32,20 +33,26 @@ export class PlayerCameraController {
         });
     }
 
+    /**
+     * Release all resources associated with this PlayerCameraController.
+     */
+    public dispose(): void {
+        this.#_mesh.material.dispose();
+        this.#_mesh.dispose();
+    }
+
     private _initializeCamera(): void {
 
         this.#_softTarget = new Vector3(this.#_player.position.x, this.#_player.position.y, this.#_player.position.z);
 
-        const mesh = MeshBuilder.CreateCylinder('target', { height: 0.5, diameter: this.#_targetRadius * 2 });
-        mesh.checkCollisions = false;
-        mesh.position = this.#_softTarget;
+        this.#_mesh = MeshBuilder.CreateCylinder('target', { height: 0.5, diameter: this.#_targetRadius * 2 });
+        this.#_mesh.checkCollisions = false;
+        this.#_mesh.position = this.#_softTarget;
         const material = new PBRMaterial('targetMaterial', BabylonStore.scene);
         material.emissiveColor = Color3.Green();
         material.alpha = 0;
-        mesh.material = material;
+        this.#_mesh.material = material;
 
-        this.#_camera = BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, this.#_player.position, BabylonStore.scene, true);
-
-        this.#_camera.lockedTarget = this.#_softTarget;
+        BabylonStore.camera.lockedTarget = this.#_softTarget;
     }
 }
