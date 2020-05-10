@@ -62,10 +62,8 @@ export class BabylonStore {
      * Creates a Babylon camera.
      * @param args The arguments for the camera.
      */
-    public static createCamera(...args: ConstructorParameters<typeof ArcRotateCamera>): ArcRotateCamera {
+    public static createCamera(...args: ConstructorParameters<typeof ArcRotateCamera>): void {
         this.getInstance().#_camera = new ArcRotateCamera(...args);
-
-        return this.camera;
     }
     /**
      * Gets the created Babylon camera. This is the main camera of the scene.
