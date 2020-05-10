@@ -29,22 +29,15 @@ jobs:
     - name: Build
       run: npm run build
       
-    - name: Upload index.html
-      uses: actions-hub/gcloud@master
-      env:
-        PROJECT_ID: farmers-anonymous
-        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        CLI: gsutil -h "Cache-Control:no-cache, max-age=0"
+    - name: Install Google Cloud Platform
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
-        args:
-          cp ./dist/index.html gs://farmer-hosting/prs/$PULL_NUMBER/index.html
+        project_id: farmers-anonymous
+        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        export_default_credentials: true
+      
+    - name: Upload index.html
+      run: gsutil -h "Cache-Control:no-cache, max-age=0" cp ./dist/index.html gs://farmer-hosting/prs/$PULL_NUMBER/index.html
     
     - name: Upload index.js
-      uses: actions-hub/gcloud@master
-      env:
-        PROJECT_ID: farmers-anonymous
-        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        CLI: gsutil -h "Cache-Control:no-cache, max-age=0"
-      with:
-        args: 
-          cp ./dist/index.js gs://farmer-hosting/prs/$PULL_NUMBER/index.js
+      run: gsutil -h "Cache-Control:no-cache, max-age=0" cp ./dist/index.js gs://farmer-hosting/prs/$PULL_NUMBER/index.js
