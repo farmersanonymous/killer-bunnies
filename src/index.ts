@@ -5,11 +5,14 @@ import { Garden } from './environment/garden';
 import { Farmer } from './player/farmer';
 import { PlayerCameraController } from './camera/playerCameraController';
 
+import { RoundHandler } from './gameplay/round'
+
 /**
  * The entrypoint for the game.
  */
 export class Game {
     #_render = false;
+    #_rounds: RoundHandler;
 
     /**
      * Constructor.
@@ -40,6 +43,8 @@ export class Game {
                 BabylonStore.engine.resize();
             }
         });
+
+        this.#_rounds = new RoundHandler();
     }
 
     /**
