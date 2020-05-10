@@ -33,7 +33,7 @@ export class Game {
         // Checks to see if the player's health hits 0. If it does, it's GAME OVER!!!
         BabylonObserverStore.registerBeforeRender(() => {
             if (this.#_player.health <= 0) {
-                //clearInterval(interval);
+                clearInterval(interval);
                 onGameOver?.call(bootstrap);
             }
 
