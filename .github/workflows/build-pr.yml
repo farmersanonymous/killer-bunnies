@@ -30,7 +30,7 @@ jobs:
       run: npm run build
       
     - name: Install Google Cloud Platform
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
         project_id: farmers-anonymous
         service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
