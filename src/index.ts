@@ -91,13 +91,11 @@ export class Bootstrap {
         this.#_canvas = canvas;
         this.#_canvas.style.opacity = '0';
 
-        this.#_rounds = new RoundHandler();
-
         // Create the Babylon Scene. Enable collisions and make sure to use right-handed (OpenGL) coordinate system.
         BabylonStore.createScene(BabylonStore.engine);
         BabylonStore.scene.collisionsEnabled = true;
         BabylonStore.scene.useRightHandedSystem = true;
-
+        
         BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, Vector3.Zero(), BabylonStore.scene, true);
 
         // Create a default light for the scene. A light is needed for the PBR materials that we will be downloading later.
