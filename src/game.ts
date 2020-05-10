@@ -3,7 +3,7 @@ import { Garden } from './environment/garden';
 import { Bootstrap } from './index';
 import { BabylonObserverStore } from './store/babylonObserverStore';
 import { GUIManager } from './ui/guiManager';
-import { RoundHandler } from './gameplay/round';
+import { RoundHandler } from './gameplay/roundHandler';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.

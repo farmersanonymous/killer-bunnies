@@ -4,8 +4,6 @@ import { Loader } from './util/loader';
 import { Input } from './util/input';
 import { Game } from './game';
 
-import { RoundHandler } from './gameplay/round'
-
 /**
  * Callback that will get triggered when the loading screen is to show. Also shows progress through a progress bar.
  */
@@ -78,7 +76,6 @@ function hideLoadingScreenCallback(): void {
  */
 export class Bootstrap {
     #_game: Game;
-    #_rounds: RoundHandler;
     #_canvas: HTMLCanvasElement;
 
     /**
@@ -95,7 +92,7 @@ export class Bootstrap {
         BabylonStore.createScene(BabylonStore.engine);
         BabylonStore.scene.collisionsEnabled = true;
         BabylonStore.scene.useRightHandedSystem = true;
-        
+
         BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, Vector3.Zero(), BabylonStore.scene, true);
 
         // Create a default light for the scene. A light is needed for the PBR materials that we will be downloading later.
