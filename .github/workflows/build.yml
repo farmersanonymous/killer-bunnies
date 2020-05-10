@@ -30,7 +30,7 @@ jobs:
         CLI: gsutil
       with:
         args:
-          cp ./dist/index.html gs://farmer-hosting/branches/develop/index.html
+          -h "Cache-Control:no-cache, max-age=0" cp ./dist/index.html gs://farmer-hosting/branches/develop/index.html
     
     - name: Upload index.js
       uses: actions-hub/gcloud@master
@@ -40,4 +40,4 @@ jobs:
         CLI: gsutil
       with:
         args: 
-          cp ./dist/index.js gs://farmer-hosting/branches/develop/index.js
+          -h "Cache-Control:no-cache, max-age=0" cp ./dist/index.js gs://farmer-hosting/branches/develop/index.js
