@@ -133,8 +133,6 @@ export class Bootstrap {
             }
         });
 
-        BabylonStore.scene.debugLayer.show({embedMode: true});
-
         // Event listener to resize the engine when the window is resized.
         window.addEventListener('resize', () => {
             if (this.#_canvas.style.display != 'none') {
