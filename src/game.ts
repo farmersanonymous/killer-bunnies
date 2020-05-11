@@ -25,15 +25,9 @@ export class Game {
         this.#_gui = new GUIManager();
         this.#_roundHandler = new RoundHandler(this.#_gui);
 
-        // Temporary Game Loop test. Since we do not have any way to die, you can move around in the scene for 30 seconds before you "die" and get sent back to the splash screen.
-        const interval = setInterval(() => {
-            this.#_player.modifyHealth(-1);
-        }, 250);
-
         // Checks to see if the player's health hits 0. If it does, it's GAME OVER!!!
         BabylonObserverStore.registerBeforeRender(() => {
             if (this.#_player.health <= 0) {
-                clearInterval(interval);
                 onGameOver?.call(bootstrap);
             }
 

@@ -1,4 +1,6 @@
 import { AdvancedDynamicTexture, Slider, Control, TextBlock } from 'babylonjs-gui';
+import { PerformanceMonitor } from 'babylonjs';
+import { BabylonObserverStore } from '../store/babylonObserverStore';
 
 /**
  * Handles all the UI that gets displayed on the screen during the Game.
@@ -39,6 +41,20 @@ export class GUIManager {
         this.#_roundTimerText.width = "200px";
         this.#_roundTimerText.top = "80px";
         this.#_dynamicTexture.addControl(this.#_roundTimerText);
+
+        const fpsText = new TextBlock('FPS', 'FPS: 0');
+        fpsText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        fpsText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        fpsText.height = "40px";
+        fpsText.width = "200px";
+        fpsText.top = "130px";
+        this.#_dynamicTexture.addControl(fpsText);
+
+        const performanceMonitor = new PerformanceMonitor();
+        BabylonObserverStore.registerAfterRender(() => {
+            performanceMonitor.sampleFrame();
+            fpsText.text = 'FPS: ' + performanceMonitor.averageFPS.toFixed(0);
+        });
     }
 
     /**

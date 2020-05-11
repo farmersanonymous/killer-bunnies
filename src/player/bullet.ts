@@ -24,6 +24,7 @@ export class Bullet {
         this.#_mesh.collisionGroup = CollisionGroup.Bullet;
         this.#_mesh.collisionMask = CollisionGroup.Environment | CollisionGroup.Enemy;
         this.#_mesh.position = spawnPosition;
+        this.#_mesh.isPickable = false;
 
         // Setup the material for the bullet.
         const bulletMaterial = new PBRMaterial('bulletMaterial', BabylonStore.scene);
