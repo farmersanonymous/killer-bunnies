@@ -68,11 +68,11 @@ export class GUIManager {
         this.#_healthSlider.value = current;
     }
     /**
-     * Increase the round number by 1.
+     * Sets the current round number.
+     * @param round The current round.
      */
-    public incrementRound(): void {
-        const round = parseInt(this.#_roundNumberText.text.substring(7));
-        this.#_roundNumberText.text = "Round: " + (round + 1);
+    public setRound(round: number): void {
+        this.#_roundNumberText.text = "Round: " + round;
     }
     /**
      * Sets the time left in the current round.

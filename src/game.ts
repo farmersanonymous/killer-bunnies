@@ -5,6 +5,7 @@ import { BabylonObserverStore } from './store/babylonObserverStore';
 import { GUIManager } from './ui/guiManager';
 import { Burrow } from './environment/burrow';
 import { Vector3, Scalar } from 'babylonjs';
+import { RoundHandler } from './gameplay/roundHandler';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -13,6 +14,7 @@ export class Game {
     #_player: Farmer;
     #_garden: Garden;
     #_gui: GUIManager;
+    #_roundHandler: RoundHandler;
 
     /**
      * Constructor.
@@ -23,6 +25,7 @@ export class Game {
         this.#_player = new Farmer();
         this.#_garden = new Garden();
         this.#_gui = new GUIManager();
+        this.#_roundHandler = new RoundHandler(this.#_gui);
 
         // Temporary spawning code. Will spawn a Burrow every five second randomly throughout the map.
         const interval = setInterval(() => {
@@ -41,8 +44,7 @@ export class Game {
             this.#_gui.setHealthValues(this.#_player.health, this.#_player.maxHealth);
 
             // TODO: Impliment phases.
-            this.#_gui.setRoundTimer('2:00');
-            this.#_gui.incrementRound();
+            this.#_roundHandler.update();
         });
     }
 

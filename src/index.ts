@@ -169,6 +169,5 @@ export class Bootstrap {
                 this.#_canvas.style.opacity = '1';
             }
         }, 3000)
-
     }
 }

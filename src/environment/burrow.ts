@@ -3,6 +3,9 @@ import { CollisionGroup } from '../util/collisionGroup';
 import { BabylonStore } from "../store/babylonStore";
 import { Bullet } from "../player/bullet";
 
+/**
+ * The Burrow will control how often and the spawn position of the Rabbit enemies.
+ */
 export class Burrow {
     #_mesh: Mesh;
     #_intervalHandle: NodeJS.Timeout;
