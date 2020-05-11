@@ -9,6 +9,7 @@ import { Bullet } from "../player/bullet";
 export class Burrow {
     #_mesh: Mesh;
     #_intervalHandle: NodeJS.Timeout;
+    #_timeoutHandle: NodeJS.Timeout;
 
     /**
      * Constructor.
@@ -35,8 +36,7 @@ export class Burrow {
         }, spawnFrequency * 1000);
         
         // Destroy the Burrow after a certain amount of time has passed.
-        const timeout = setTimeout(() => {
-            clearTimeout(timeout);
+        this.#_timeoutHandle = setTimeout(() => {
             this.dispose();
         }, timeLimit * 1000);
     }
@@ -45,8 +45,16 @@ export class Burrow {
      * Release all resources associated with the Burrow.
      */
     public dispose(): void {
+        // Don't dispose the resource twice.
+        if(this.#_mesh === null) {
+            return;
+        }
+
+        clearTimeout(this.#_timeoutHandle);
         clearInterval(this.#_intervalHandle);
         this.#_mesh.material.dispose();
         this.#_mesh.dispose();
+
+        this.#_mesh = null;
     }
 }

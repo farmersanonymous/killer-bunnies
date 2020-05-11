@@ -3,8 +3,6 @@ import { Garden } from './environment/garden';
 import { Bootstrap } from './index';
 import { BabylonObserverStore } from './store/babylonObserverStore';
 import { GUIManager } from './ui/guiManager';
-import { Burrow } from './environment/burrow';
-import { Vector3, Scalar } from 'babylonjs';
 import { RoundHandler } from './gameplay/roundHandler';
 
 /**
@@ -27,15 +25,9 @@ export class Game {
         this.#_gui = new GUIManager();
         this.#_roundHandler = new RoundHandler(this.#_gui);
 
-        // Temporary spawning code. Will spawn a Burrow every five second randomly throughout the map.
-        const interval = setInterval(() => {
-            new Burrow(new Vector3(Scalar.RandomRange(-20, 20), 1, Scalar.RandomRange(-30, 30)), Scalar.RandomRange(1, 5), Scalar.RandomRange(30, 60));
-        }, 5000);
-
         // Checks to see if the player's health hits 0. If it does, it's GAME OVER!!!
         BabylonObserverStore.registerBeforeRender(() => {
             if (this.#_player.health <= 0) {
-                clearInterval(interval);
                 onGameOver?.call(bootstrap);
             }
 

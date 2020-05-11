@@ -43,6 +43,7 @@ export class Farmer {
         this.#_mesh.collisionGroup = CollisionGroup.Player;
         this.#_mesh.collisionMask = CollisionGroup.Environment;
         this.#_mesh.ellipsoid = new Vector3(1, 2, 1);
+        this.#_mesh.isPickable = false;
 
         // Initialize the character controller and subscribe to the onMove and onRotate methods.
         this.#_controller = new CharacterController(this);

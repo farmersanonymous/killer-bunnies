@@ -1,5 +1,7 @@
 import { GUIManager } from '../ui/guiManager';
 import { BabylonStore } from '../store/babylonStore';
+import { Burrow } from '../environment/burrow';
+import { Vector3, Scalar } from 'babylonjs';
 
 /**
  * Amount of time, in seconds, that the defense round goes for.
@@ -31,7 +33,7 @@ export class RoundHandler {
     /**
      * The amount of time to count down from.
      */
-    #_time = defendTime;
+    #_time = fortifyTime;
 
     /**
      * The GUIManager instance used to update the round and round timer.
@@ -44,12 +46,22 @@ export class RoundHandler {
     #_type = RoundType.Fortify;
 
     /**
+     * The handle to the interval timer for spawning Burrows.
+     */
+    #_spawningInterval: NodeJS.Timer;
+
+    /**
+     * A list of Burrows that have been created by the RoundHandler.
+     */
+    #_burrows: Burrow[] = [];
+
+    /**
      * Constructor.
      * @param guiManager The GUIManager instance used to update the round and round timer.
      */
     constructor(guiManager: GUIManager) {
         this.#_gui = guiManager;
-        this.#_gui.setRound(this.#_round)
+        this.#_gui.setRound(this.#_round);
     }
 
     /**
@@ -70,15 +82,24 @@ export class RoundHandler {
   
         if (this.#_time <= 0) {
             if (this.#_type == RoundType.Defend) {
-                // Player defends the farm from spawning enemies.
+                // Player builds up their defenses for the next Defend round.
                 this.#_type = RoundType.Fortify;
                 this.#_time = fortifyTime;
+                
+                this.#_gui.setRound(++this.#_round);
+                this.#_burrows.forEach(b => b.dispose());
+                this.#_burrows = [];
+                clearTimeout(this.#_spawningInterval);
+                
             } else {
-                // Player builds up their defenses for the next Defend round.
+                // Player defends the farm from spawning enemies.
                 this.#_type = RoundType.Defend;
                 this.#_time = defendTime;
 
-                this.#_gui.setRound(++this.#_round)
+                // Temporary spawning code. Will spawn a Burrow every five second randomly throughout the map.
+                this.#_spawningInterval = setInterval(() => {
+                    this.#_burrows.push(new Burrow(new Vector3(Scalar.RandomRange(-20, 20), 1, Scalar.RandomRange(-30, 30)), Scalar.RandomRange(1, 5), Scalar.RandomRange(30, 60)));
+                }, 5000);
             }
         }
     }
