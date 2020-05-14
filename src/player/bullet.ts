@@ -1,6 +1,7 @@
 import { MeshBuilder, Mesh, Vector3, Color3, PBRMaterial } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { CollisionGroup } from '../util/collisionGroup';
+import { StabberRabbit } from '../enemies/stabberRabbit';
 
 /**
  * A bullet that gets spawned by the Farmer.
@@ -37,6 +38,7 @@ export class Bullet {
         this.#_mesh.checkCollisions = true;
         this.#_mesh.collisionGroup = CollisionGroup.Bullet;
         this.#_mesh.collisionMask = CollisionGroup.Environment | CollisionGroup.Enemy;
+        this.#_mesh.ellipsoidOffset = new Vector3(0, -1, 0);
         this.#_mesh.position = spawnPosition;
         this.#_mesh.isPickable = false;
 
@@ -46,7 +48,11 @@ export class Bullet {
         this.#_mesh.material = bulletMaterial;
         
         // Destroy bullet if it hits another mesh.
-        this.#_mesh.onCollideObservable.add(() => {
+        this.#_mesh.onCollideObservable.add((evt) => {
+            // Check if bullet hit rabbit. If so, do some damage!
+            if(evt.name === 'stabberRabbit') {
+                StabberRabbit.getRabbitByMesh(evt).onHit();
+            }
             Bullet.onBulletDisposed?.call(this, this);
             this.dispose();
         });
