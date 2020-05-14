@@ -1,13 +1,13 @@
-import { Vector3, TransformNode } from 'babylonjs';
-import { ProxyCube } from '../environment/proxyCube';
+import { TransformNode, Mesh, MeshBuilder } from 'babylonjs';
 import { Spawner } from '../util/spawner';
+import { Navigation } from '../gameplay/navigation';
 
 /**
  * Tha main Garden scene.
  */
 export class Garden {
     #_rootNodes: TransformNode[];
-    #_proxyCubes: ProxyCube[] = [];
+    #_ground: Mesh;
 
     /**
      * Constructor.
@@ -16,17 +16,25 @@ export class Garden {
         const spawner = Spawner.getSpawner('Garden');
         this.#_rootNodes = spawner.instantiate().rootNodes;
 
-        this.#_proxyCubes.push(new ProxyCube('cube1', new Vector3(26, 0, 0), new Vector3(1, 1, 200)));
-        this.#_proxyCubes.push(new ProxyCube('cube2', new Vector3(0, 0, 37), new Vector3(100, 1, 1)));
-        this.#_proxyCubes.push(new ProxyCube('cube3', new Vector3(-26, 0, 0), new Vector3(1, 1, 200)));
-        this.#_proxyCubes.push(new ProxyCube('cube4', new Vector3(0, 0, -35), new Vector3(100, 1, 1)));
+        this.#_ground = MeshBuilder.CreateGround('Ground', {
+            width: 100,
+            height: 100
+        });        
+
+        const colliders = this.#_rootNodes.map(n => n.getChildMeshes(false, m => m.name.startsWith('Collider'))).reduce((acc, val) => acc.concat(val), []);
+        colliders.push(this.#_ground);
+        colliders.forEach(c => {
+            c.isVisible = false;
+        });
+
+        Navigation.init(colliders as Mesh[]);
     }
 
     /**
      * Release all resources associated with this Garden.
      */
     public dispose(): void {
+        this.#_ground.dispose();
         this.#_rootNodes.forEach(n => n.dispose());
-        this.#_proxyCubes.forEach(c => c.dispose());
     }
 }
