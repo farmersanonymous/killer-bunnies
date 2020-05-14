@@ -4,15 +4,19 @@ import { Bootstrap } from './index';
 import { BabylonObserverStore } from './store/babylonObserverStore';
 import { GUIManager } from './ui/guiManager';
 import { RoundHandler } from './gameplay/roundHandler';
+import { Bullet } from './player/bullet';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
  */
 export class Game {
     #_player: Farmer;
+    #_bullets: Bullet[] = [];
     #_garden: Garden;
     #_gui: GUIManager;
     #_roundHandler: RoundHandler;
+    #_onGameOver: () => void;
+    #_bootstrap: Bootstrap;
 
     /**
      * Constructor.
@@ -24,29 +28,48 @@ export class Game {
         this.#_garden = new Garden();
         this.#_gui = new GUIManager();
         this.#_roundHandler = new RoundHandler(this.#_gui);
+        this.#_onGameOver = onGameOver;
+        this.#_bootstrap = bootstrap;
 
-        // Checks to see if the player's health hits 0. If it does, it's GAME OVER!!!
-        BabylonObserverStore.registerBeforeRender(() => {
-            if (this.#_player.health <= 0) {
-                onGameOver?.call(bootstrap);
-            }
+        Bullet.onBulletCreated = (bullet: Bullet): void => {
+            this.#_bullets.push(bullet);
+        };
+        Bullet.onBulletDisposed = (bullet: Bullet): void => {
+            this.#_bullets = this.#_bullets.filter(bul => bul !== bullet);
+        };
+    }
 
-            // Temporarily setting GUI values here. This will be fine if we only have player values, but if we need to
-            // show anything per Enemy, then we will probably have to use callbacks for setting health, so it doesn't happen every frame.
-            this.#_gui.setHealthValues(this.#_player.health, this.#_player.maxHealth);
+    /**
+     * Updates the game. Called once every frame.
+     */
+    public update(): void {
+        if (this.#_player.health <= 0) {
+            this.#_onGameOver?.call(this.#_bootstrap);
+        }
 
-            // TODO: Impliment phases.
-            this.#_roundHandler.update();
-        });
+        // Temporarily setting GUI values here. This will be fine if we only have player values, but if we need to
+        // show anything per Enemy, then we will probably have to use callbacks for setting health, so it doesn't happen every frame.
+        this.#_gui.setHealthValues(this.#_player.health, this.#_player.maxHealth);
+
+        // Updates the bullets.
+        for(let i = 0; i < this.#_bullets.length; i++) {
+            this.#_bullets[i].update();
+        }
+
+        // Updates the round.
+        this.#_roundHandler.update(this.#_player);
     }
 
     /**
      * Release all resources associated with this Game.
      */
     public dispose(): void {
+        Bullet.onBulletCreated = null;
+        Bullet.onBulletDisposed = null;
         BabylonObserverStore.clearBeforeRender();
         BabylonObserverStore.clearAfterRender();
         this.#_player.dispose();
+        this.#_bullets.forEach(b => b.dispose());
         this.#_garden.dispose();
         this.#_gui.dispose();
     }

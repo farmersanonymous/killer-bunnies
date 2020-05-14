@@ -3,6 +3,7 @@ import { BabylonStore } from './store/babylonStore';
 import { Loader } from './util/loader';
 import { Input } from './util/input';
 import { Game } from './game';
+import { BabylonObserverStore } from './store/babylonObserverStore';
 
 /**
  * Callback that will get triggered when the loading screen is to show. Also shows progress through a progress bar.
@@ -93,6 +94,7 @@ export class Bootstrap {
         BabylonStore.scene.collisionsEnabled = true;
         BabylonStore.scene.useRightHandedSystem = true;
 
+        // Creates the main camera.
         BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, Vector3.Zero(), BabylonStore.scene, true);
 
         // Create a default light for the scene. A light is needed for the PBR materials that we will be downloading later.
@@ -108,8 +110,8 @@ export class Bootstrap {
         Input.init();
 
         // Adds the files that need to be downloaded into the loader.
-        Loader.addDownload('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/2/Farmer_high.gltf');
-        Loader.addDownload('Garden', 'https://storage.googleapis.com/farmer-assets/garden/Environment.gltf');
+        Loader.addDownload('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/3/Farmer.gltf');
+        Loader.addDownload('Garden', 'https://storage.googleapis.com/farmer-assets/garden/4/Environment.gltf');
 
         // Start the download process. Callback will trigger on progress updates.
         Loader.startDownload((progress: number) => {
@@ -145,6 +147,15 @@ export class Bootstrap {
      * Runs the game loop.
      */
     public run(): void {
+        // Runs the update loop for the Babylon Engine. Will update the game if it exists.
+        BabylonObserverStore.registerBeforeRender(() => {
+            BabylonStore.update();
+
+            if(this.#_game) {
+                this.#_game.update();
+            }
+        });
+
         // Runs the render loop for the Babylon Engine. We only have one scene, so render that.
         BabylonStore.engine.runRenderLoop(() => {
             if (this.#_canvas.style.display != 'none') {

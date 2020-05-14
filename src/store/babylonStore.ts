@@ -5,6 +5,8 @@ import { Engine, Scene, ArcRotateCamera} from 'babylonjs';
  */
 export class BabylonStore {
     private static _instance: BabylonStore = null;
+    private static _time = 0;
+    private static _deltaTime = 0;
 
     #_engine: Engine;
     #_scene: Scene;
@@ -78,6 +80,29 @@ export class BabylonStore {
     public static disposeCamera(): void {
         this.getInstance().#_camera.dispose();
         this.getInstance().#_camera = null;
+    }
+
+    /**
+     * Updates the time values every frame.
+     */
+    public static update(): void {
+        this._deltaTime = this.engine.getDeltaTime() / 1000;
+        this._time += this._deltaTime;
+    }
+
+    /**
+     * The amount of time since the application has started, in seconds.
+     * @returns The amount of time since the application has started.
+     */
+    public static get time(): number {
+        return this._time;
+    }
+    /**
+     * The amount of time that has passed this frame, in seconds.
+     * @returns The amount of time that has passed this frame.
+     */
+    public static get deltaTime(): number {
+        return this._deltaTime;
     }
 
     private static getInstance(): BabylonStore {

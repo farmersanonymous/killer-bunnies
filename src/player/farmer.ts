@@ -5,6 +5,7 @@ import { Bullet } from './bullet';
 import { CollisionGroup } from '../util/collisionGroup';
 import { Spawner } from '../util/spawner';
 import { PlayerCameraController } from '../camera/playerCameraController';
+import { Navigation } from '../gameplay/navigation';
 
 /**
  * The playable Farmer character.
@@ -49,7 +50,8 @@ export class Farmer {
         this.#_controller = new CharacterController(this);
         this.#_controller.onMove = (dir): void => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
-            this.#_mesh.moveWithCollisions(new Vector3(dir.y, 0, dir.x).scale(this.movementSpeed * deltaTime));
+            const moveDir = new Vector3(dir.y, 0, dir.x).scale(this.movementSpeed * deltaTime);
+            this.#_mesh.position = Navigation.getClosestPoint(this.#_mesh.position.add(moveDir));
         };
         this.#_controller.onRotate = (dir): void => {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
