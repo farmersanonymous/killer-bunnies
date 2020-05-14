@@ -82,6 +82,9 @@ export class RoundHandler {
         StabberRabbit.onRabbitCreated = (rabbit: StabberRabbit): void => {
             this.#_rabbits.push(rabbit);
         }
+        StabberRabbit.onRabbitDisposed = (rabbit: StabberRabbit): void => {
+            this.#_rabbits = this.#_rabbits.filter(rab => rab !== rabbit);
+        }
     }
 
     /**
