@@ -1,6 +1,6 @@
 import { MeshBuilder, Mesh, Vector3, Color3, PBRMaterial } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
-import { CollisionGroup } from '../util/collisionGroup';
+import { CollisionGroup } from '../collision/collisionGroup';
 import { StabberRabbit } from '../enemies/stabberRabbit';
 
 /**

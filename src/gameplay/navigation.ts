@@ -34,7 +34,6 @@ export class Navigation {
         });
 
         this._crowd = this._plugin.createCrowd(200, 1, BabylonStore.scene);
-
     }
 
     /**
@@ -53,11 +52,11 @@ export class Navigation {
      */
     public static addAgent(pos: Vector3, transform: TransformNode): number {
         return this._crowd.addAgent(this._plugin.getClosestPoint(pos), {
-            radius: 0.1,
+            radius: 0.5,
             height: 0.2,
             maxAcceleration: 4.0,
             maxSpeed: 4,
-            collisionQueryRange: 1,
+            collisionQueryRange: 1.5,
             pathOptimizationRange: 0.0,
             separationWeight: 1.0
         }, transform);

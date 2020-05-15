@@ -1,7 +1,7 @@
 import { Vector2, Vector3, Matrix } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { Farmer } from './farmer';
-import { Input } from '../util/input';
+import { Input } from '../input/input';
 import { BabylonObserverStore } from '../store/babylonObserverStore';
 
 /**
@@ -24,6 +24,9 @@ export class CharacterController {
             this.onRotate?.call(this, dir.normalize());
         }
 
+        let hasMoved = false;
+        let hasFired = false;
+        let hasFiredController = false;
         BabylonObserverStore.registerAfterRender(() => {
             let x = 0;
             let y = 0;
@@ -41,7 +44,12 @@ export class CharacterController {
             }
             if (Input.isKeyDown('pointerDown')) {
                 // Spawn bullet.
-                player.fire();
+                this.onFire?.call(this);
+                hasFired = true;
+            }
+            else if(hasFired) {
+                this.onFireEnd?.call(this);
+                hasFired = false;
             }
 
             // If a game pad exists, handle input.
@@ -55,7 +63,11 @@ export class CharacterController {
                 }
 
                 if (Input.controllerRightTrigger > 0.5) {
-                    player.fire();
+                    this.onFire?.call(this);
+                    hasFiredController = true;
+                }
+                else if(hasFiredController) {
+                    this.onFireEnd?.call(this);
                 }
 
                 // 0.5 is used to handle any quick twitches that happen when doing fast rotations, might need to tweak still.
@@ -67,6 +79,11 @@ export class CharacterController {
 
             if (x != 0 || y != 0) {
                 this.onMove?.call(this, new Vector2(x, y));
+                hasMoved = true;
+            }
+            else if(hasMoved) {
+                this.onMoveEnd?.call(this);
+                hasMoved = false;
             }
         });
     }
@@ -76,7 +93,19 @@ export class CharacterController {
      */
     public onMove: (dir: Vector2) => void;
     /**
+     * Event that will get fired the frame after the controller stops moving.
+     */
+    public onMoveEnd: () => void;
+    /**
      * Event that will get fired whenever the controller is notified to rotate, based on the platform and device.
      */
     public onRotate: (dir: Vector2) => void;
+    /**
+     * Event that will get fired when the farmer needs to fire his weapon.
+     */
+    public onFire: () => void;
+    /**
+     * Event that will get fired when the farmer needs to stop firing his weapon.
+     */
+    public onFireEnd: () => void;
 }

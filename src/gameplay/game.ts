@@ -1,10 +1,10 @@
-import { Farmer } from './player/farmer';
-import { Garden } from './environment/garden';
-import { Bootstrap } from './index';
-import { BabylonObserverStore } from './store/babylonObserverStore';
-import { GUIManager } from './ui/guiManager';
-import { RoundHandler } from './gameplay/roundHandler';
-import { Bullet } from './player/bullet';
+import { Farmer } from '../player/farmer';
+import { Garden } from '../environment/garden';
+import { Bootstrap } from '../index';
+import { BabylonObserverStore } from '../store/babylonObserverStore';
+import { GUIManager } from '../ui/guiManager';
+import { RoundHandler } from './roundHandler';
+import { Bullet } from '../player/bullet';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -46,6 +46,8 @@ export class Game {
         if (this.#_player.health <= 0) {
             this.#_onGameOver?.call(this.#_bootstrap);
         }
+
+        this.#_player.update();
 
         // Temporarily setting GUI values here. This will be fine if we only have player values, but if we need to
         // show anything per Enemy, then we will probably have to use callbacks for setting health, so it doesn't happen every frame.

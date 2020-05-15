@@ -1,7 +1,7 @@
 import { Mesh, MeshBuilder, Vector3, AbstractMesh } from 'babylonjs';
 import { Navigation } from '../gameplay/navigation';
 import { Farmer } from '../player/farmer';
-import { CollisionGroup } from '../util/collisionGroup';
+import { CollisionGroup } from '../collision/collisionGroup';
 
 /**
  * The rabbit that will try and stab the farmer.

@@ -1,8 +1,8 @@
 import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader } from 'babylonjs';
 import { BabylonStore } from './store/babylonStore';
-import { Loader } from './util/loader';
-import { Input } from './util/input';
-import { Game } from './game';
+import { Loader } from './assets/loader';
+import { Input } from './input/input';
+import { Game } from './gameplay/game';
 import { BabylonObserverStore } from './store/babylonObserverStore';
 
 /**
@@ -110,8 +110,8 @@ export class Bootstrap {
         Input.init();
 
         // Adds the files that need to be downloaded into the loader.
-        Loader.addDownload('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/3/Farmer.gltf');
-        Loader.addDownload('Garden', 'https://storage.googleapis.com/farmer-assets/garden/4/Environment.gltf');
+        Loader.addDownload('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/5/Farmer.gltf');
+        Loader.addDownload('Garden', 'https://storage.googleapis.com/farmer-assets/garden/5/Environment.gltf');
 
         // Start the download process. Callback will trigger on progress updates.
         Loader.startDownload((progress: number) => {
