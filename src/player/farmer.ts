@@ -1,27 +1,31 @@
-import { Mesh, Vector2, Vector3, Angle, Scalar, TransformNode } from 'babylonjs';
+import { Vector2, Vector3, Angle, Scalar, TransformNode, Skeleton } from 'babylonjs';
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
-import { CollisionGroup } from '../collision/collisionGroup';
 import { Spawner } from '../assets/spawner';
 import { PlayerCameraController } from '../camera/playerCameraController';
 import { Navigation } from '../gameplay/navigation';
+import { CollisionGroup } from '../collision/collisionManager';
+import { BaseCollidable } from '../collision/baseCollidable';
 import { Animator, AnimatorState } from '../animation/animator';
+import { StabberRabbit } from '../enemies/stabberRabbit';
 
 /**
  * The playable Farmer character.
  */
-export class Farmer {
+export class Farmer extends BaseCollidable {
     #_controller: CharacterController;
     #_camera: PlayerCameraController;
     #_root: TransformNode;
-    #_mesh: Mesh;
-    // Waiting for final gun mesh.
-    // #_gun: Mesh;
+    #_weaponRoot: TransformNode;
     #_gunCooldown = false;
     #_isMoving = false;
     #_isFiring = false;
     #_animator: Animator;
+    #_weaponAnimator: Animator;
+    #_skeleton: Skeleton;
+    #_weaponSkeleton: Skeleton;
+    #_hitTimer = 0.25;
 
     // Stats
     // The max health of the Farmer. Current health will be reset at the beginning of each round to max health.
@@ -41,18 +45,25 @@ export class Farmer {
      * Constructor.
      */
     public constructor() {
+        super(CollisionGroup.Player);
+
         // The mesh is a player and can collide with the environment.
         const spawner = Spawner.getSpawner('Farmer');
         const instance = spawner.instantiate();
         this.#_root = instance.rootNodes[0];
-        this.#_mesh = this.#_root.getChildMeshes(false)[0] as Mesh;
-        this.#_mesh.checkCollisions = true;
-        this.#_mesh.collisionGroup = CollisionGroup.Player;
-        this.#_mesh.collisionMask = CollisionGroup.Environment;
-        this.#_mesh.ellipsoid = new Vector3(1, 2, 1);
-        this.#_mesh.isPickable = false;
+        this.#_skeleton = instance.skeletons[0];
+
+        const weaponSpawner = Spawner.getSpawner('Corncobber');
+        const weaponInstance = weaponSpawner.instantiate();
+        this.#_weaponRoot = weaponInstance.rootNodes[0];
+        this.#_weaponSkeleton = weaponInstance.skeletons[0];
+        this.#_weaponRoot.parent = this.#_root.getChildTransformNodes(false, (n) => n.name === 'FarmerWeaponPoint')[0];
+        this.#_weaponRoot.rotation = new Vector3(Angle.FromDegrees(270).radians(), 0, 0);
+
+        super.registerMesh(this.#_root.getChildMeshes(true)[0]);
 
         this.#_animator = new Animator(instance.animationGroups);
+        this.#_weaponAnimator = new Animator(weaponInstance.animationGroups);
 
         // Initialize the character controller and subscribe to the onMove, onFire, and onRotate events.
         this.#_controller = new CharacterController(this);
@@ -69,11 +80,13 @@ export class Farmer {
 
         this.#_controller.onFire = (): void => {
             this.#_isFiring = true;
-            if(!this.#_isMoving) {
+            this.#_weaponAnimator.play(AnimatorState.Shoot)
+
+            if (!this.#_isMoving) {
                 this.#_animator.play(AnimatorState.Shoot);
             }
 
-            if(this.#_gunCooldown) {
+            if (this.#_gunCooldown) {
                 return;
             }
 
@@ -92,6 +105,7 @@ export class Farmer {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
             this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(180).radians(), 0);
         };
+
         // Initialize the camera.
         this.#_camera = new PlayerCameraController(this);
     }
@@ -100,12 +114,31 @@ export class Farmer {
      * Updates the Farmer every frame.
      */
     public update(): void {
-        if(!this.#_isMoving && !this.#_isFiring) {
-            this.#_animator.play(AnimatorState.Idle);
-        }
-
-        if(this.health <= 0) {
+        if (this.health <= 0) {
             this.#_animator.play(AnimatorState.Death, false);
+            this.#_controller.disabled = true;
+        }
+        else {
+            if (!this.#_isFiring) {
+                this.#_weaponAnimator.play(AnimatorState.Idle);
+                if (!this.#_isMoving && this.#_hitTimer <= 0) {
+                    this.#_animator.play(AnimatorState.Idle);
+                }
+            }
+
+            this.#_hitTimer -= BabylonStore.deltaTime;
+        }
+    }
+
+    /**
+     * Callback that will get fired when the farmer is hit by an enemy weapon.
+     * @param collidable The collidable of the weapon.
+     */
+    public onCollide(collidable: BaseCollidable): void {
+        if (collidable instanceof StabberRabbit && collidable.attacking && this.#_hitTimer <= 0) {
+            this.#_hitTimer = 0.25;
+            this.#_health -= 10;
+            this.#_animator.play(AnimatorState.TakeHit, false);
         }
     }
 
@@ -113,7 +146,14 @@ export class Farmer {
      * Release all resources associated with this Farmer.
      */
     public dispose(): void {
-        this.#_mesh.dispose();
+        super.dispose();
+        this.#_controller.dispose();
+        this.#_weaponSkeleton.dispose();
+        this.#_skeleton.dispose();
+        this.#_weaponAnimator.dispose();
+        this.#_animator.dispose();
+        this.#_weaponRoot.dispose();
+        this.#_root.dispose();
         this.#_camera.dispose();
     }
 

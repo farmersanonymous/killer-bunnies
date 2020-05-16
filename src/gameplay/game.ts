@@ -1,10 +1,10 @@
 import { Farmer } from '../player/farmer';
 import { Garden } from '../environment/garden';
 import { Bootstrap } from '../index';
-import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { GUIManager } from '../ui/guiManager';
 import { RoundHandler } from './roundHandler';
 import { Bullet } from '../player/bullet';
+import { CollisionManager } from '../collision/collisionManager';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -43,8 +43,12 @@ export class Game {
      * Updates the game. Called once every frame.
      */
     public update(): void {
-        if (this.#_player.health <= 0) {
-            this.#_onGameOver?.call(this.#_bootstrap);
+        if (this.#_player.health <= 0 && this.#_onGameOver) {
+            const callback = this.#_onGameOver;
+            this.#_onGameOver = null;
+            setTimeout(() => {
+                callback?.call(this.#_bootstrap);
+            }, 5000);
         }
 
         this.#_player.update();
@@ -58,6 +62,8 @@ export class Game {
             this.#_bullets[i].update();
         }
 
+        CollisionManager.update();
+
         // Updates the round.
         this.#_roundHandler.update(this.#_player);
     }
@@ -68,8 +74,7 @@ export class Game {
     public dispose(): void {
         Bullet.onBulletCreated = null;
         Bullet.onBulletDisposed = null;
-        BabylonObserverStore.clearBeforeRender();
-        BabylonObserverStore.clearAfterRender();
+        this.#_roundHandler.dispose();
         this.#_player.dispose();
         this.#_bullets.forEach(b => b.dispose());
         this.#_garden.dispose();

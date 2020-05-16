@@ -142,4 +142,16 @@ export class RoundHandler {
             }
         }
     }
+
+    /**
+     * Releases all resources associated with this RoundHandler.
+     */
+    public dispose(): void {
+        Burrow.onBurrowCreated = null;
+        Burrow.onBurrowDisposed = null;
+        StabberRabbit.onRabbitCreated = null;
+        StabberRabbit.onRabbitDisposed = null;
+        this.#_burrows.forEach(b => b.dispose());
+        this.#_rabbits.forEach(r => r.dispose());
+    }
 }

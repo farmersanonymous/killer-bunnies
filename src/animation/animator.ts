@@ -76,6 +76,13 @@ export class Animator {
         this.#_state = state;
     }
 
+    /**
+     * Releases all resources associated with this Animator.
+     */
+    public dispose(): void {
+        this.#_animations.forEach(a => a.dispose());
+    }
+
     private stateToString(state: AnimatorState): string {
         if(state === AnimatorState.Idle) {
             return "Idle";

@@ -1,5 +1,4 @@
 import { Vector3, MeshBuilder, Mesh, PBRMaterial, Color3 } from "babylonjs";
-import { CollisionGroup } from '../collision/collisionGroup';
 import { BabylonStore } from "../store/babylonStore";
 import { StabberRabbit } from "../enemies/stabberRabbit";
 
@@ -34,9 +33,6 @@ export class Burrow {
         // The mesh is a burrow and can collide with the player, enemy, or bullet. Will be hidden from the scene.
         this.#_mesh = MeshBuilder.CreateBox(name, { size: 2 });
         this.#_mesh.position = position;
-        this.#_mesh.checkCollisions = true;
-        this.#_mesh.collisionGroup = CollisionGroup.Player; // Temp until enemies spawn instead of bullets.
-        this.#_mesh.collisionMask = CollisionGroup.Player | CollisionGroup.Enemy | CollisionGroup.Bullet;
 
         const burrowMaterial = new PBRMaterial('burrowMaterial', BabylonStore.scene);
         burrowMaterial.albedoColor = Color3.Gray();
@@ -66,11 +62,6 @@ export class Burrow {
      * Release all resources associated with the Burrow.
      */
     public dispose(): void {
-        // Don't dispose the resource twice.
-        if(this.#_mesh === null) {
-            return;
-        }
-
         this.#_mesh.material.dispose();
         this.#_mesh.dispose();
     }

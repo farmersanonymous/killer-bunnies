@@ -11,6 +11,7 @@ export class PlayerCameraController {
     #_softTarget: Vector3;
     #_targetRadius = 5;
     #_mesh: Mesh;
+    #_updateHandle: number;
 
     constructor(player: Farmer) {
         this.#_player = player;
@@ -18,7 +19,7 @@ export class PlayerCameraController {
         this._initializeCamera();
 
         // Update loop.
-        BabylonObserverStore.registerBeforeRender(() => {
+        this.#_updateHandle = BabylonObserverStore.registerBeforeRender(() => {
             const positiondifference = this.#_softTarget.subtract(this.#_player.position);
 
             const distance = positiondifference.length();
@@ -37,6 +38,7 @@ export class PlayerCameraController {
      * Release all resources associated with this PlayerCameraController.
      */
     public dispose(): void {
+        BabylonObserverStore.deregisterBeforeRender(this.#_updateHandle);
         this.#_mesh.material.dispose();
         this.#_mesh.dispose();
     }
