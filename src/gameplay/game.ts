@@ -65,7 +65,7 @@ export class Game {
         CollisionManager.update();
 
         // Updates the round.
-        this.#_roundHandler.update(this.#_player);
+        // this.#_roundHandler.update(this.#_player);
     }
 
     /**
