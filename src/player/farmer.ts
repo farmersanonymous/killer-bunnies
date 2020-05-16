@@ -1,11 +1,12 @@
-import { Mesh, Vector2, Vector3, Angle, Scalar } from 'babylonjs';
+import { Mesh, Vector2, Vector3, Angle, Scalar, TransformNode } from 'babylonjs';
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
-import { CollisionGroup } from '../util/collisionGroup';
-import { Spawner } from '../util/spawner';
+import { CollisionGroup } from '../collision/collisionGroup';
+import { Spawner } from '../assets/spawner';
 import { PlayerCameraController } from '../camera/playerCameraController';
 import { Navigation } from '../gameplay/navigation';
+import { Animator, AnimatorState } from '../animation/animator';
 
 /**
  * The playable Farmer character.
@@ -13,10 +14,14 @@ import { Navigation } from '../gameplay/navigation';
 export class Farmer {
     #_controller: CharacterController;
     #_camera: PlayerCameraController;
+    #_root: TransformNode;
     #_mesh: Mesh;
     // Waiting for final gun mesh.
     // #_gun: Mesh;
     #_gunCooldown = false;
+    #_isMoving = false;
+    #_isFiring = false;
+    #_animator: Animator;
 
     // Stats
     // The max health of the Farmer. Current health will be reset at the beginning of each round to max health.
@@ -39,41 +44,69 @@ export class Farmer {
         // The mesh is a player and can collide with the environment.
         const spawner = Spawner.getSpawner('Farmer');
         const instance = spawner.instantiate();
-        this.#_mesh = instance.rootNodes[0].getChildMeshes(false)[0] as Mesh;
+        this.#_root = instance.rootNodes[0];
+        this.#_mesh = this.#_root.getChildMeshes(false)[0] as Mesh;
         this.#_mesh.checkCollisions = true;
         this.#_mesh.collisionGroup = CollisionGroup.Player;
         this.#_mesh.collisionMask = CollisionGroup.Environment;
         this.#_mesh.ellipsoid = new Vector3(1, 2, 1);
         this.#_mesh.isPickable = false;
 
-        // Initialize the character controller and subscribe to the onMove and onRotate methods.
+        this.#_animator = new Animator(instance.animationGroups);
+
+        // Initialize the character controller and subscribe to the onMove, onFire, and onRotate events.
         this.#_controller = new CharacterController(this);
         this.#_controller.onMove = (dir): void => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
             const moveDir = new Vector3(dir.y, 0, dir.x).scale(this.movementSpeed * deltaTime);
-            this.#_mesh.position = Navigation.getClosestPoint(this.#_mesh.position.add(moveDir));
+            this.#_root.position = Navigation.getClosestPoint(this.#_root.position.add(moveDir));
+            this.#_animator.play(AnimatorState.Run);
+            this.#_isMoving = true;
         };
+        this.#_controller.onMoveEnd = (): void => {
+            this.#_isMoving = false;
+        };
+
+        this.#_controller.onFire = (): void => {
+            this.#_isFiring = true;
+            if(!this.#_isMoving) {
+                this.#_animator.play(AnimatorState.Shoot);
+            }
+
+            if(this.#_gunCooldown) {
+                return;
+            }
+
+            const backward = this.#_root.forward.negate();
+            new Bullet(this.#_root.position.add(backward.scale(1.5)).add(Vector3.Up()), this.weaponSpeed, backward, this.weaponRange);
+            this.#_gunCooldown = true;
+            window.setTimeout(() => {
+                this.#_gunCooldown = false;
+            }, 250);
+        }
+        this.#_controller.onFireEnd = (): void => {
+            this.#_isFiring = false;
+        }
+
         this.#_controller.onRotate = (dir): void => {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
-            this.#_mesh.rotation = new Vector3(Angle.FromDegrees(90).radians(), -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(180).radians(), 0);
-        }
+            this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(180).radians(), 0);
+        };
         // Initialize the camera.
         this.#_camera = new PlayerCameraController(this);
     }
 
     /**
-     * Fires a bullet in the direction that the Farmer is facing. Will not fire if gun is on cooldown.
+     * Updates the Farmer every frame.
      */
-    public fire(): void {
-        if(this.#_gunCooldown) {
-            return;
+    public update(): void {
+        if(!this.#_isMoving && !this.#_isFiring) {
+            this.#_animator.play(AnimatorState.Idle);
         }
 
-        new Bullet(this.position.add(this.#_mesh.forward.scale(1.5)), this.weaponSpeed, this.#_mesh.up, this.weaponRange);
-        this.#_gunCooldown = true;
-        window.setTimeout(() => {
-            this.#_gunCooldown = false;
-        }, 250);
+        if(this.health <= 0) {
+            this.#_animator.play(AnimatorState.Death, false);
+        }
     }
 
     /**
@@ -176,6 +209,6 @@ export class Farmer {
      * @returns The position of the Farmer.
      */
     public get position(): Vector3 {
-        return this.#_mesh.position;
+        return this.#_root.position;
     }
 }

@@ -3,30 +3,6 @@ import 'babylonjs-loaders';
 import { BabylonStore } from '../store/babylonStore';
 
 /**
- * A GLTFFile interface. Used to deserialize a GLTF JSON string.
- */
-interface GLTFFile {
-    /**
-     * A list of buffers that will need to be downloaded.
-     */
-    buffers: GLTFBuffer[];
-    /**
-     * A list of buffer views (textures) that will be downloaded.
-     */
-    bufferViews: GLTFBuffer[];
-}
-
-/**
- * A GLTFBuffer interface. Used to deserialize a GLTF JSON string.
- */
-interface GLTFBuffer {
-    /**
-     * The byte length of the buffer. Used for calculating total download size.
-     */
-    byteLength: number;
-}
-
-/**
  * Controlls spawning imported assets.
  */
 export class Spawner {

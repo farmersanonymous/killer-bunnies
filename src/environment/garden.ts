@@ -1,7 +1,7 @@
 import { TransformNode, Mesh, MeshBuilder } from 'babylonjs';
-import { Spawner } from '../util/spawner';
+import { Spawner } from '../assets/spawner';
 import { Navigation } from '../gameplay/navigation';
-import { CollisionGroup } from '../util/collisionGroup';
+import { CollisionGroup } from '../collision/collisionGroup';
 
 /**
  * Tha main Garden scene.

@@ -13,7 +13,7 @@ const defendTime = 120
 /**
  * Amount of time, in seconds, that the fortification round goes for.
  */
-const fortifyTime = 60
+const fortifyTime = 30
 
 /**
  * Types of rounds to switch between.
@@ -35,7 +35,7 @@ export class RoundHandler {
     /**
      * The amount of time to count down from.
      */
-    #_time = fortifyTime;
+    #_time = 10;
 
     /**
      * The GUIManager instance used to update the round and round timer.
