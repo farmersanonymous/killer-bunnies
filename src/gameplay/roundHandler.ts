@@ -142,4 +142,12 @@ export class RoundHandler {
             }
         }
     }
+
+    /**
+     * Releases all resources associated with this RoundHandler.
+     */
+    public dispose(): void {
+        this.#_burrows.forEach(b => b.dispose());
+        this.#_rabbits.forEach(r => r.dispose());
+    }
 }

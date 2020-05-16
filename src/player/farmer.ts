@@ -1,4 +1,4 @@
-import { Mesh, Vector2, Vector3, Angle, Scalar, TransformNode } from 'babylonjs';
+import { Mesh, Vector2, Vector3, Angle, Scalar, TransformNode, Skeleton } from 'babylonjs';
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
@@ -8,6 +8,7 @@ import { Navigation } from '../gameplay/navigation';
 import { CollisionGroup } from '../collision/collisionManager';
 import { BaseCollidable } from '../collision/baseCollidable';
 import { Animator, AnimatorState } from '../animation/animator';
+import { StabberRabbit } from '../enemies/stabberRabbit';
 
 /**
  * The playable Farmer character.
@@ -23,6 +24,8 @@ export class Farmer extends BaseCollidable {
     #_isMoving = false;
     #_isFiring = false;
     #_animator: Animator;
+    #_skeleton: Skeleton;
+    #_hitTimer = 0.25;
 
     // Stats
     // The max health of the Farmer. Current health will be reset at the beginning of each round to max health.
@@ -49,6 +52,7 @@ export class Farmer extends BaseCollidable {
         const instance = spawner.instantiate();
         this.#_root = instance.rootNodes[0];
         this.#_mesh = this.#_root.getChildMeshes(false)[0] as Mesh;
+        this.#_skeleton = instance.skeletons[0];
 
         super.registerMesh(this.#_mesh);
 
@@ -110,6 +114,19 @@ export class Farmer extends BaseCollidable {
         if(this.health <= 0) {
             this.#_animator.play(AnimatorState.Death, false);
         }
+
+        this.#_hitTimer -= BabylonStore.deltaTime;
+    }
+
+    /**
+     * Callback that will get fired when the farmer is hit by an enemy weapon.
+     * @param collidable The collidable of the weapon.
+     */
+    public onCollide(collidable: BaseCollidable): void {
+        if(collidable instanceof StabberRabbit && collidable.attacking && this.#_hitTimer <= 0) {
+            this.#_hitTimer = 0.25;
+            this.#_health -= 10;
+        }
     }
 
     /**
@@ -117,7 +134,9 @@ export class Farmer extends BaseCollidable {
      */
     public dispose(): void {
         super.dispose();
-        this.#_mesh.dispose();
+        this.#_skeleton.dispose();
+        this.#_animator.dispose();
+        this.#_root.dispose();
         this.#_camera.dispose();
     }
 

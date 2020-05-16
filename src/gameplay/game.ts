@@ -73,6 +73,7 @@ export class Game {
         Bullet.onBulletDisposed = null;
         BabylonObserverStore.clearBeforeRender();
         BabylonObserverStore.clearAfterRender();
+        this.#_roundHandler.dispose();
         this.#_player.dispose();
         this.#_bullets.forEach(b => b.dispose());
         this.#_garden.dispose();
