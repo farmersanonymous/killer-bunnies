@@ -1,4 +1,4 @@
-import { Mesh, Vector2, Vector3, Angle, Scalar, TransformNode, Skeleton } from 'babylonjs';
+import { Vector2, Vector3, Angle, Scalar, TransformNode, Skeleton } from 'babylonjs';
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
