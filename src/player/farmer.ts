@@ -17,14 +17,14 @@ export class Farmer extends BaseCollidable {
     #_controller: CharacterController;
     #_camera: PlayerCameraController;
     #_root: TransformNode;
-    #_mesh: Mesh;
-    // Waiting for final gun mesh.
-    // #_gun: Mesh;
+    #_weaponRoot: TransformNode;
     #_gunCooldown = false;
     #_isMoving = false;
     #_isFiring = false;
     #_animator: Animator;
+    #_weaponAnimator: Animator;
     #_skeleton: Skeleton;
+    #_weaponSkeleton: Skeleton;
     #_hitTimer = 0.25;
 
     // Stats
@@ -51,12 +51,19 @@ export class Farmer extends BaseCollidable {
         const spawner = Spawner.getSpawner('Farmer');
         const instance = spawner.instantiate();
         this.#_root = instance.rootNodes[0];
-        this.#_mesh = this.#_root.getChildMeshes(false)[0] as Mesh;
         this.#_skeleton = instance.skeletons[0];
 
-        super.registerMesh(this.#_mesh);
+        const weaponSpawner = Spawner.getSpawner('Corncobber');
+        const weaponInstance = weaponSpawner.instantiate();
+        this.#_weaponRoot = weaponInstance.rootNodes[0];
+        this.#_weaponSkeleton = weaponInstance.skeletons[0];
+        this.#_weaponRoot.parent = this.#_root.getChildTransformNodes(false, (n) => n.name === 'FarmerWeaponPoint')[0];
+        this.#_weaponRoot.rotation = new Vector3(Angle.FromDegrees(270).radians(), 0, 0);
+
+        super.registerMesh(this.#_root.getChildMeshes(true)[0]);
 
         this.#_animator = new Animator(instance.animationGroups);
+        this.#_weaponAnimator = new Animator(weaponInstance.animationGroups);
 
         // Initialize the character controller and subscribe to the onMove, onFire, and onRotate events.
         this.#_controller = new CharacterController(this);
@@ -73,11 +80,13 @@ export class Farmer extends BaseCollidable {
 
         this.#_controller.onFire = (): void => {
             this.#_isFiring = true;
-            if(!this.#_isMoving) {
+            this.#_weaponAnimator.play(AnimatorState.Shoot)
+
+            if (!this.#_isMoving) {
                 this.#_animator.play(AnimatorState.Shoot);
             }
 
-            if(this.#_gunCooldown) {
+            if (this.#_gunCooldown) {
                 return;
             }
 
@@ -105,17 +114,20 @@ export class Farmer extends BaseCollidable {
      * Updates the Farmer every frame.
      */
     public update(): void {
-        this.#_mesh.moveWithCollisions(Vector3.ZeroReadOnly);
-        
-        if(!this.#_isMoving && !this.#_isFiring) {
-            this.#_animator.play(AnimatorState.Idle);
-        }
-
-        if(this.health <= 0) {
+        if (this.health <= 0) {
             this.#_animator.play(AnimatorState.Death, false);
+            this.#_controller.disabled = true;
         }
+        else {
+            if (!this.#_isFiring) {
+                this.#_weaponAnimator.play(AnimatorState.Idle);
+                if (!this.#_isMoving && this.#_hitTimer <= 0) {
+                    this.#_animator.play(AnimatorState.Idle);
+                }
+            }
 
-        this.#_hitTimer -= BabylonStore.deltaTime;
+            this.#_hitTimer -= BabylonStore.deltaTime;
+        }
     }
 
     /**
@@ -123,9 +135,10 @@ export class Farmer extends BaseCollidable {
      * @param collidable The collidable of the weapon.
      */
     public onCollide(collidable: BaseCollidable): void {
-        if(collidable instanceof StabberRabbit && collidable.attacking && this.#_hitTimer <= 0) {
+        if (collidable instanceof StabberRabbit && collidable.attacking && this.#_hitTimer <= 0) {
             this.#_hitTimer = 0.25;
             this.#_health -= 10;
+            this.#_animator.play(AnimatorState.TakeHit, false);
         }
     }
 
@@ -134,8 +147,12 @@ export class Farmer extends BaseCollidable {
      */
     public dispose(): void {
         super.dispose();
+        this.#_controller.dispose();
+        this.#_weaponSkeleton.dispose();
         this.#_skeleton.dispose();
+        this.#_weaponAnimator.dispose();
         this.#_animator.dispose();
+        this.#_weaponRoot.dispose();
         this.#_root.dispose();
         this.#_camera.dispose();
     }

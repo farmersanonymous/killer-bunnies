@@ -1,7 +1,6 @@
 import { Farmer } from '../player/farmer';
 import { Garden } from '../environment/garden';
 import { Bootstrap } from '../index';
-import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { GUIManager } from '../ui/guiManager';
 import { RoundHandler } from './roundHandler';
 import { Bullet } from '../player/bullet';
@@ -44,8 +43,12 @@ export class Game {
      * Updates the game. Called once every frame.
      */
     public update(): void {
-        if (this.#_player.health <= 0) {
-            this.#_onGameOver?.call(this.#_bootstrap);
+        if (this.#_player.health <= 0 && this.#_onGameOver) {
+            const callback = this.#_onGameOver;
+            this.#_onGameOver = null;
+            setTimeout(() => {
+                callback?.call(this.#_bootstrap);
+            }, 5000);
         }
 
         this.#_player.update();
@@ -71,8 +74,6 @@ export class Game {
     public dispose(): void {
         Bullet.onBulletCreated = null;
         Bullet.onBulletDisposed = null;
-        BabylonObserverStore.clearBeforeRender();
-        BabylonObserverStore.clearAfterRender();
         this.#_roundHandler.dispose();
         this.#_player.dispose();
         this.#_bullets.forEach(b => b.dispose());

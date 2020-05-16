@@ -111,7 +111,8 @@ export class Bootstrap {
         Input.init();
 
         // Adds the files that need to be downloaded into the loader.
-        Loader.addDownload('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/5/Farmer.gltf');
+        Loader.addDownload('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/6/Farmer.gltf');
+        Loader.addDownload('Corncobber', 'https://storage.googleapis.com/farmer-assets/weapon/1/Corncobber.gltf');
         Loader.addDownload('Garden', 'https://storage.googleapis.com/farmer-assets/garden/5/Environment.gltf');
 
         // Start the download process. Callback will trigger on progress updates.
@@ -153,7 +154,6 @@ export class Bootstrap {
         // Runs the update loop for the Babylon Engine. Will update the game if it exists.
         BabylonObserverStore.registerBeforeRender(() => {
             BabylonStore.update();
-
             if(this.#_game) {
                 this.#_game.update();
             }

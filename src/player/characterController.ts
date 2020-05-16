@@ -8,6 +8,9 @@ import { BabylonObserverStore } from '../store/babylonObserverStore';
  * Handles input for the player character.
  */
 export class CharacterController {
+    #_updateHandle: number;
+    #_disabled = false;
+
     /**
      * Constructor.
      * @param player The player character that needs to be controlled. 
@@ -16,6 +19,10 @@ export class CharacterController {
         // Callback whenever the pointer has been moved. TODO: Figure out a better way to handle this. 
         // The player can move without moving the mouse, which won't update the rotation of the player.
         BabylonStore.scene.onPointerMove = (evt): void => {
+            if(this.#_disabled) {
+                return;
+            }
+
             const projectedFarmerPosition = Vector3.Project(player.position, Matrix.Identity(), BabylonStore.scene.getTransformMatrix(), BabylonStore.camera.viewport);
             projectedFarmerPosition.x *= BabylonStore.engine.getRenderWidth();
             projectedFarmerPosition.y *= BabylonStore.engine.getRenderHeight();
@@ -27,7 +34,11 @@ export class CharacterController {
         let hasMoved = false;
         let hasFired = false;
         let hasFiredController = false;
-        BabylonObserverStore.registerAfterRender(() => {
+        this.#_updateHandle = BabylonObserverStore.registerAfterRender(() => {
+            if(this.#_disabled) {
+                return;
+            }
+
             let x = 0;
             let y = 0;
             if (Input.isKeyDown('w') || Input.isKeyDown('W')) {
@@ -86,6 +97,29 @@ export class CharacterController {
                 hasMoved = false;
             }
         });
+    }
+
+    /**
+     * Disables the input of the controller.
+     */
+    public get disabled(): boolean {
+        return this.#_disabled;
+    }
+    public set disabled(value: boolean) {
+        this.#_disabled = value;
+    }
+
+    /**
+     * Releases all resources associated with this CharacterController.
+     */
+    public dispose(): void {
+        this.onMove = null;
+        this.onMoveEnd = null;
+        this.onRotate = null;
+        this.onFire = null;
+        this.onFireEnd = null;
+
+        BabylonObserverStore.deregisterAfterRender(this.#_updateHandle);
     }
 
     /**

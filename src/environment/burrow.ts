@@ -62,11 +62,6 @@ export class Burrow {
      * Release all resources associated with the Burrow.
      */
     public dispose(): void {
-        // Don't dispose the resource twice.
-        if(this.#_mesh === null) {
-            return;
-        }
-
         this.#_mesh.material.dispose();
         this.#_mesh.dispose();
     }

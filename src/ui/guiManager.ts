@@ -10,6 +10,7 @@ export class GUIManager {
     #_healthSlider: Slider;
     #_roundNumberText: TextBlock;
     #_roundTimerText: TextBlock;
+    #_updateHandle: number;
 
     /**
      * Constructor.
@@ -51,7 +52,7 @@ export class GUIManager {
         this.#_dynamicTexture.addControl(fpsText);
 
         const performanceMonitor = new PerformanceMonitor();
-        BabylonObserverStore.registerAfterRender(() => {
+        this.#_updateHandle = BabylonObserverStore.registerAfterRender(() => {
             performanceMonitor.sampleFrame();
             fpsText.text = 'FPS: ' + performanceMonitor.averageFPS.toFixed(0);
         });
@@ -86,6 +87,7 @@ export class GUIManager {
      * Release all resources associated with this GUIManager.
      */
     public dispose(): void {
+        BabylonObserverStore.deregisterAfterRender(this.#_updateHandle);
         this.#_healthSlider.dispose();
         this.#_roundNumberText.dispose();
         this.#_roundTimerText.dispose();

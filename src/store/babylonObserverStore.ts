@@ -6,8 +6,9 @@ import { BabylonStore } from './babylonStore';
 export class BabylonObserverStore {
     private static _instance: BabylonObserverStore = null;
 
-    #_onBeforeRenderFunctions: (() => void)[] = [];
-    #_onAfterRenderFunctions: (() => void)[] = [];
+    #_count = 0;
+    #_onBeforeRenderFunctions: Map<number, () => void> = new Map<number, () => void>();
+    #_onAfterRenderFunctions: Map<number, (() => void)> = new Map<number, () => void>();
     
     private constructor() {
         BabylonObserverStore._instance = this;
@@ -16,33 +17,43 @@ export class BabylonObserverStore {
     /**
      * Registers callbacks to 'scene.registerBeforeRender'. Needed in order to properly unregister the functions.
      * @param func The function to register.
+     * @returns The handle to the callback for deregistering.
      */
-    public static registerBeforeRender(func: () => void): void {
-        this.getInstance().#_onBeforeRenderFunctions.push(func);
+    public static registerBeforeRender(func: () => void): number {
+        const instance = this.getInstance();
+        instance.#_onBeforeRenderFunctions.set(instance.#_count, func);
         BabylonStore.scene.registerBeforeRender(func);
+        return instance.#_count++;
     }
     /**
-     * Unregisters all the callbacks that were added with 'registerBeforeRender'.
+     * Deregisters the callback that was registered with 'registerBeforeRender'. Takes in a handle that is returned from that function.
+     * @param handle The handle for the callback to deregister.
      */
-    public static clearBeforeRender(): void {
-        this.getInstance().#_onBeforeRenderFunctions.forEach(f => BabylonStore.scene.unregisterBeforeRender(f));
-        this.getInstance().#_onBeforeRenderFunctions = [];
+    public static deregisterBeforeRender(handle: number): void {
+        const instance = this.getInstance();
+        BabylonStore.scene.unregisterBeforeRender(instance.#_onBeforeRenderFunctions.get(handle));
+        instance.#_onBeforeRenderFunctions.delete(handle);
     }
 
     /**
      * Registers callbacks to 'scene.registerAfterRender'. Needed in order to properly unregister the functions.
      * @param func The function to register.
+     * @returns The handle to the callback for deregistering.
      */
-    public static registerAfterRender(func: () => void): void {
-        this.getInstance().#_onAfterRenderFunctions.push(func);
+    public static registerAfterRender(func: () => void): number {
+        const instance = this.getInstance();
+        instance.#_onAfterRenderFunctions.set(instance.#_count, func);
         BabylonStore.scene.registerAfterRender(func);
+        return instance.#_count++;
     }
     /**
-     * Unregisters all the callbacks that were added with 'registerAfterRender'.
+     * Deregisters the callback that was registered with 'registerAfterRender'. Takes in a handle that is returned from that function.
+     * @param handle The handle for the callback to deregister.
      */
-    public static clearAfterRender(): void {
-        this.getInstance().#_onAfterRenderFunctions.forEach(f => BabylonStore.scene.unregisterAfterRender(f));
-        this.getInstance().#_onAfterRenderFunctions = [];
+    public static deregisterAfterRender(handle: number): void {
+        const instance = this.getInstance();
+        BabylonStore.scene.unregisterBeforeRender(instance.#_onBeforeRenderFunctions.get(handle));
+        instance.#_onBeforeRenderFunctions.delete(handle);
     }
 
     private static getInstance(): BabylonObserverStore {

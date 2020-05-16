@@ -40,6 +40,7 @@ export class Garden extends BaseCollidable {
      * Release all resources associated with this Garden.
      */
     public dispose(): void {
+        super.dispose();
         this.#_ground.dispose();
         this.#_rootNodes.forEach(n => n.dispose());
     }
