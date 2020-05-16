@@ -5,6 +5,7 @@ import { Input } from './input/input';
 import { Game } from './gameplay/game';
 import { BabylonObserverStore } from './store/babylonObserverStore';
 import { CollisionManager } from './collision/collisionManager';
+import { SoundManager } from './assets/soundManager';
 
 /**
  * Callback that will get triggered when the loading screen is to show. Also shows progress through a progress bar.
@@ -115,6 +116,8 @@ export class Bootstrap {
         Loader.addDownload('Corncobber', 'https://storage.googleapis.com/farmer-assets/weapon/1/Corncobber.gltf');
         Loader.addDownload('Garden', 'https://storage.googleapis.com/farmer-assets/garden/5/Environment.gltf');
 
+        SoundManager.load('Music', 'https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3');
+
         // Start the download process. Callback will trigger on progress updates.
         Loader.startDownload((progress: number) => {
             const fullProgress = `${(progress * 100).toFixed(2)}%`;
@@ -130,6 +133,8 @@ export class Bootstrap {
 
             // Checks for any button/key input for getting passed the splash screen.
             Input.onAnyDown = (): void => {
+                SoundManager.play('Music', true);
+
                 this.#_game = new Game(this, this._onGameOver);
                 BabylonStore.engine.hideLoadingUI();
                 Input.onAnyDown = null;
