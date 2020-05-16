@@ -10,14 +10,16 @@
             display: block;
         }
     </style>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 
 <body>
+    <script src="https://preview.babylonjs.com/recast.js"></script>
     <canvas id='canvas' style='position:absolute; left:0px; top:0px; width:100%; height:100%;'/>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            var game = new window.Game(document.getElementById('canvas'));
-            game.run();
+            var bootstrap = new window.Bootstrap(document.getElementById('canvas'));
+            bootstrap.run();
         });
     </script>
 </body>

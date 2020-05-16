@@ -25,7 +25,7 @@ export class Spawner {
      * @returns The InstantiatedEntries returned from the asset container instantiation.
      */
     public instantiate(): InstantiatedEntries {
-        return this.#_assetContainer.instantiateModelsToScene();
+        return this.#_assetContainer.instantiateModelsToScene((name) => name);
     }
 
     /**
@@ -35,8 +35,19 @@ export class Spawner {
      * @param onProgress An optional progress callback that will return a number between 0 and 1.
      * @returns A promise that will return a Spawner when it resolves.
      */
-    public static async create(name: string, url: string, onProgress?: (progress: number) => { }): Promise<Spawner> {
+    public static async create(name: string, url: string, onProgress?: (progress: number) => void): Promise<Spawner> {
+        // Load an asset container from the server. The first file that gets downloaded is always the gltf JSON file.
+        // We skip calling progress on that, as we don't know the full size of the download yet. Once the gltf file is
+        // downloaded, we can call onProgress, as the progress will now be accurate.
+        let gltfLoaded = false;
         const assetContainer = await SceneLoader.LoadAssetContainerAsync(url, '', BabylonStore.scene, (evt) => {
+            if(!gltfLoaded) {
+                if(evt.loaded === evt.total) {
+                    gltfLoaded = true;
+                }
+                return;
+            }
+
             onProgress?.call(this, evt.loaded / evt.total);
         });
         return new Spawner(name, assetContainer);
