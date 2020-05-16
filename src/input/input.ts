@@ -36,7 +36,6 @@ export class Input {
 
         // Events that get triggered when any mouse button is clicked/released.
         BabylonStore.scene.onPointerDown = (evt): void => {
-            console.log(evt);
             this.mapInput('pointerDown', true && evt.pointerType === 'mouse' && evt.button === 0);
         };
         BabylonStore.scene.onPointerUp = (): void => {
