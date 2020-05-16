@@ -1,12 +1,13 @@
 import { TransformNode, Mesh, MeshBuilder } from 'babylonjs';
 import { Spawner } from '../assets/spawner';
 import { Navigation } from '../gameplay/navigation';
-import { CollisionGroup } from '../collision/collisionGroup';
+import { BaseCollidable } from '../collision/baseCollidable';
+import { CollisionGroup } from '../collision/collisionManager';
 
 /**
  * Tha main Garden scene.
  */
-export class Garden {
+export class Garden extends BaseCollidable {
     #_rootNodes: TransformNode[];
     #_ground: Mesh;
 
@@ -14,6 +15,8 @@ export class Garden {
      * Constructor.
      */
     public constructor() {
+        super(CollisionGroup.Environment);
+
         const spawner = Spawner.getSpawner('Garden');
         this.#_rootNodes = spawner.instantiate().rootNodes;
 
@@ -24,12 +27,9 @@ export class Garden {
         this.#_ground.isVisible = false;
 
         const colliders = this.#_rootNodes.map(n => n.getChildMeshes(false, m => m.name.startsWith('Collider'))).reduce((acc, val) => acc.concat(val), []);
-        colliders.forEach(c => {
-            c.checkCollisions = true;
-            c.collisionGroup = CollisionGroup.Environment;
-            c.collisionMask = CollisionGroup.Bullet;
-            
+        colliders.forEach(c => {            
             c.isVisible = false;
+            super.registerMesh(c, c.name);
         });
         colliders.push(this.#_ground);
 

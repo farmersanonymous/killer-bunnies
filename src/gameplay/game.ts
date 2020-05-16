@@ -5,6 +5,7 @@ import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { GUIManager } from '../ui/guiManager';
 import { RoundHandler } from './roundHandler';
 import { Bullet } from '../player/bullet';
+import { CollisionManager } from '../collision/collisionManager';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -57,6 +58,8 @@ export class Game {
         for(let i = 0; i < this.#_bullets.length; i++) {
             this.#_bullets[i].update();
         }
+
+        CollisionManager.update();
 
         // Updates the round.
         this.#_roundHandler.update(this.#_player);

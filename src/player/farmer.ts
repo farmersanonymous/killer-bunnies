@@ -2,16 +2,17 @@ import { Mesh, Vector2, Vector3, Angle, Scalar, TransformNode } from 'babylonjs'
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
-import { CollisionGroup } from '../collision/collisionGroup';
 import { Spawner } from '../assets/spawner';
 import { PlayerCameraController } from '../camera/playerCameraController';
 import { Navigation } from '../gameplay/navigation';
+import { CollisionGroup } from '../collision/collisionManager';
+import { BaseCollidable } from '../collision/baseCollidable';
 import { Animator, AnimatorState } from '../animation/animator';
 
 /**
  * The playable Farmer character.
  */
-export class Farmer {
+export class Farmer extends BaseCollidable {
     #_controller: CharacterController;
     #_camera: PlayerCameraController;
     #_root: TransformNode;
@@ -41,16 +42,15 @@ export class Farmer {
      * Constructor.
      */
     public constructor() {
+        super(CollisionGroup.Player);
+
         // The mesh is a player and can collide with the environment.
         const spawner = Spawner.getSpawner('Farmer');
         const instance = spawner.instantiate();
         this.#_root = instance.rootNodes[0];
         this.#_mesh = this.#_root.getChildMeshes(false)[0] as Mesh;
-        this.#_mesh.checkCollisions = true;
-        this.#_mesh.collisionGroup = CollisionGroup.Player;
-        this.#_mesh.collisionMask = CollisionGroup.Environment;
-        this.#_mesh.ellipsoid = new Vector3(1, 2, 1);
-        this.#_mesh.isPickable = false;
+
+        super.registerMesh(this.#_mesh);
 
         this.#_animator = new Animator(instance.animationGroups);
 
@@ -92,6 +92,7 @@ export class Farmer {
             // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
             this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(180).radians(), 0);
         };
+
         // Initialize the camera.
         this.#_camera = new PlayerCameraController(this);
     }
@@ -100,6 +101,8 @@ export class Farmer {
      * Updates the Farmer every frame.
      */
     public update(): void {
+        this.#_mesh.moveWithCollisions(Vector3.ZeroReadOnly);
+        
         if(!this.#_isMoving && !this.#_isFiring) {
             this.#_animator.play(AnimatorState.Idle);
         }
@@ -113,6 +116,7 @@ export class Farmer {
      * Release all resources associated with this Farmer.
      */
     public dispose(): void {
+        super.dispose();
         this.#_mesh.dispose();
         this.#_camera.dispose();
     }

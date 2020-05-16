@@ -1,12 +1,13 @@
-import { Mesh, MeshBuilder, Vector3, AbstractMesh } from 'babylonjs';
+import { Mesh, MeshBuilder, Vector3, Angle, Vector2 } from 'babylonjs';
 import { Navigation } from '../gameplay/navigation';
 import { Farmer } from '../player/farmer';
-import { CollisionGroup } from '../collision/collisionGroup';
+import { CollisionGroup } from '../collision/collisionManager';
+import { BaseCollidable } from '../collision/baseCollidable';
 
 /**
  * The rabbit that will try and stab the farmer.
  */
-export class StabberRabbit {
+export class StabberRabbit extends BaseCollidable {
     /**
      * A callback that will get triggered when a rabbit has been created.
      */
@@ -16,27 +17,33 @@ export class StabberRabbit {
      */
     public static onRabbitDisposed: (rabbit: StabberRabbit) => void;
 
-    private static rabbitMap: Map<AbstractMesh, StabberRabbit> = new Map<Mesh, StabberRabbit>();
-
-    #_mesh: Mesh
+    #_mesh: Mesh;
+    #_weapon: Mesh;
     #_agent: number;
 
     /**
      * Constructor. The position that the rabbit will spawn at.
      */
     constructor(pos: Vector3) {
+        super(CollisionGroup.Enemy);
+
         this.#_mesh = MeshBuilder.CreateSphere('stabberRabbit', { diameter: 1 });
         this.#_mesh.position = pos;
-        this.#_mesh.checkCollisions = true;
-        this.#_mesh.collisionGroup = CollisionGroup.Enemy;
-        this.#_mesh.collisionMask = CollisionGroup.Bullet;
-        this.#_mesh.isPickable = false;
-        this.#_mesh.state
+
+        this.#_weapon = MeshBuilder.CreateBox('stabberRabbitWeapon', { width: 1, height: 0.25, depth: 0.25 });
+        this.#_weapon.parent = this.#_mesh;
+        this.#_weapon.position = this.#_weapon.position.subtract(this.#_weapon.right);
+
+        super.registerMesh(this.mesh);
+        super.registerMesh(this.#_weapon, 'weapon');
 
         this.#_agent = Navigation.addAgent(pos, this.#_mesh);
 
-        StabberRabbit.rabbitMap.set(this.#_mesh, this);
         StabberRabbit.onRabbitCreated(this);
+    }
+
+    public get mesh(): Mesh {
+        return this.#_mesh;
     }
 
     /**
@@ -45,13 +52,16 @@ export class StabberRabbit {
      */
     public update(farmer: Farmer): void {
         Navigation.agentGoTo(this.#_agent, farmer.position);
-        this.#_mesh.moveWithCollisions(Vector3.ZeroReadOnly);
+
+        const dir = Navigation.getAgentVelocity(this.#_agent);
+        // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
+        this.#_mesh.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), new Vector2(dir.x, dir.z)).radians() /*- Angle.FromDegrees(180).radians()*/, 0);
     }
 
     /**
-     * Triggered when a bullet hits the rabbit.
+     * Callback that will get fired when the enemy hits a bullet.
      */
-    public onHit(): void {
+    public onCollide(): void {
         StabberRabbit.onRabbitDisposed(this);
         this.dispose();
     }
@@ -60,17 +70,9 @@ export class StabberRabbit {
      * Release all resources associated with this StabberRabbit.
      */
     public dispose(): void {
+        super.dispose();
         Navigation.removeAgent(this.#_agent);
-        StabberRabbit.rabbitMap.delete(this.#_mesh);
+        this.#_weapon.dispose();
         this.#_mesh.dispose();
-    }
-
-    /**
-     * Gets the Rabbit instance by it's mesh.
-     * @param mesh The mesh that is attached to the rabbit.
-     * @returns The Rabbit instance.
-     */
-    public static getRabbitByMesh(mesh: AbstractMesh): StabberRabbit {
-        return this.rabbitMap.get(mesh);
     }
 }

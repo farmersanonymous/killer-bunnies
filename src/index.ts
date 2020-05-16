@@ -4,6 +4,7 @@ import { Loader } from './assets/loader';
 import { Input } from './input/input';
 import { Game } from './gameplay/game';
 import { BabylonObserverStore } from './store/babylonObserverStore';
+import { CollisionManager } from './collision/collisionManager';
 
 /**
  * Callback that will get triggered when the loading screen is to show. Also shows progress through a progress bar.
@@ -141,6 +142,8 @@ export class Bootstrap {
                 BabylonStore.engine.resize();
             }
         });
+
+        CollisionManager.init();
     }
 
     /**

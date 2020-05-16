@@ -53,7 +53,7 @@ export class Navigation {
     public static addAgent(pos: Vector3, transform: TransformNode): number {
         return this._crowd.addAgent(this._plugin.getClosestPoint(pos), {
             radius: 0.5,
-            height: 0.2,
+            height: 0.5,
             maxAcceleration: 4.0,
             maxSpeed: 4,
             collisionQueryRange: 1.5,
@@ -75,5 +75,13 @@ export class Navigation {
      */
     public static agentGoTo(agent: number, pos: Vector3): void {
         this._crowd.agentGoto(agent, this._plugin.getClosestPoint(pos));
+    }
+    /**
+     * Gets the velocity of the current agent.
+     * @param agent The agent identifier.
+     * @returns The velocity of the agent.
+     */
+    public static getAgentVelocity(agent: number): Vector3 {
+        return this._crowd.getAgentVelocity(agent);
     }
 }
