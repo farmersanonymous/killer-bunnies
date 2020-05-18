@@ -5,6 +5,7 @@ import { GUIManager } from '../ui/guiManager';
 import { RoundHandler } from './roundHandler';
 import { Bullet } from '../player/bullet';
 import { CollisionManager } from '../collision/collisionManager';
+import { SoundManager } from '../assets/soundManager';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -24,6 +25,10 @@ export class Game {
      * @param onGameOver A callback that is fired when the game is over.
      */
     constructor(bootstrap: Bootstrap, onGameOver: () => void) {
+        SoundManager.play('Music', {
+            loop: true
+        });
+
         this.#_player = new Farmer();
         this.#_garden = new Garden();
         this.#_gui = new GUIManager();
