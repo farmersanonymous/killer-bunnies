@@ -25,6 +25,7 @@ export class Game {
      * @param onGameOver A callback that is fired when the game is over.
      */
     constructor(bootstrap: Bootstrap, onGameOver: () => void) {
+        SoundManager.stop('Title');
         SoundManager.play('Music', {
             loop: true
         });

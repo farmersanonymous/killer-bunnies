@@ -96,6 +96,13 @@ export class Bootstrap {
         BabylonStore.scene.collisionsEnabled = true;
         BabylonStore.scene.useRightHandedSystem = true;
 
+        // This is the title sound so it needs to load as soon as possible.
+        SoundManager.load('Title', 'https://storage.googleapis.com/farmer-assets/sound/meadowlark_daniel-simion.mp3').then(() => {
+            SoundManager.play('Title', {
+                loop: true
+            })
+        });
+
         // Creates the main camera.
         BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, Vector3.Zero(), BabylonStore.scene, true);
 
@@ -176,6 +183,7 @@ export class Bootstrap {
         this.#_game = null;
         this.#_canvas.style.opacity = '0';
         SoundManager.stop('Music');
+        SoundManager.play('Title');
 
         // Show splash screen and wait 3 seconds before allowing input again.
         BabylonStore.engine.displayLoadingUI();
