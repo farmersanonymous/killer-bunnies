@@ -5,6 +5,7 @@ import { GUIManager } from '../ui/guiManager';
 import { RoundHandler } from './roundHandler';
 import { Bullet } from '../player/bullet';
 import { CollisionManager } from '../collision/collisionManager';
+import { RadarManager } from '../ui/radar';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -79,5 +80,7 @@ export class Game {
         this.#_bullets.forEach(b => b.dispose());
         this.#_garden.dispose();
         this.#_gui.dispose();
+        
+        RadarManager.dispose();
     }
 }

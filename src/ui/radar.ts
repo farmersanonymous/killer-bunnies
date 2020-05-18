@@ -1,4 +1,4 @@
-import { Camera, Viewport, Vector3, Mesh, MeshBuilder, AbstractMesh, StandardMaterial, TransformNode, Color3, FreeCamera } from 'babylonjs'
+import { Camera, Viewport, Vector3, Mesh, MeshBuilder, StandardMaterial, TransformNode, Color3, FreeCamera } from 'babylonjs'
 import { BabylonStore } from '../store/babylonStore'
 import { BabylonObserverStore } from '../store/babylonObserverStore';
 
@@ -6,19 +6,15 @@ import { BabylonObserverStore } from '../store/babylonObserverStore';
  * 
  */
 class Radar {
+    #_background: Mesh;
     #_radar: FreeCamera;
 
     /**
      * 
      */
     constructor() {
-        console.log("Hello");
         this.#_radar = new FreeCamera("radar", new Vector3(0, 10, 0), BabylonStore.scene);
-
-        this.#_radar.rotation.y = 1.55
         this.#_radar.mode = Camera.ORTHOGRAPHIC_CAMERA;
-
-        this.#_radar.setTarget(new Vector3(0.1,0.1,0.1));
 
         const size = 10;
 
@@ -33,21 +29,20 @@ class Radar {
 
 		this.#_radar.layerMask = 0x10000000
         BabylonStore.scene.activeCameras.push(this.#_radar);
+
+        this.#_background = Mesh.CreateGround("background", 6, 6, 2, BabylonStore.scene);
+        this.#_background.layerMask = 0x10000000;
+        //this.#_background.material = new StandardMaterial('backgroundMat', BabylonStore.scene);
+        //(this.#_background.material as StandardMaterial).diffuseTexture = 
     }
 
     /**
      * 
      */
     public set target(position: Vector3) {
-        this.#_radar.setTarget(position);
-    }
-
-    /**
-     * 
-     * @param target 
-     */
-    public setTarget(target: AbstractMesh): void {
-        this.#_radar.lockedTarget = target;
+        this.#_radar.lockedTarget = position;
+        this.#_radar.position = new Vector3(position.x, 10, position.z);
+        this.#_background.position = new Vector3(position.x, -1, position.z);
     }
 
     /**
@@ -109,7 +104,7 @@ export class RadarManager {
     private get enemyMaterial(): StandardMaterial {
         if (this.#_enemyMaterial == null) {
             this.#_enemyMaterial = new StandardMaterial('EnemyBlip', BabylonStore.scene);
-            (this.#_enemyMaterial as StandardMaterial).diffuseColor = Color3.Red();
+            (this.#_enemyMaterial as StandardMaterial).diffuseColor = Color3.White();
         }
         return this.#_enemyMaterial;
     }
@@ -120,7 +115,7 @@ export class RadarManager {
     private get playerMaterial(): StandardMaterial {
         if (this.#_playerMaterial == null) {
             this.#_playerMaterial = new StandardMaterial('PlayerBlip', BabylonStore.scene);
-            (this.#_playerMaterial as StandardMaterial).diffuseColor = Color3.Green();
+            (this.#_playerMaterial as StandardMaterial).diffuseColor = Color3.Black();
         }
         return this.#_playerMaterial;
     }
@@ -141,8 +136,12 @@ export class RadarManager {
                 blip.material = this.getInstance().enemyMaterial;
                 break;
         }
-        
+
         BabylonObserverStore.registerBeforeRender(() => {
+            if (blipType == BlipType.Player) {
+                this.getInstance().#_radar.target = root.position;
+            }
+
             blip.position = root.position
         });
 
@@ -158,22 +157,12 @@ export class RadarManager {
     }
 
     /**
-     * 
-     * @param target 
-     */
-    public static SetTarget(target: AbstractMesh): void {
-        this.getInstance().#_radar.setTarget(target);
-    }
-
-    /**
      * Release all resources associated with this Game.
      */
-    /*
-     public dispose(): void {
-        RadarManager._radar.dispose();
-        //blips.forEach(b => b.dispose());
+    public static dispose(): void {
+        this.getInstance().#_radar.dispose();
+        this.getInstance().#_blips.forEach(b => b.dispose());
     }
-    */
 
     /**
      * 
