@@ -142,7 +142,7 @@ export class RadarManager {
                 this.getInstance().#_radar.target = root.position;
             }
 
-            blip.position = root.position
+            blip.position = root.position;
         });
 
         this.getInstance().#_blips.set(root, blip);

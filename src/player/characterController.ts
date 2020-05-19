@@ -1,4 +1,4 @@
-import { Vector2, Vector3, Matrix } from 'babylonjs';
+import { Vector2, Vector3, Matrix, VirtualJoystick } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { Farmer } from './farmer';
 import { Input } from '../input/input';
@@ -19,7 +19,7 @@ export class CharacterController {
         // Callback whenever the pointer has been moved. TODO: Figure out a better way to handle this. 
         // The player can move without moving the mouse, which won't update the rotation of the player.
         BabylonStore.scene.onPointerMove = (evt): void => {
-            if(this.#_disabled) {
+            if (this.#_disabled) {
                 return;
             }
 
@@ -30,12 +30,18 @@ export class CharacterController {
             const dir = new Vector2(projectedFarmerPosition.x - evt.clientX, projectedFarmerPosition.y - evt.clientY);
             this.onRotate?.call(this, dir.normalize());
         }
+        let leftJoystick: VirtualJoystick;
+        let rightJoystick: VirtualJoystick;
+        if (/Mobi/.test(navigator.userAgent)) {
+            leftJoystick = new VirtualJoystick(true);
+            rightJoystick = new VirtualJoystick(false)
+        }
 
         let hasMoved = false;
         let hasFired = false;
         let hasFiredController = false;
         this.#_updateHandle = BabylonObserverStore.registerAfterRender(() => {
-            if(this.#_disabled) {
+            if (this.#_disabled) {
                 return;
             }
 
@@ -58,9 +64,35 @@ export class CharacterController {
                 this.onFire?.call(this);
                 hasFired = true;
             }
-            else if(hasFired) {
+            else if (hasFired) {
                 this.onFireEnd?.call(this);
                 hasFired = false;
+            }
+
+            if (leftJoystick && leftJoystick.pressed) {
+                if (leftJoystick.deltaPosition.x > 0.1 || leftJoystick.deltaPosition.x < 0.1) {
+                    x = leftJoystick.deltaPosition.x;
+                }
+                if (leftJoystick.deltaPosition.y > 0.1 || leftJoystick.deltaPosition.y < 0.1) {
+                    y = leftJoystick.deltaPosition.y;
+                }
+            }
+
+            if (rightJoystick && rightJoystick.pressed) {
+                if (rightJoystick.deltaPosition.x > 0.5 || rightJoystick.deltaPosition.x < 0.5 ||
+                    rightJoystick.deltaPosition.y > 0.5 || rightJoystick.deltaPosition.y < 0.5) {
+                    this.onRotate?.call(this, new Vector2(-rightJoystick.deltaPosition.x, rightJoystick.deltaPosition.y));
+                    this.onFire?.call(this);
+                    hasFiredController = true;
+                }
+                else if(hasFiredController) {
+                    this.onFireEnd?.call(this);
+                    hasFiredController = false;
+                }
+            }
+            else if(hasFiredController) {
+                this.onFireEnd?.call(this);
+                hasFiredController = false;
             }
 
             // If a game pad exists, handle input.
@@ -77,8 +109,9 @@ export class CharacterController {
                     this.onFire?.call(this);
                     hasFiredController = true;
                 }
-                else if(hasFiredController) {
+                else if (hasFiredController) {
                     this.onFireEnd?.call(this);
+                    hasFiredController = false;
                 }
 
                 // 0.5 is used to handle any quick twitches that happen when doing fast rotations, might need to tweak still.
@@ -92,7 +125,7 @@ export class CharacterController {
                 this.onMove?.call(this, new Vector2(x, y));
                 hasMoved = true;
             }
-            else if(hasMoved) {
+            else if (hasMoved) {
                 this.onMoveEnd?.call(this);
                 hasMoved = false;
             }

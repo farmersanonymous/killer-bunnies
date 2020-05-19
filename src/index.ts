@@ -1,10 +1,11 @@
 import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader } from 'babylonjs';
 import { BabylonStore } from './store/babylonStore';
-import { Loader } from './assets/loader';
+import { Loader, LoaderType } from './assets/loader';
 import { Input } from './input/input';
 import { Game } from './gameplay/game';
 import { BabylonObserverStore } from './store/babylonObserverStore';
 import { CollisionManager } from './collision/collisionManager';
+import { SoundManager } from './assets/soundManager';
 
 /**
  * Callback that will get triggered when the loading screen is to show. Also shows progress through a progress bar.
@@ -95,6 +96,13 @@ export class Bootstrap {
         BabylonStore.scene.collisionsEnabled = true;
         BabylonStore.scene.useRightHandedSystem = true;
 
+        // This is the title sound so it needs to load as soon as possible.
+        SoundManager.load('Title', 'https://storage.googleapis.com/farmer-assets/sound/meadowlark_daniel-simion.mp3').then(() => {
+            SoundManager.play('Title', {
+                loop: true
+            })
+        });
+
         // Creates the main camera.
         BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, Vector3.Zero(), BabylonStore.scene, true);
 
@@ -111,9 +119,11 @@ export class Bootstrap {
         Input.init();
 
         // Adds the files that need to be downloaded into the loader.
-        Loader.addDownload('Farmer', 'https://storage.googleapis.com/farmer-assets/farmer/6/Farmer.gltf');
-        Loader.addDownload('Corncobber', 'https://storage.googleapis.com/farmer-assets/weapon/1/Corncobber.gltf');
-        Loader.addDownload('Garden', 'https://storage.googleapis.com/farmer-assets/garden/5/Environment.gltf');
+        Loader.addDownload('Farmer', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/farmer/6/Farmer.gltf');
+        Loader.addDownload('Corncobber', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/weapon/1/Corncobber.gltf');
+        Loader.addDownload('Garden', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/garden/5/Environment.gltf');
+        Loader.addDownload('Music', LoaderType.Sound, 'https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3');
+        Loader.addDownload('Burrow', LoaderType.Sound, 'https://storage.googleapis.com/farmer-assets/sound/burrow.mp3');
 
         // Start the download process. Callback will trigger on progress updates.
         Loader.startDownload((progress: number) => {
@@ -172,6 +182,8 @@ export class Bootstrap {
         this.#_game.dispose();
         this.#_game = null;
         this.#_canvas.style.opacity = '0';
+        SoundManager.stop('Music');
+        SoundManager.play('Title');
 
         // Show splash screen and wait 3 seconds before allowing input again.
         BabylonStore.engine.displayLoadingUI();
