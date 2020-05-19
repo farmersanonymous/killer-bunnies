@@ -90,6 +90,8 @@ export class StabberRabbit extends BaseCollidable {
                 });
             });
         }
+
+        RadarManager.updateBlip(this.#_mesh, BlipType.Enemy);
     }
 
     /**

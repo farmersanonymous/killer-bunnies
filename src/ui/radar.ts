@@ -1,22 +1,21 @@
-import { Camera, Viewport, Vector3, Mesh, MeshBuilder, StandardMaterial, TransformNode, Color3, FreeCamera } from 'babylonjs'
+import { Camera, Viewport, Vector3, Mesh, MeshBuilder, StandardMaterial, TransformNode, Color3, Angle, ArcRotateCamera } from 'babylonjs'
 import { BabylonStore } from '../store/babylonStore'
-import { BabylonObserverStore } from '../store/babylonObserverStore';
 
 /**
  * 
  */
 class Radar {
     #_background: Mesh;
-    #_radar: FreeCamera;
+    #_radar: ArcRotateCamera;
 
     /**
      * 
      */
     constructor() {
-        this.#_radar = new FreeCamera("radar", new Vector3(0, 10, 0), BabylonStore.scene);
+        this.#_radar = new ArcRotateCamera("radar", Angle.FromDegrees(180).radians(), Angle.FromDegrees(0).radians(), 50, undefined, BabylonStore.scene);
         this.#_radar.mode = Camera.ORTHOGRAPHIC_CAMERA;
 
-        const size = 10;
+        const size = 30;
 
         this.#_radar.orthoTop =  size;
         this.#_radar.orthoLeft = -size;
@@ -41,7 +40,6 @@ class Radar {
      */
     public set target(position: Vector3) {
         this.#_radar.lockedTarget = position;
-        this.#_radar.position = new Vector3(position.x, 10, position.z);
         this.#_background.position = new Vector3(position.x, -1, position.z);
     }
 
@@ -131,21 +129,26 @@ export class RadarManager {
         switch (blipType) {
             case BlipType.Player:
                 blip.material = this.getInstance().playerMaterial;
+                this.getInstance().#_radar.target = root.position;
                 break;
             case BlipType.Enemy:
                 blip.material = this.getInstance().enemyMaterial;
                 break;
         }
 
-        BabylonObserverStore.registerBeforeRender(() => {
-            if (blipType == BlipType.Player) {
-                this.getInstance().#_radar.target = root.position;
-            }
-
-            blip.position = root.position;
-        });
-
         this.getInstance().#_blips.set(root, blip);
+    }
+
+    /**
+     * 
+     */
+    public static updateBlip(root: Mesh, blipType: BlipType): void {
+        root;
+        this.getInstance().#_blips.get(root).position = root.position;
+
+        if(blipType === BlipType.Player) {
+            this.getInstance().#_radar.target = root.position;
+        }
     }
     
     /**

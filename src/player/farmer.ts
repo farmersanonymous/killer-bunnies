@@ -61,7 +61,7 @@ export class Farmer extends BaseCollidable {
         this.#_weaponRoot.parent = this.#_root.getChildTransformNodes(false, (n) => n.name === 'FarmerWeaponPoint')[0];
         this.#_weaponRoot.rotation = new Vector3(Angle.FromDegrees(270).radians(), 0, 0);
 
-        super.registerMesh(this.#_root.getChildMeshes(true)[0]);
+        super.registerMesh(this.#_root.getChildMeshes(true)[0] as Mesh);
 
         this.#_animator = new Animator(instance.animationGroups);
         this.#_weaponAnimator = new Animator(weaponInstance.animationGroups);
@@ -131,6 +131,8 @@ export class Farmer extends BaseCollidable {
             }
 
             this.#_hitTimer -= BabylonStore.deltaTime;
+
+            RadarManager.updateBlip(this.#_root as Mesh, BlipType.Player);
         }
     }
 
