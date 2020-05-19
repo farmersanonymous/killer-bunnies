@@ -1,6 +1,7 @@
 import { Vector3, MeshBuilder, Mesh, PBRMaterial, Color3 } from "babylonjs";
 import { BabylonStore } from "../store/babylonStore";
 import { StabberRabbit } from "../enemies/stabberRabbit";
+import { SoundManager } from "../assets/soundManager";
 
 /**
  * The Burrow will control how often and the spawn position of the Rabbit enemies.
@@ -27,6 +28,10 @@ export class Burrow {
      * @param timeLimit The time in seconds before the Burrow will dispose itself and disappear.
      */
     constructor(position: Vector3, spawnFrequency: number, timeLimit: number) {
+        SoundManager.play("Burrow", {
+            position: position
+        });
+
         this.#_disposeTime = BabylonStore.time + timeLimit;
         this.#_spawnFrequency = this.#_spawnTimer = spawnFrequency;
 
