@@ -21,6 +21,21 @@
             "url": "https://storage.googleapis.com/farmer-assets/burrow/4/Burrow.gltf"
         },
         {
+            "name": "Carrot",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/carrot/2/Carrot.gltf"
+        },
+        {
+            "name": "Meteorite",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/meteorite/2/Meteorite.gltf"
+        },
+        {
+            "name": "Well",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/well/2/Well.gltf"
+        },
+        {
             "name": "Music",
             "type": "sound",
             "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3"
@@ -29,7 +44,7 @@
             "name": "Burrow",
             "type": "sound",
             "url": "https://storage.googleapis.com/farmer-assets/sound/burrow.mp3"
-        }
+        }        
     ],
     "player": {
         "health": 100,

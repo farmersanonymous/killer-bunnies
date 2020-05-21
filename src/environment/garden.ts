@@ -18,10 +18,16 @@ export class Garden extends BaseCollidable {
     public constructor() {
         super(CollisionGroup.Environment);
 
-        const spawner = Spawner.getSpawner('Garden');
-        this.#_rootNodes = spawner.instantiate().rootNodes;
+        const gardenSpawner = Spawner.getSpawner('Garden');
+        this.#_rootNodes = gardenSpawner.instantiate().rootNodes;
         const burrowParent = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name === 'SpawnPoints_Burrows' );
         this.#_burrowSpawnPoints = burrowParent[0].getChildTransformNodes();
+
+        const wellSpawner = Spawner.getSpawner('Well');
+        wellSpawner.instantiate();
+
+        const meteoriteSpawner = Spawner.getSpawner('Meteorite');
+        meteoriteSpawner.instantiate();
 
         this.#_ground = MeshBuilder.CreateGround('Ground', {
             width: 100,
