@@ -26,6 +26,7 @@ export class Farmer extends BaseCollidable {
     #_skeleton: Skeleton;
     #_weaponSkeleton: Skeleton;
     #_hitTimer = 0.25;
+    #_bulletSpawnPoint: TransformNode;
 
     // Stats
     // The max health of the Farmer. Current health will be reset at the beginning of each round to max health.
@@ -59,6 +60,7 @@ export class Farmer extends BaseCollidable {
         this.#_weaponSkeleton = weaponInstance.skeletons[0];
         this.#_weaponRoot.parent = this.#_root.getChildTransformNodes(false, (n) => n.name === 'FarmerWeaponPoint')[0];
         this.#_weaponRoot.rotation = new Vector3(Angle.FromDegrees(270).radians(), 0, 0);
+        this.#_bulletSpawnPoint = this.#_weaponRoot.getChildTransformNodes(false, n => n.name === 'BulletSpawnPoint')[0];
 
         super.registerMesh(this.#_root.getChildMeshes(true)[0]);
 
@@ -91,11 +93,11 @@ export class Farmer extends BaseCollidable {
             }
 
             const backward = this.#_root.forward.negate();
-            new Bullet(this.#_root.position.add(backward.scale(1.5)).add(Vector3.Up()), this.weaponSpeed, backward, this.weaponRange);
+            new Bullet(this.#_bulletSpawnPoint.getWorldMatrix().getRow(3).toVector3(), this.weaponSpeed, backward, this.weaponRange);
             this.#_gunCooldown = true;
             window.setTimeout(() => {
                 this.#_gunCooldown = false;
-            }, 250);
+            }, 200);
         }
         this.#_controller.onFireEnd = (): void => {
             this.#_isFiring = false;
