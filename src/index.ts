@@ -120,7 +120,7 @@ export class Bootstrap {
 
         // Adds the files that need to be downloaded into the loader.
         Loader.addDownload('Farmer', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/farmer/6/Farmer.gltf');
-        Loader.addDownload('Corncobber', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/weapon/1/Corncobber.gltf');
+        Loader.addDownload('Corncobber', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/weapon/2/Corncobber.gltf');
         Loader.addDownload('Garden', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/garden/5/Environment.gltf');
         Loader.addDownload('Burrow', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/burrow/4/Burrow.gltf');
         Loader.addDownload('Music', LoaderType.Sound, 'https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3');
