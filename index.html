@@ -18,8 +18,13 @@
     <canvas id='canvas' style='position:absolute; left:0px; top:0px; width:100%; height:100%;'/>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            var bootstrap = new window.Bootstrap(document.getElementById('canvas'));
-            bootstrap.run();
+            var req = new XMLHttpRequest();
+            req.open('GET', 'config.json');
+            req.send();
+            req.onload = () => {
+                var bootstrap = new window.Bootstrap(document.getElementById('canvas'), req.responseText);
+                bootstrap.run();
+            }
         });
     </script>
 </body>
