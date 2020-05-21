@@ -1,8 +1,9 @@
-import { TransformNode } from "babylonjs";
+import { TransformNode, Scalar } from "babylonjs";
 import { BabylonStore } from "../store/babylonStore";
 import { StabberRabbit } from "../enemies/stabberRabbit";
 import { SoundManager } from "../assets/soundManager";
 import { Spawner } from "../assets/spawner";
+import { Config } from "../gameplay/config";
 
 /**
  * The Burrow will control how often and the spawn position of the Rabbit enemies.
@@ -25,10 +26,8 @@ export class Burrow {
     /**
      * Constructor.
      * @param position The position that the Burrow will be spawned at.
-     * @param spawnFrequency The frequency at which enemies will spawn in the Burrow.
-     * @param timeLimit The time in seconds before the Burrow will dispose itself and disappear.
      */
-    constructor(parent: TransformNode, spawnFrequency: number, timeLimit: number) {
+    constructor(parent: TransformNode) {
         SoundManager.play("Burrow", {
             position: parent.position
         });
@@ -38,8 +37,8 @@ export class Burrow {
          this.#_root = instance.rootNodes[0];
          this.#_root.parent = parent;
 
-        this.#_disposeTime = BabylonStore.time + timeLimit;
-        this.#_spawnFrequency = this.#_spawnTimer = spawnFrequency;
+        this.#_disposeTime = BabylonStore.time + Scalar.RandomRange(Config.burrow.timeLimit.min, Config.burrow.timeLimit.max);
+        this.#_spawnFrequency = this.#_spawnTimer = Scalar.RandomRange(Config.burrow.rabbitSpawnFrequency.min, Config.burrow.rabbitSpawnFrequency.max);
 
         Burrow.onBurrowCreated(this);
     }
@@ -56,7 +55,7 @@ export class Burrow {
             this.#_spawnTimer -= BabylonStore.deltaTime;
             if(this.#_spawnTimer <= 0) {
                 new StabberRabbit((this.#_root.parent as TransformNode).position.clone());
-                this.#_spawnTimer = this.#_spawnFrequency;
+                this.#_spawnTimer = Scalar.RandomRange(Config.burrow.rabbitSpawnFrequency.min, Config.burrow.rabbitSpawnFrequency.max);
             }
         }
     }

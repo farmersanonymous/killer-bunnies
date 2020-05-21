@@ -1,0 +1,59 @@
+{
+    "assets": [
+        {
+            "name": "Farmer",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/farmer/6/Farmer.gltf"
+        },
+        {
+            "name": "Corncobber",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/weapon/2/Corncobber.gltf"
+        },
+        {
+            "name": "Garden",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/garden/5/Environment.gltf"
+        },
+        {
+            "name": "Burrow",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/burrow/4/Burrow.gltf"
+        },
+        {
+            "name": "Music",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3"
+        },
+        {
+            "name": "Burrow",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/burrow.mp3"
+        }
+    ],
+    "player": {
+        "health": 100,
+        "speed": 5,
+        "weaponDamage": 10,
+        "weaponRange": 5,
+        "weaponSpeed": 20
+    },
+    "burrow": {
+        "spawnFrequency": {
+            "min": 5,
+            "max": 10
+        },
+        "timeLimit": {
+            "min": 30,
+            "max": 60
+        },
+        "rabbitSpawnFrequency": {
+            "min": 1,
+            "max": 5
+        }
+    },
+    "stabberRabbit": {
+        "damage": 10,
+        "speed": 4
+    }
+}
