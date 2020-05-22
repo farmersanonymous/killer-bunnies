@@ -36,14 +36,14 @@ export class Bullet extends BaseCollidable {
         this.#_direction = direction;
 
         // The mesh is a bullet and can collide with the environment or an enemy.
-        this.#_mesh = MeshBuilder.CreateSphere('bullet', { diameter: 1 });
-        this.#_mesh.position = spawnPosition.subtract(Vector3.Up());
+        this.#_mesh = MeshBuilder.CreateSphere('bullet', { diameter: 0.1 });
+        this.#_mesh.position = spawnPosition;
         
         super.registerMesh(this.#_mesh);
 
         // Setup the material for the bullet.
         const bulletMaterial = new PBRMaterial('bulletMaterial', BabylonStore.scene);
-        bulletMaterial.emissiveColor = Color3.Blue();
+        bulletMaterial.emissiveColor = Color3.Yellow();
         this.#_mesh.material = bulletMaterial;
 
         Bullet.onBulletCreated?.call(this, this);

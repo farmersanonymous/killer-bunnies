@@ -47,15 +47,16 @@ export class Navigation {
     /**
      * Adds an agent to the NavMesh. Will be able to move around the map in a Crowd AI way.
      * @param pos The position to spawn the agent at.
+     * @param speed The speed of the agent.
      * @param transform The transform that will be used to move the agent around the map.
      * @returns The agent identifier.
      */
-    public static addAgent(pos: Vector3, transform: TransformNode): number {
+    public static addAgent(pos: Vector3, speed: number, transform: TransformNode): number {
         return this._crowd.addAgent(this._plugin.getClosestPoint(pos), {
             radius: 0.5,
             height: 0.5,
-            maxAcceleration: 4.0,
-            maxSpeed: 4,
+            maxAcceleration: speed,
+            maxSpeed: speed,
             collisionQueryRange: 1.5,
             pathOptimizationRange: 0.0,
             separationWeight: 1.0

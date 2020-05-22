@@ -6,6 +6,7 @@ import { Game } from './gameplay/game';
 import { BabylonObserverStore } from './store/babylonObserverStore';
 import { CollisionManager } from './collision/collisionManager';
 import { SoundManager } from './assets/soundManager';
+import { Config } from './gameplay/config';
 
 /**
  * Callback that will get triggered when the loading screen is to show. Also shows progress through a progress bar.
@@ -84,8 +85,11 @@ export class Bootstrap {
     /**
      * Constructor.
      * @param canvas The canvas element used to initialize the Babylon engine.
+     * @param config The configuration data that will be used for setting the data parameters.
      */
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, config: string) {
+        Config.init(config);
+
         // Create the Babylon Engine. Need to set the opacity to '0' or '1' in order to show the splash screen, otherwise Babylon likes to freak out.
         BabylonStore.createEngine(canvas);
         this.#_canvas = canvas;
@@ -119,11 +123,9 @@ export class Bootstrap {
         Input.init();
 
         // Adds the files that need to be downloaded into the loader.
-        Loader.addDownload('Farmer', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/farmer/6/Farmer.gltf');
-        Loader.addDownload('Corncobber', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/weapon/1/Corncobber.gltf');
-        Loader.addDownload('Garden', LoaderType.Art, 'https://storage.googleapis.com/farmer-assets/garden/5/Environment.gltf');
-        Loader.addDownload('Music', LoaderType.Sound, 'https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3');
-        Loader.addDownload('Burrow', LoaderType.Sound, 'https://storage.googleapis.com/farmer-assets/sound/burrow.mp3');
+        Config.assets.forEach(a => {
+            Loader.addDownload(a.name, a.type === 'art' ? LoaderType.Art : LoaderType.Sound, a.url);
+        });
 
         // Start the download process. Callback will trigger on progress updates.
         Loader.startDownload((progress: number) => {

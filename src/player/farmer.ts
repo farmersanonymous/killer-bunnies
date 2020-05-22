@@ -10,6 +10,7 @@ import { BaseCollidable } from '../collision/baseCollidable';
 import { Animator, AnimatorState } from '../animation/animator';
 import { StabberRabbit } from '../enemies/stabberRabbit';
 import { RadarManager, BlipType } from '../ui/radar'
+import { Config } from '../gameplay/config';
 
 /**
  * The playable Farmer character.
@@ -27,26 +28,34 @@ export class Farmer extends BaseCollidable {
     #_skeleton: Skeleton;
     #_weaponSkeleton: Skeleton;
     #_hitTimer = 0.25;
+    #_bulletSpawnPoint: TransformNode;
 
     // Stats
     // The max health of the Farmer. Current health will be reset at the beginning of each round to max health.
-    #_maxHealth = 100;
+    #_maxHealth: number;
     // The amount of health the Farmer has.
-    #_health = this.#_maxHealth;
+    #_health: number;
     // How fast the Farmer will travel m/s.
-    #_movementSpeed = 5;
+    #_movementSpeed: number;
     // The amount of damage each bullet will do.
-    #_weaponDamage = 10;
+    #_weaponDamage: number;
     // How many seconds the bullets will last on screen before they are destroyed.
-    #_weaponRange = 5;
+    #_weaponRange: number;
     // How fast the bullets will travel m/s.
-    #_weaponSpeed = 20;
+    #_weaponSpeed: number;
 
     /**
      * Constructor.
      */
     public constructor() {
         super(CollisionGroup.Player);
+
+        this.#_maxHealth = Config.player.health;
+        this.#_health = this.#_maxHealth;
+        this.#_movementSpeed = Config.player.speed;
+        this.#_weaponDamage = Config.player.weaponDamage;
+        this.#_weaponRange = Config.player.weaponRange;
+        this.#_weaponSpeed = Config.player.weaponSpeed;
 
         // The mesh is a player and can collide with the environment.
         const spawner = Spawner.getSpawner('Farmer');
@@ -60,6 +69,7 @@ export class Farmer extends BaseCollidable {
         this.#_weaponSkeleton = weaponInstance.skeletons[0];
         this.#_weaponRoot.parent = this.#_root.getChildTransformNodes(false, (n) => n.name === 'FarmerWeaponPoint')[0];
         this.#_weaponRoot.rotation = new Vector3(Angle.FromDegrees(270).radians(), 0, 0);
+        this.#_bulletSpawnPoint = this.#_weaponRoot.getChildTransformNodes(false, n => n.name === 'BulletSpawnPoint')[0];
 
         super.registerMesh(this.#_root.getChildMeshes(true)[0] as Mesh);
 
@@ -92,11 +102,11 @@ export class Farmer extends BaseCollidable {
             }
 
             const backward = this.#_root.forward.negate();
-            new Bullet(this.#_root.position.add(backward.scale(1.5)).add(Vector3.Up()), this.weaponSpeed, backward, this.weaponRange);
+            new Bullet(this.#_bulletSpawnPoint.getWorldMatrix().getRow(3).toVector3(), this.weaponSpeed, backward, this.weaponRange);
             this.#_gunCooldown = true;
             window.setTimeout(() => {
                 this.#_gunCooldown = false;
-            }, 250);
+            }, 200);
         }
         this.#_controller.onFireEnd = (): void => {
             this.#_isFiring = false;
@@ -143,7 +153,7 @@ export class Farmer extends BaseCollidable {
     public onCollide(collidable: BaseCollidable): void {
         if (collidable instanceof StabberRabbit && collidable.attacking && this.#_hitTimer <= 0) {
             this.#_hitTimer = 0.25;
-            this.#_health -= 10;
+            this.#_health -= collidable.damage;
             this.#_animator.play(AnimatorState.TakeHit, false);
         }
     }

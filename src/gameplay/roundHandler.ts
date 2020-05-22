@@ -1,9 +1,11 @@
 import { GUIManager } from '../ui/guiManager';
 import { BabylonStore } from '../store/babylonStore';
 import { Burrow } from '../environment/burrow';
-import { Vector3, Scalar } from 'babylonjs';
 import { Farmer } from '../player/farmer';
 import { StabberRabbit } from '../enemies/stabberRabbit';
+import { Garden } from '../environment/garden';
+import { Scalar } from 'babylonjs';
+import { Config } from './config';
 
 /**
  * Amount of time, in seconds, that the defense round goes for.
@@ -50,12 +52,12 @@ export class RoundHandler {
     /**
      * How frequent the burrows will spawn. In seconds.
      */
-    #_spawnFrequency = 5;
+    #_spawnFrequency: number;
 
     /**
      * The current time left before the next burrow spawns.
      */
-    #_spawnTimer = this.#_spawnFrequency;
+    #_spawnTimer: number;
 
     /**
      * A list of Burrows that have been created by the RoundHandler.
@@ -71,6 +73,8 @@ export class RoundHandler {
     constructor(guiManager: GUIManager) {
         this.#_gui = guiManager;
         this.#_gui.setRound(this.#_round);
+
+        this.#_spawnFrequency = this.#_spawnTimer = Scalar.RandomRange(Config.burrow.spawnFrequency.min, Config.burrow.spawnFrequency.max);
 
         Burrow.onBurrowCreated = (burrow: Burrow): void => {
             this.#_burrows.push(burrow);
@@ -98,7 +102,7 @@ export class RoundHandler {
     /**
      * Updates the current round.
      */
-    public update(farmer: Farmer): void {
+    public update(farmer: Farmer, garden: Garden): void {
         this.#_time -= BabylonStore.deltaTime;
 
         this.#_gui.setRoundTimer(this._getTimeString())
@@ -107,7 +111,7 @@ export class RoundHandler {
         if(this.#_type === RoundType.Defend) {
             this.#_spawnTimer -= BabylonStore.deltaTime;
             if(this.#_spawnTimer <= 0) {
-                new Burrow(new Vector3(Scalar.RandomRange(-20, 20), 1, Scalar.RandomRange(-30, 30)), Scalar.RandomRange(1, 5), Scalar.RandomRange(30, 60));
+                new Burrow(garden.getRandomBurrowNode());
                 this.#_spawnTimer = this.#_spawnFrequency;
             }
         }

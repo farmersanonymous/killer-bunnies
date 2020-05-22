@@ -52,7 +52,7 @@ module.exports = (env, argv) => {
     if(argv.mode === 'development') {
         config.devServer = {
             port: 3700,
-            contentBase: path.join(__dirname, "src/assets"),
+            contentBase: __dirname,
             watchOptions: {
                 ignored: 'node_modules',
                 aggregateTimeout: 500,
