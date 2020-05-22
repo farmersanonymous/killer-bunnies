@@ -35,7 +35,11 @@ export class Garden extends BaseCollidable {
         });
         this.#_ground.isVisible = false;
 
-        const colliders = this.#_rootNodes.map(n => n.getChildMeshes(false, m => m.name.startsWith('Collider'))).reduce((acc, val) => acc.concat(val), []);
+        // Remove old nodes from garden.
+        const nodes = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name === 'Wheelbarrow' || n.name === 'Well' || n.name === 'Meteorite');
+        nodes.forEach(n => n.setEnabled(false));
+
+        const colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
         colliders.forEach(c => {            
             c.isVisible = false;
             super.registerMesh(c, c.name);

@@ -28,12 +28,12 @@
         {
             "name": "Meteorite",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/meteorite/2/Meteorite.gltf"
+            "url": "https://storage.googleapis.com/farmer-assets/meteorite/3/Meteorite.gltf"
         },
         {
             "name": "Well",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/well/2/Well.gltf"
+            "url": "https://storage.googleapis.com/farmer-assets/well/3/Well.gltf"
         },
         {
             "name": "Music",
