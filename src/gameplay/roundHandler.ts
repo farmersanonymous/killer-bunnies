@@ -114,12 +114,18 @@ export class RoundHandler {
                 new Burrow(garden.getRandomBurrowNode());
                 this.#_spawnTimer = this.#_spawnFrequency;
             }
-        }
 
-        // Update all the burrows.
-        for(let i = 0; i < this.#_burrows.length; i++) {
-            this.#_burrows[i].update();
+            // Update all the burrows.
+            for(let i = 0; i < this.#_burrows.length; i++) {
+                this.#_burrows[i].update();
+            }
         }
+        else {
+            if(this.#_rabbits.length === 0 && this.#_burrows.length > 0) {
+                this.#_burrows.forEach(b => b.dispose());
+                this.#_burrows = [];
+            }
+        } 
 
         // Update all the rabbits.
         for(let i = 0; i < this.#_rabbits.length; i++) {
@@ -134,10 +140,7 @@ export class RoundHandler {
                 this.#_spawnTimer = this.#_spawnFrequency;
                 
                 this.#_gui.setRound(++this.#_round);
-                this.#_burrows.forEach(b => b.dispose());
-                this.#_rabbits.forEach(r => r.dispose());
-                this.#_burrows = [];
-                this.#_rabbits = [];
+                this.#_rabbits.forEach(r => r.retreat());
                 
             } else {
                 // Player defends the farm from spawning enemies.

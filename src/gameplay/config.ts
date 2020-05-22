@@ -86,6 +86,10 @@ export interface StabberRabbitConfigData {
      * Stabber rabbit speed
      */
     speed: number;
+    /**
+     * Stabber rabbit retreat speed
+     */
+    retreatSpeed: number;
 }
 
 /**

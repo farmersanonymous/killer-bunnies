@@ -78,6 +78,22 @@ export class Navigation {
         this._crowd.agentGoto(agent, this._plugin.getClosestPoint(pos));
     }
     /**
+     * Changes the speed of an agent.
+     * @param agent The agent identifier.
+     * @param speed The new speed for the agent.
+     */
+    public static agentUpdateSpeed(agent: number, speed: number): void {
+        this._crowd.updateAgentParameters(agent, {
+            radius: 0.5,
+            height: 0.5,
+            maxAcceleration: speed,
+            maxSpeed: speed,
+            collisionQueryRange: 1.5,
+            pathOptimizationRange: 0.0,
+            separationWeight: 1.0
+        });
+    }
+    /**
      * Gets the velocity of the current agent.
      * @param agent The agent identifier.
      * @returns The velocity of the agent.
