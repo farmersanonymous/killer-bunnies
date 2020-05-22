@@ -54,6 +54,7 @@
     },
     "stabberRabbit": {
         "damage": 10,
-        "speed": 4
+        "speed": 4,
+        "retreatSpeed": 10
     }
 }
