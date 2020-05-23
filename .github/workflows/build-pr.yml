@@ -43,4 +43,4 @@ jobs:
       run: gsutil -h "Cache-Control:no-cache, max-age=0" cp ./dist/index.js gs://farmer-hosting/prs/$PULL_NUMBER/index.js
     
     - name: Upload config.json
-      run: gsutil -h "Cache-Control:no-cache, max-age=0" cp ./config.json gs://farmer-hosting/branches/develop/config.json
+      run: gsutil -h "Cache-Control:no-cache, max-age=0" cp ./config.json gs://farmer-hosting/prs/$PULL_NUMBER/config.json
