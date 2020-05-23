@@ -27,6 +27,7 @@ export class SoundManager {
      * Loads a sound from a url.
      * @param name The name of the sound. Needed for playback after it's loaded.
      * @param url The url of the sound to load.
+     * @returns A promise that will resolve when the sound has been loaded.
      */
     public static load(name: string, url: string): Promise<void> {
         return new Promise((resolve) => {

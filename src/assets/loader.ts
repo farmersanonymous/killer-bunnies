@@ -1,6 +1,7 @@
 import { Spawner } from './spawner';
 import { Scalar } from 'babylonjs';
 import { SoundManager } from './soundManager';
+import { ImageManager } from '../ui/imageManager';
 
 /**
  * A LoadObject interface. This is used to keep track of all the downloads that get added through 'addDownload'.
@@ -31,7 +32,11 @@ export enum LoaderType {
     /**
      * A sound asset.
      */
-    Sound
+    Sound,
+    /**
+     * An image asset.
+     */
+    Image
 }
 
 /**
@@ -71,8 +76,11 @@ export class Loader {
             }
             else if(this.downloads[i].type === LoaderType.Sound) {
                 await SoundManager.load(this.downloads[i].name, this.downloads[i].url);
-                onProgress(Scalar.Lerp(0, 1, (i+1) / this.downloads.length));
             }
+            else if(this.downloads[i].type === LoaderType.Image) {
+                await ImageManager.load(this.downloads[i].name, this.downloads[i].url);
+            }
+            onProgress(Scalar.Lerp(0, 1, (i+1) / this.downloads.length));
         }
     }
 }
