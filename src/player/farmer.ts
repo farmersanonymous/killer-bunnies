@@ -9,6 +9,7 @@ import { CollisionGroup } from '../collision/collisionManager';
 import { BaseCollidable } from '../collision/baseCollidable';
 import { Animator, AnimatorState } from '../animation/animator';
 import { StabberRabbit } from '../enemies/stabberRabbit';
+import { RadarManager, BlipType } from '../ui/radar'
 import { Config } from '../gameplay/config';
 
 /**
@@ -118,6 +119,9 @@ export class Farmer extends BaseCollidable {
 
         // Initialize the camera.
         this.#_camera = new PlayerCameraController(this);
+
+        //
+        RadarManager.createBlip(this.#_root, BlipType.Player);
     }
 
     /**
@@ -137,6 +141,8 @@ export class Farmer extends BaseCollidable {
             }
 
             this.#_hitTimer -= BabylonStore.deltaTime;
+
+            RadarManager.updateBlip(this.#_root);
         }
     }
 
@@ -157,6 +163,9 @@ export class Farmer extends BaseCollidable {
      */
     public dispose(): void {
         super.dispose();
+
+        RadarManager.removeBlip(this.#_root);
+
         this.#_controller.dispose();
         this.#_weaponSkeleton.dispose();
         this.#_skeleton.dispose();

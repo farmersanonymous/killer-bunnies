@@ -5,6 +5,7 @@ import { GUIManager } from '../ui/guiManager';
 import { RoundHandler } from './roundHandler';
 import { Bullet } from '../player/bullet';
 import { CollisionManager } from '../collision/collisionManager';
+import { RadarManager } from '../ui/radar';
 import { SoundManager } from '../assets/soundManager';
 
 /**
@@ -30,8 +31,8 @@ export class Game {
             loop: true
         });
 
-        this.#_player = new Farmer();
         this.#_garden = new Garden();
+        this.#_player = new Farmer();
         this.#_gui = new GUIManager();
         this.#_roundHandler = new RoundHandler(this.#_gui);
         this.#_onGameOver = onGameOver;
@@ -85,5 +86,7 @@ export class Game {
         this.#_bullets.forEach(b => b.dispose());
         this.#_garden.dispose();
         this.#_gui.dispose();
+        
+        RadarManager.dispose();
     }
 }

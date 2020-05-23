@@ -4,6 +4,7 @@ import { Farmer } from '../player/farmer';
 import { CollisionGroup } from '../collision/collisionManager';
 import { BaseCollidable } from '../collision/baseCollidable';
 import { BabylonStore } from '../store/babylonStore';
+import { RadarManager, BlipType } from '../ui/radar';
 import { Config } from '../gameplay/config';
 
 const RabbitAttackDistance = 3;
@@ -72,6 +73,8 @@ export class StabberRabbit extends BaseCollidable {
         this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
 
         StabberRabbit.onRabbitCreated(this);
+        
+        RadarManager.createBlip(this.#_root, BlipType.Stabber);
 
         // Setup a temp animation for rabbit attack.
         const anim = new Animation('rabbitAttack', 'rotation.z', 60, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_RELATIVE);
@@ -132,6 +135,8 @@ export class StabberRabbit extends BaseCollidable {
 
         const dir = Navigation.getAgentVelocity(this.#_agent);
         this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), new Vector2(dir.x, dir.z)).radians(), 0);
+
+        RadarManager.updateBlip(this.#_root);
     }
 
     /**
@@ -156,6 +161,9 @@ export class StabberRabbit extends BaseCollidable {
     public dispose(): void {
         super.dispose();
         Navigation.removeAgent(this.#_agent);
+
+        RadarManager.removeBlip(this.#_root);
+
         this.#_weapon.dispose();
         this.#_mesh.dispose();
     }
