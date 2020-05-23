@@ -1,0 +1,8 @@
+@font-face{ 
+	font-family: 'ActionMan';
+	src: url('ActionMan.eot');
+	src: url('ActionMan.eot?iefix') format('eot'),
+	     url('ActionMan.woff') format('woff'),
+	     url('ActionMan.ttf') format('truetype'),
+	     url('ActionMan.svg#webfont') format('svg');
+}

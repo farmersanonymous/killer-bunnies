@@ -44,7 +44,27 @@
             "name": "Burrow",
             "type": "sound",
             "url": "https://storage.googleapis.com/farmer-assets/sound/burrow.mp3"
-        }        
+        },
+        {
+            "name": "CarrotEmpty",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/carrot-empty.png"
+        },
+        {
+            "name": "CarrotFill",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/carrot-fill.png"
+        },
+        {
+            "name": "Heart",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/heart.png"
+        },
+        {
+            "name": "Timer",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/timer.png"
+        }
     ],
     "player": {
         "health": 100,

@@ -124,7 +124,12 @@ export class Bootstrap {
 
         // Adds the files that need to be downloaded into the loader.
         Config.assets.forEach(a => {
-            Loader.addDownload(a.name, a.type === 'art' ? LoaderType.Art : LoaderType.Sound, a.url);
+            if(a.type === 'art')
+                Loader.addDownload(a.name, LoaderType.Art, a.url);
+            else if(a.type === 'sound')
+                Loader.addDownload(a.name, LoaderType.Sound, a.url);
+            else if(a.type === 'image')
+                Loader.addDownload(a.name, LoaderType.Image, a.url);
         });
 
         // Start the download process. Callback will trigger on progress updates.
