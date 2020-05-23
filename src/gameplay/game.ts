@@ -31,8 +31,8 @@ export class Game {
             loop: true
         });
 
-        this.#_player = new Farmer();
         this.#_garden = new Garden();
+        this.#_player = new Farmer();
         this.#_gui = new GUIManager();
         this.#_roundHandler = new RoundHandler(this.#_gui);
         this.#_onGameOver = onGameOver;

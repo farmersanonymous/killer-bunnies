@@ -58,8 +58,7 @@ export class StabberRabbit extends BaseCollidable {
 
         StabberRabbit.onRabbitCreated(this);
         
-        //
-        RadarManager.CreateBlip(this.#_mesh, BlipType.Enemy);
+        RadarManager.createBlip(this.#_root, BlipType.Stabber);
 
         // Setup a temp animation for rabbit attack.
         const anim = new Animation('rabbitAttack', 'rotation.z', 60, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_RELATIVE);
@@ -112,7 +111,7 @@ export class StabberRabbit extends BaseCollidable {
             });
         }
 
-        RadarManager.updateBlip(this.#_mesh, BlipType.Enemy);
+        RadarManager.updateBlip(this.#_root);
     }
 
     /**
@@ -130,8 +129,7 @@ export class StabberRabbit extends BaseCollidable {
         super.dispose();
         Navigation.removeAgent(this.#_agent);
 
-        //
-        RadarManager.RemoveBlip(this.#_mesh);
+        RadarManager.removeBlip(this.#_root);
 
         this.#_weapon.dispose();
         this.#_mesh.dispose();

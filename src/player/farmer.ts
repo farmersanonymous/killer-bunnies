@@ -121,7 +121,7 @@ export class Farmer extends BaseCollidable {
         this.#_camera = new PlayerCameraController(this);
 
         //
-        RadarManager.CreateBlip(this.#_root as Mesh, BlipType.Player);
+        RadarManager.createBlip(this.#_root, BlipType.Player);
     }
 
     /**
@@ -142,7 +142,7 @@ export class Farmer extends BaseCollidable {
 
             this.#_hitTimer -= BabylonStore.deltaTime;
 
-            RadarManager.updateBlip(this.#_root as Mesh, BlipType.Player);
+            RadarManager.updateBlip(this.#_root);
         }
     }
 
@@ -164,8 +164,7 @@ export class Farmer extends BaseCollidable {
     public dispose(): void {
         super.dispose();
 
-        //
-        RadarManager.RemoveBlip(this.#_root);
+        RadarManager.removeBlip(this.#_root);
 
         this.#_controller.dispose();
         this.#_weaponSkeleton.dispose();
