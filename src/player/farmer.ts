@@ -1,4 +1,4 @@
-import { Vector2, Vector3, Angle, Mesh, Scalar, TransformNode, Skeleton } from 'babylonjs';
+import { Vector2, Vector3, Angle, Scalar, TransformNode, Skeleton } from 'babylonjs';
 import { CharacterController } from './characterController';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from './bullet';
@@ -71,7 +71,7 @@ export class Farmer extends BaseCollidable {
         this.#_weaponRoot.rotation = new Vector3(Angle.FromDegrees(270).radians(), 0, 0);
         this.#_bulletSpawnPoint = this.#_weaponRoot.getChildTransformNodes(false, n => n.name === 'BulletSpawnPoint')[0];
 
-        super.registerMesh(this.#_root.getChildMeshes(true)[0] as Mesh);
+        super.registerMesh(this.#_root.getChildMeshes(true)[0]);
 
         this.#_animator = new Animator(instance.animationGroups);
         this.#_weaponAnimator = new Animator(weaponInstance.animationGroups);

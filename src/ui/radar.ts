@@ -137,8 +137,10 @@ export class RadarManager {
      * @param root The root TransformNode to retrieve the position from.
      */
     public static updateBlip(root: TransformNode): void {
-        this.getInstance().#_blips.get(root).position.x = root.position.x;
-        this.getInstance().#_blips.get(root).position.z = root.position.z;
+        const node = this.getInstance().#_blips.get(root);
+        if (node != null) {
+            node.position = new Vector3(root.position.x, node.position.y, root.position.z)
+        }
     }
     
     /**
@@ -146,6 +148,8 @@ export class RadarManager {
      */
     public static dispose(): void {
         this.getInstance().#_radar.dispose();
+        this.getInstance().#_enemyMaterial.dispose();
+        this.getInstance().#_playerMaterial.dispose();
         this.getInstance().#_blips.forEach(b => b.dispose());
 
         this._instance = null;
