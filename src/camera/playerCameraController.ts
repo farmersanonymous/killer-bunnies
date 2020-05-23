@@ -78,7 +78,7 @@ export class PlayerCameraController {
         material.emissiveColor = Color3.Green();
         material.alpha = 0.5;
         this.#_mesh.material = material;
-        //this.#_mesh.isVisible = false;
+        this.#_mesh.isVisible = false;
 
         BabylonStore.camera.lockedTarget = this.#_softTarget;
     }
