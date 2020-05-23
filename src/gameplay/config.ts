@@ -1,3 +1,5 @@
+import { Scalar } from "babylonjs";
+
 /**
  * A range data structure with min and max numbers.
  */
@@ -69,15 +71,25 @@ export interface ConfigBurrowData {
      */
     timeLimit: ConfigRange;
     /**
-     * How often a rabbit gets spawned from the burrow. Set min/max range. Random.
+     * Gets a random spawn frequency between min and max range.
+     * @returns The random spawn frequency.
      */
-    rabbitSpawnFrequency: ConfigRange;
+    randomSpawnFrequency(): number;
+    /**
+     * Gets a random time limit between min and max range.
+     * @returns The random time limit.
+     */
+    randomTimeLimit(): number;
 }
 
 /**
  * Settings that can be changed on the stabber rabbit.
  */
 export interface StabberRabbitConfigData {
+    /**
+     * How often a rabbit gets spawned from the burrow. Set min/max range. Random.
+     */
+    spawnFrequency: ConfigRange;
     /**
      * Stabber rabbit damage
      */
@@ -90,6 +102,26 @@ export interface StabberRabbitConfigData {
      * Stabber rabbit retreat speed
      */
     retreatSpeed: number;
+    /**
+     * Gets a random rabbit spawn frequency between min and max range.
+     * @returns The random rabbit spawn frequency.
+     */
+    randomSpawnFrequency(): number;
+}
+
+/**
+ * Settings that can be changed on the carrot.
+ */
+export interface CarrotConfigData {
+    /**
+     * How often a carrot gets spawned in the garden. Set min/max range. Random.
+     */
+    spawnFrequency: ConfigRange;
+    /**
+     * Gets a random carrot spawn frequency between min and max range.
+     * @returns The random carrot spawn frequency.
+     */
+    randomSpawnFrequency(): number;
 }
 
 /**
@@ -112,6 +144,10 @@ export interface ConfigData {
      * Stabber rabbit data
      */
     stabberRabbit: StabberRabbitConfigData;
+    /**
+     * Carrot data
+     */
+    carrot: CarrotConfigData;
 }
 
 /**
@@ -128,6 +164,19 @@ export class Config {
      */
     public static init(config: string): void {
         this._config = JSON.parse(config);
+
+        this._config.burrow.randomSpawnFrequency = (): number => {
+            return Scalar.RandomRange(this.burrow.spawnFrequency.min, this.burrow.spawnFrequency.max);
+        };
+        this._config.burrow.randomTimeLimit = (): number => {
+            return Scalar.RandomRange(this.burrow.timeLimit.min, this.burrow.timeLimit.max);
+        }
+        this._config.stabberRabbit.randomSpawnFrequency = (): number => {
+            return Scalar.RandomRange(this.stabberRabbit.spawnFrequency.min, this.stabberRabbit.spawnFrequency.max);
+        }
+        this._config.carrot.randomSpawnFrequency = (): number => {
+            return Scalar.RandomRange(this.carrot.spawnFrequency.min, this.carrot.spawnFrequency.max);
+        }
     }
 
     /**
@@ -157,5 +206,12 @@ export class Config {
      */
     public static get stabberRabbit(): StabberRabbitConfigData {
         return this._config.stabberRabbit;
+    }
+    /**
+     * Gets the carrot data that was stored in the config file.
+     * @returns The carrot data that was stored in the config file.
+     */
+    public static get carrot(): CarrotConfigData {
+        return this._config.carrot;
     }
 }

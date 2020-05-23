@@ -11,6 +11,7 @@ export class Garden extends BaseCollidable {
     #_rootNodes: TransformNode[];
     #_ground: Mesh;
     #_burrowSpawnPoints: TransformNode[] = [];
+    #_carrotSpawnPoints: TransformNode[] = [];
 
     /**
      * Constructor.
@@ -22,6 +23,8 @@ export class Garden extends BaseCollidable {
         this.#_rootNodes = gardenSpawner.instantiate().rootNodes;
         const burrowParent = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name === 'SpawnPoints_Burrows' );
         this.#_burrowSpawnPoints = burrowParent[0].getChildTransformNodes();
+        const carrotParent = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name === 'SpawnPoints_Plants');
+        this.#_carrotSpawnPoints = carrotParent[0].getChildTransformNodes();
 
         const wellSpawner = Spawner.getSpawner('Well');
         wellSpawner.instantiate();
@@ -61,6 +64,22 @@ export class Garden extends BaseCollidable {
             const max = Math.floor(this.#_burrowSpawnPoints.length - 1);
             const randInt = Math.floor(Math.random() * (max - min + 1)) + min;
             node = this.#_burrowSpawnPoints[randInt];
+        }
+        return node;
+    }
+
+    /**
+     * Gets a random carrot node.
+     * @returns The TransformNode that is a spawn point for a carrot.
+     */
+    public getRandomCarrotNode(): TransformNode {
+        let node: TransformNode;
+        while(!node || node.getChildMeshes().length != 0) {
+            // Generates a random integer to pass into carrot spawn points array.
+            const min = 0;
+            const max = Math.floor(this.#_carrotSpawnPoints.length - 1);
+            const randInt = Math.floor(Math.random() * (max - min + 1)) + min;
+            node = this.#_carrotSpawnPoints[randInt];
         }
         return node;
     }
