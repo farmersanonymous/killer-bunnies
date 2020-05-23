@@ -4,8 +4,8 @@ import { Burrow } from '../environment/burrow';
 import { Farmer } from '../player/farmer';
 import { StabberRabbit } from '../enemies/stabberRabbit';
 import { Garden } from '../environment/garden';
-import { Scalar } from 'babylonjs';
 import { Config } from './config';
+import { Carrot } from '../environment/carrot';
 
 /**
  * Amount of time, in seconds, that the defense round goes for.
@@ -50,14 +50,14 @@ export class RoundHandler {
     #_type = RoundType.Fortify;
 
     /**
-     * How frequent the burrows will spawn. In seconds.
-     */
-    #_spawnFrequency: number;
-
-    /**
      * The current time left before the next burrow spawns.
      */
-    #_spawnTimer: number;
+    #_burrowSpawnTimer: number;
+
+    /**
+     * The current time left before the next carrot spawns.
+     */
+    #_carrotSpawnTimer: number;
 
     /**
      * A list of Burrows that have been created by the RoundHandler.
@@ -65,6 +65,8 @@ export class RoundHandler {
     #_burrows: Burrow[] = [];
 
     #_rabbits: StabberRabbit[] = [];
+
+    #_carrots: Carrot[] = [];
 
     /**
      * Constructor.
@@ -74,7 +76,8 @@ export class RoundHandler {
         this.#_gui = guiManager;
         this.#_gui.setRound(this.#_round);
 
-        this.#_spawnFrequency = this.#_spawnTimer = Scalar.RandomRange(Config.burrow.spawnFrequency.min, Config.burrow.spawnFrequency.max);
+        this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
+        this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
 
         Burrow.onBurrowCreated = (burrow: Burrow): void => {
             this.#_burrows.push(burrow);
@@ -109,10 +112,17 @@ export class RoundHandler {
 
         // Spawn more burrows during the defend round.
         if(this.#_type === RoundType.Defend) {
-            this.#_spawnTimer -= BabylonStore.deltaTime;
-            if(this.#_spawnTimer <= 0) {
+            this.#_burrowSpawnTimer -= BabylonStore.deltaTime;
+            this.#_carrotSpawnTimer -= BabylonStore.deltaTime;
+
+            if(this.#_burrowSpawnTimer <= 0) {
                 new Burrow(garden.getRandomBurrowNode());
-                this.#_spawnTimer = this.#_spawnFrequency;
+                this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
+            }
+
+            if(this.#_carrotSpawnTimer <= 0) {
+                new Carrot(garden.getRandomCarrotNode());
+                this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
             }
 
             // Update all the burrows.
@@ -137,7 +147,8 @@ export class RoundHandler {
                 // Player builds up their defenses for the next Defend round.
                 this.#_type = RoundType.Fortify;
                 this.#_time = fortifyTime;
-                this.#_spawnTimer = this.#_spawnFrequency;
+                this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
+                this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
                 
                 this.#_gui.setRound(++this.#_round);
                 this.#_rabbits.forEach(r => r.retreat());

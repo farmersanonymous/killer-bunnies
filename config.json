@@ -61,15 +61,21 @@
         "timeLimit": {
             "min": 30,
             "max": 60
-        },
-        "rabbitSpawnFrequency": {
-            "min": 1,
-            "max": 5
         }
     },
     "stabberRabbit": {
+        "spawnFrequency": {
+            "min": 1,
+            "max": 5
+        },
         "damage": 10,
         "speed": 4,
         "retreatSpeed": 10
+    },
+    "carrot": {
+        "spawnFrequency": {
+            "min": 1,
+            "max": 5
+        }
     }
 }
