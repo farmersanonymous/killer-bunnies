@@ -10,6 +10,20 @@ import { Config } from '../gameplay/config';
 const RabbitAttackDistance = 3;
 
 /**
+ * The state that the stabber rabbit is currently in.
+ */
+export enum StabberRabbitState {
+    /**
+     * The attack state. The rabbit will try to murder the Farmer.
+     */
+    Attack,
+    /**
+     * The retreat state. The rabbit will retreat to the burrow that it spawned from.
+     */
+    Retreat
+}
+
+/**
  * The rabbit that will try and stab the farmer.
  */
 export class StabberRabbit extends BaseCollidable {
@@ -22,6 +36,8 @@ export class StabberRabbit extends BaseCollidable {
      */
     public static onRabbitDisposed: (rabbit: StabberRabbit) => void;
 
+    #_spawnPosition: Vector3;
+    #_state: StabberRabbitState;
     #_root: TransformNode;
     #_mesh: Mesh;
     #_weapon: Mesh;
@@ -29,7 +45,6 @@ export class StabberRabbit extends BaseCollidable {
     #_attacking = false;
 
     // Stats
-    #_movementSpeed: number;
     #_damage: number;
 
     /**
@@ -38,7 +53,8 @@ export class StabberRabbit extends BaseCollidable {
     constructor(pos: Vector3) {
         super(CollisionGroup.Enemy);
 
-        this.#_movementSpeed = Config.stabberRabbit.speed;
+        this.#_spawnPosition = pos.clone();
+        this.#_state = StabberRabbitState.Attack;
         this.#_damage = Config.stabberRabbit.damage;
 
         this.#_root = new TransformNode('rabbit');
@@ -54,7 +70,7 @@ export class StabberRabbit extends BaseCollidable {
         super.registerMesh(this.#_weapon);
         super.registerMesh(this.#_weapon, 'weapon');
 
-        this.#_agent = Navigation.addAgent(pos, this.#_movementSpeed, this.#_root);
+        this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
 
         StabberRabbit.onRabbitCreated(this);
         
@@ -96,22 +112,39 @@ export class StabberRabbit extends BaseCollidable {
      * @param farmer The farmer (player) character.
      */
     public update(farmer: Farmer): void {
-        Navigation.agentGoTo(this.#_agent, farmer.position);
+        if (this.#_state === StabberRabbitState.Attack) {
+            Navigation.agentGoTo(this.#_agent, farmer.position);
 
-        const dir = Navigation.getAgentVelocity(this.#_agent);
-
-        this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), new Vector2(dir.x, dir.z)).radians(), 0);
-
-        if(!this.#_attacking && Vector3.Distance(farmer.position, this.#_root.position) < RabbitAttackDistance) {
-            this.#_attacking = true;
-            BabylonStore.scene.beginAnimation(this.#_weapon, 0, 60, false, 1, () => {
-                BabylonStore.scene.beginAnimation(this.#_weapon, 60, 0, false, 1, () => {
-                    this.#_attacking = false;
+            if (!this.#_attacking && Vector3.Distance(farmer.position, this.#_root.position) < RabbitAttackDistance) {
+                this.#_attacking = true;
+                BabylonStore.scene.beginAnimation(this.#_weapon, 0, 60, false, 1, () => {
+                    BabylonStore.scene.beginAnimation(this.#_weapon, 60, 0, false, 1, () => {
+                        this.#_attacking = false;
+                    });
                 });
-            });
+            }
+        }
+        else if(this.#_state === StabberRabbitState.Retreat) {
+            Navigation.agentGoTo(this.#_agent, this.#_spawnPosition);
+
+            if (Vector3.Distance(this.#_spawnPosition, this.#_root.position) < 1) {
+                StabberRabbit.onRabbitDisposed(this);
+                this.dispose();
+            }
         }
 
+        const dir = Navigation.getAgentVelocity(this.#_agent);
+        this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), new Vector2(dir.x, dir.z)).radians(), 0);
+
         RadarManager.updateBlip(this.#_root);
+    }
+
+    /**
+     * Changes the rabbit state to retreat. It will go back to it's original spawn point and dispose itself.
+     */
+    public retreat(): void {
+        this.#_state = StabberRabbitState.Retreat;
+        Navigation.agentUpdateSpeed(this.#_agent, Config.stabberRabbit.retreatSpeed);
     }
 
     /**
