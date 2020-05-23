@@ -23,7 +23,7 @@ export class CharacterController {
                 return;
             }
 
-            const projectedFarmerPosition = Vector3.Project(player.position, Matrix.Identity(), BabylonStore.scene.getTransformMatrix(), BabylonStore.camera.viewport);
+            const projectedFarmerPosition = Vector3.Project(player.position, Matrix.Identity(), BabylonStore.camera.getTransformationMatrix(), BabylonStore.camera.viewport);
             projectedFarmerPosition.x *= BabylonStore.engine.getRenderWidth();
             projectedFarmerPosition.y *= BabylonStore.engine.getRenderHeight();
 
