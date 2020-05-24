@@ -176,6 +176,9 @@ export class Bootstrap {
             if(this.#_game) {
                 this.#_game.update();
             }
+
+            // Update the input at the end of the frame.
+            Input.update();
         });
 
         // Runs the render loop for the Babylon Engine. We only have one scene, so render that.

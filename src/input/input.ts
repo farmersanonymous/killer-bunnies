@@ -12,6 +12,7 @@ export class Input {
 
     private static _isInit = false;
     private static _keyMap: Map<string, boolean> = new Map<string, boolean>();
+    private static _prevMap: Map<string, boolean> = new Map<string, boolean>();
     private static genericPad: GenericPad = null;
 
     private constructor() { /** Static class. */ }
@@ -49,7 +50,7 @@ export class Input {
                 this.genericPad = gamepad as GenericPad;
                 if (this.genericPad instanceof Xbox360Pad || this.genericPad instanceof DualShockPad) {
                     this.genericPad.onButtonDownObservable.add(() => {
-                        /** TODO: Need to detect button event for 'onAnyDown' with controller. */
+                        this.onAnyDown?.call(this);
                     });
                 }
             }
@@ -69,6 +70,22 @@ export class Input {
      */
     public static isKeyDown(key: string): boolean {
         return this._keyMap.get(key);
+    }
+
+    /**
+     * Detect if a key/button has been pressed.
+     * @param key The key/button to check.
+     * @returns Returns true if the key/button has been pressed this frame, false if it has not been pressed.
+     */
+    public static isKeyPressed(key: string): boolean {
+        return this._keyMap.get(key) && !this._prevMap.get(key);
+    }
+
+    /**
+     * Updates the input every frame.
+     */
+    public static update(): void {
+        this._prevMap = new Map(this._keyMap);
     }
 
     /**

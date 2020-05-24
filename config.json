@@ -80,6 +80,11 @@
             "name": "Play",
             "type": "image",
             "url": "https://storage.googleapis.com/farmer-assets/images/play.png"
+        },
+        {
+            "name": "EKey",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/e-key.png"
         }
     ],
     "player": {

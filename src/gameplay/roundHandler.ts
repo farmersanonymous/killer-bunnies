@@ -66,8 +66,6 @@ export class RoundHandler {
 
     #_rabbits: StabberRabbit[] = [];
 
-    #_carrots: Carrot[] = [];
-
     /**
      * Constructor.
      * @param guiManager The GUIManager instance used to update the round and round timer.
@@ -135,7 +133,10 @@ export class RoundHandler {
                 this.#_burrows.forEach(b => b.dispose());
                 this.#_burrows = [];
             }
-        } 
+        }
+
+        // Update all the carrots.
+        Carrot.updateAll(farmer, this.#_gui);
 
         // Update all the rabbits.
         for(let i = 0; i < this.#_rabbits.length; i++) {
@@ -180,5 +181,6 @@ export class RoundHandler {
         StabberRabbit.onRabbitDisposed = null;
         this.#_burrows.forEach(b => b.dispose());
         this.#_rabbits.forEach(r => r.dispose());
+        Carrot.disposeAll();
     }
 }
