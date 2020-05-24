@@ -129,6 +129,10 @@ export interface CarrotConfigData {
  */
 export interface ConfigData {
     /**
+     * True if game is in dev mode, with extra options.
+     */
+    dev: boolean;
+    /**
      * The assets of the config data.
      */
     assets: ConfigAssetData[];
@@ -179,6 +183,13 @@ export class Config {
         }
     }
 
+    /**
+     * Gets whether the game is in dev mode.
+     * @returns True if the game is in dev mode, false if it is not.
+     */
+    public static get dev(): boolean {
+        return this._config.dev;
+    }
     /**
      * Gets the asset data that was stored in the config file.
      * @returns The asset data that was stored in the config file.

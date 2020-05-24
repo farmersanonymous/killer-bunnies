@@ -2,6 +2,8 @@ import { AdvancedDynamicTexture, TextBlock, Rectangle, Image, Control, Button } 
 import { PerformanceMonitor, Scalar } from 'babylonjs';
 import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { ImageManager } from './imageManager';
+import { Config } from '../gameplay/config';
+import { BabylonStore } from '../store/babylonStore';
 
 const HEALTH_BAR_WIDTH = 262;
 
@@ -273,7 +275,6 @@ export class GUIManager {
         playButton.thickness = 3;
         playButton.color = "#2b1d0e";
         playButton.background = "#654321";
-        playButton.alpha = 1;
         playButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
         playButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
         playButton.top = 0;
@@ -294,20 +295,57 @@ export class GUIManager {
             this.onPauseButtonPressed?.();
         });
 
-        const fpsText = new TextBlock('FPS', "");
-        fpsText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-        fpsText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-        fpsText.top = 200;
-        fpsText.left = 20;
-        fpsText.widthInPixels = 100;
-        fpsText.heightInPixels = 30;
-        this.#_dynamicTexture.addControl(fpsText);
+        /**
+         * Dev UI. Will turn off for release.
+         */
 
-        const performanceMonitor = new PerformanceMonitor();
-        this.#_updateHandle = BabylonObserverStore.registerAfterRender(() => {
-            performanceMonitor.sampleFrame();
-            fpsText.text = 'FPS: ' + performanceMonitor.averageFPS.toFixed(0);
-        });
+        if(Config.dev) {
+            const inspectorButton = new Button('InspectorButton');
+            inspectorButton.thickness = 3;
+            inspectorButton.color = "#2b1d0e";
+            inspectorButton.background = "#654321";
+            inspectorButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+            inspectorButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+            inspectorButton.top = 165;
+            inspectorButton.left = 20;
+            inspectorButton.widthInPixels = 100;
+            inspectorButton.heightInPixels = 25;
+            inspectorButton.cornerRadius = 5;
+            this.#_dynamicTexture.addControl(inspectorButton);
+
+            const inspectorText = new TextBlock('InspectorText', 'Inpsector');
+            inspectorText.color = "white";
+            inspectorText.fontFamily = "ActionMan";
+            inspectorText.fontSize = "14px";
+            inspectorText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+            inspectorText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+            inspectorText.widthInPixels = 100;
+            inspectorText.heightInPixels = 25;
+            inspectorButton.addControl(inspectorText);
+
+            inspectorButton.onPointerClickObservable.add(() => {
+                if(BabylonStore.scene.debugLayer.isVisible())
+                    BabylonStore.scene.debugLayer.hide();
+                else
+                    BabylonStore.scene.debugLayer.show({embedMode: true});
+            });
+
+            const fpsText = new TextBlock('FPS', "");
+            fpsText.color = 'white';
+            fpsText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+            fpsText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+            fpsText.top = 200;
+            fpsText.left = 20;
+            fpsText.widthInPixels = 100;
+            fpsText.heightInPixels = 30;
+            this.#_dynamicTexture.addControl(fpsText);
+
+            const performanceMonitor = new PerformanceMonitor();
+            this.#_updateHandle = BabylonObserverStore.registerAfterRender(() => {
+                performanceMonitor.sampleFrame();
+                fpsText.text = 'FPS: ' + performanceMonitor.averageFPS.toFixed(0);
+            });
+        }
     }
 
     /**
