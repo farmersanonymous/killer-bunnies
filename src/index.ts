@@ -109,6 +109,8 @@ export class Bootstrap {
 
         // Creates the main camera.
         BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, Vector3.Zero(), BabylonStore.scene, true);
+        BabylonStore.scene.activeCameras.push(BabylonStore.camera);
+        BabylonStore.scene.cameraToUseForPointers = BabylonStore.camera;
 
         // Create a default light for the scene. A light is needed for the PBR materials that we will be downloading later.
         new HemisphericLight("light1", new Vector3(0, 1, 0), BabylonStore.scene);

@@ -7,6 +7,7 @@ import { Bullet } from '../player/bullet';
 import { CollisionManager } from '../collision/collisionManager';
 import { RadarManager } from '../ui/radar';
 import { SoundManager } from '../assets/soundManager';
+import { Input } from '../input/input';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -19,6 +20,7 @@ export class Game {
     #_roundHandler: RoundHandler;
     #_onGameOver: () => void;
     #_bootstrap: Bootstrap;
+    #_paused: boolean;
 
     /**
      * Constructor.
@@ -44,12 +46,37 @@ export class Game {
         Bullet.onBulletDisposed = (bullet: Bullet): void => {
             this.#_bullets = this.#_bullets.filter(bul => bul !== bullet);
         };
+        
+        this.#_gui.onPauseButtonPressed = (): void => {
+            this.#_paused = !this.#_paused;
+            this.#_player.disabled = this.#_paused;
+            this.#_roundHandler.onPause(this.#_paused);
+        };
+        window.addEventListener('blur', () => {
+            if(!this.#_paused) {
+                this.#_paused = true;
+                this.#_player.disabled = this.#_paused;
+                this.#_roundHandler.onPause(this.#_paused);
+            }
+        });
     }
 
     /**
      * Updates the game. Called once every frame.
      */
     public update(): void {
+        if(Input.isKeyDown('p')) {
+            if(!this.#_paused) {
+                this.#_paused = true;
+                this.#_player.disabled = this.#_paused;
+                this.#_roundHandler.onPause(this.#_paused);
+            }
+        }
+
+        if(this.#_paused) {
+            return;
+        }
+
         if (this.#_player.health <= 0 && this.#_onGameOver) {
             const callback = this.#_onGameOver;
             this.#_onGameOver = null;
