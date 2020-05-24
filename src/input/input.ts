@@ -30,7 +30,7 @@ export class Input {
         BabylonStore.scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (evt) => {
             this.mapInput(evt.sourceEvent.key, evt.sourceEvent.type === 'keydown');
         }));
-        BabylonStore.scene.actionManager.registerAction(new ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, (evt) => {
+        BabylonStore.scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (evt) => {
             this.mapInput(evt.sourceEvent.key, evt.sourceEvent.type === 'keydown');
         }));
 

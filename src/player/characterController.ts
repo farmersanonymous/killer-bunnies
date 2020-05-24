@@ -16,20 +16,6 @@ export class CharacterController {
      * @param player The player character that needs to be controlled. 
      */
     constructor(player: Farmer) {
-        // Callback whenever the pointer has been moved. TODO: Figure out a better way to handle this. 
-        // The player can move without moving the mouse, which won't update the rotation of the player.
-        BabylonStore.scene.onPointerMove = (evt): void => {
-            if (this.#_disabled) {
-                return;
-            }
-
-            const projectedFarmerPosition = Vector3.Project(player.position, Matrix.Identity(), BabylonStore.camera.getTransformationMatrix(), BabylonStore.camera.viewport);
-            projectedFarmerPosition.x *= BabylonStore.engine.getRenderWidth();
-            projectedFarmerPosition.y *= BabylonStore.engine.getRenderHeight();
-
-            const dir = new Vector2(projectedFarmerPosition.x - evt.clientX, projectedFarmerPosition.y - evt.clientY);
-            this.onRotate?.call(this, dir.normalize());
-        }
         let leftJoystick: VirtualJoystick;
         let rightJoystick: VirtualJoystick;
         if (/Mobi/.test(navigator.userAgent)) {
@@ -37,6 +23,7 @@ export class CharacterController {
             rightJoystick = new VirtualJoystick(false)
         }
 
+        let useMouse = false;
         let hasMoved = false;
         let hasFired = false;
         let hasFiredController = false;
@@ -95,6 +82,14 @@ export class CharacterController {
                 hasFiredController = false;
             }
 
+            // Enables the useMouse flag to override joystick movement if the mouse has been moved.
+            BabylonStore.scene.onPointerMove = (): void => {
+                if (this.#_disabled) {
+                    return;
+                }
+                useMouse = true;
+            }
+
             // If a game pad exists, handle input.
             if (Input.isControllerConnected) {
                 // 0.1 is used to provide an epsilon, as the stick is never truly at 0 and causes some jitterness.
@@ -118,7 +113,18 @@ export class CharacterController {
                 if (Input.controllerRightStick.x > 0.5 || Input.controllerRightStick.x < -0.5 ||
                     Input.controllerRightStick.y > 0.5 || Input.controllerRightStick.y < -0.5) {
                     this.onRotate?.call(this, new Vector2(-Input.controllerRightStick.x, -Input.controllerRightStick.y));
+                    useMouse = false;
                 }
+            }
+
+            if (useMouse) {
+                // Handle rotation around the mouse position.
+                const projectedFarmerPosition = Vector3.Project(player.position, Matrix.Identity(), BabylonStore.camera.getTransformationMatrix(), BabylonStore.camera.viewport);
+                projectedFarmerPosition.x *= BabylonStore.engine.getRenderWidth();
+                projectedFarmerPosition.y *= BabylonStore.engine.getRenderHeight();
+
+                const dir = new Vector2(projectedFarmerPosition.x - BabylonStore.scene.pointerX, projectedFarmerPosition.y - BabylonStore.scene.pointerY);
+                this.onRotate?.call(this, dir.normalize());
             }
 
             if (x != 0 || y != 0) {
