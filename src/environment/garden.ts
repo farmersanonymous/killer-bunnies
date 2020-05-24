@@ -41,18 +41,15 @@ export class Garden extends BaseCollidable {
         });
         this.#_ground.isVisible = false;
 
-        // Remove old nodes from garden.
-        const nodes = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name === 'Wheelbarrow' || n.name === 'Well' || n.name === 'Meteorite' || n.name === "Ground" || n.name === "MeteoriteCrater");
-        nodes.forEach(n => n.setEnabled(false));
-
         const colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
         colliders.forEach(c => {            
             c.isVisible = false;
             super.registerMesh(c, c.name);
         });
-        colliders.push(this.#_ground);
 
-        Navigation.init(colliders as Mesh[]);
+        const navMesh = this.#_rootNodes[0].getChildMeshes(false, m => m.name === 'GroundNavMesh');
+        navMesh.forEach(n => n.setEnabled(false));
+        Navigation.init(navMesh as Mesh[]);
     }
 
     /**
