@@ -1,4 +1,4 @@
-import { AdvancedDynamicTexture, TextBlock, Rectangle, Image, Control } from 'babylonjs-gui';
+import { AdvancedDynamicTexture, TextBlock, Rectangle, Image, Control, Button } from 'babylonjs-gui';
 import { PerformanceMonitor, Scalar } from 'babylonjs';
 import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { ImageManager } from './imageManager';
@@ -14,6 +14,8 @@ export class GUIManager {
     #_roundNumberText: TextBlock;
     #_roundTimerText: TextBlock;
     #_carrotText: TextBlock;
+    #_pausePanel: Rectangle;
+    #_pausePanelOverlay: Rectangle;
     #_updateHandle: number;
     #_carrots: Image[] = [];
 
@@ -23,6 +25,10 @@ export class GUIManager {
     constructor() {
         this.#_dynamicTexture = AdvancedDynamicTexture.CreateFullscreenUI('UI');
         this.#_dynamicTexture.idealWidth = 1200;
+
+        /**
+         * The player health bar.
+         */
 
         const healthRect = new Rectangle();
         healthRect.thickness = 3;
@@ -95,6 +101,10 @@ export class GUIManager {
             carrotempty.top = 65;
             this.#_dynamicTexture.addControl(carrotempty);
         }    
+
+        /**
+         * The round panel, with timer and total carrots.
+         */
 
         const mainPanel = new Rectangle();
         mainPanel.thickness = 3;
@@ -200,19 +210,118 @@ export class GUIManager {
         this.#_carrotText.heightInPixels = 30;
         this.#_dynamicTexture.addControl(this.#_carrotText);
 
+        /**
+         * The pause button
+         */
+
+        const pauseButton = new Button('PauseButton');
+        pauseButton.thickness = 3;
+        pauseButton.color = "#2b1d0e";
+        pauseButton.background = "#654321";
+        pauseButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        pauseButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        pauseButton.top = -20;
+        pauseButton.left = -20;
+        pauseButton.widthInPixels = 50;
+        pauseButton.heightInPixels = 50;
+        pauseButton.cornerRadius = 50;
+        this.#_dynamicTexture.addControl(pauseButton);
+
+        const pauseImage = ImageManager.get('Pause');
+        pauseImage.width = "80%";
+        pauseImage.stretch = Image.STRETCH_UNIFORM;
+        pauseImage.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        pauseImage.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        pauseButton.addControl(pauseImage);
+
+        pauseButton.onPointerClickObservable.add(() => {
+            this.onPauseButtonPressed?.();
+        });
+
+        /**
+         * Setup pause panel, but don't add to advanced texture.
+         */
+
+        this.#_pausePanel = new Rectangle('PausePanel');
+        this.#_pausePanel.color = 'black';
+        this.#_pausePanel.background = 'black';
+        this.#_pausePanel.alpha = 0.5;
+        this.#_pausePanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this.#_pausePanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.#_pausePanel.width = "100%";
+        this.#_pausePanel.height = "100%";
+
+        this.#_pausePanelOverlay = new Rectangle('PausePanelOverlay');
+        this.#_pausePanelOverlay.color = 'transparent';
+        this.#_pausePanelOverlay.background = 'transparent';
+        this.#_pausePanelOverlay.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this.#_pausePanelOverlay.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.#_pausePanelOverlay.width = "100%";
+        this.#_pausePanelOverlay.height = "100%";
+
+        const pauseText = new TextBlock('PauseText', "PAUSED");
+        pauseText.color = "white";
+        pauseText.fontFamily = "ActionMan";
+        pauseText.fontSize = "100px";
+        pauseText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        pauseText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        pauseText.heightInPixels = 150;
+        pauseText.top = -100;
+        this.#_pausePanelOverlay.addControl(pauseText);
+
+        const playButton = new Button('PlayButton');
+        playButton.thickness = 3;
+        playButton.color = "#2b1d0e";
+        playButton.background = "#654321";
+        playButton.alpha = 1;
+        playButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        playButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        playButton.top = 0;
+        playButton.left = 0;
+        playButton.widthInPixels = 100;
+        playButton.heightInPixels = 100;
+        playButton.cornerRadius = 50;
+        this.#_pausePanelOverlay.addControl(playButton);
+
+        const playImage = ImageManager.get('Play');
+        playImage.width = "80%";
+        playImage.stretch = Image.STRETCH_UNIFORM;
+        playImage.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        playImage.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        playButton.addControl(playImage);
+
+        playButton.onPointerClickObservable.add(() => {
+            this.onPauseButtonPressed?.();
+        });
+
         const fpsText = new TextBlock('FPS', "");
-        fpsText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        fpsText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        fpsText.top = 70;
-        fpsText.left = 75;
+        fpsText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        fpsText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        fpsText.top = 200;
+        fpsText.left = 20;
         fpsText.widthInPixels = 100;
         fpsText.heightInPixels = 30;
+        this.#_dynamicTexture.addControl(fpsText);
 
         const performanceMonitor = new PerformanceMonitor();
         this.#_updateHandle = BabylonObserverStore.registerAfterRender(() => {
             performanceMonitor.sampleFrame();
             fpsText.text = 'FPS: ' + performanceMonitor.averageFPS.toFixed(0);
         });
+    }
+
+    /**
+     * Shows the pause menu.
+     */
+    public set paused(value: boolean) {
+        if(value) {
+            this.#_dynamicTexture.addControl(this.#_pausePanel);
+            this.#_dynamicTexture.addControl(this.#_pausePanelOverlay);
+        }
+        else {
+            this.#_dynamicTexture.removeControl(this.#_pausePanel);
+            this.#_dynamicTexture.removeControl(this.#_pausePanelOverlay);
+        }
     }
 
     /**
@@ -246,4 +355,9 @@ export class GUIManager {
         BabylonObserverStore.deregisterAfterRender(this.#_updateHandle);
         this.#_dynamicTexture.dispose();
     }
+
+    /**
+     * An event that gets triggered whenever the pause button in the corner gets pressed.
+     */
+    public onPauseButtonPressed: () => void;
 }

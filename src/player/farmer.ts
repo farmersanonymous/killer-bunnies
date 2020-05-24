@@ -270,4 +270,13 @@ export class Farmer extends BaseCollidable {
     public get position(): Vector3 {
         return this.#_root.position;
     }
+
+    /**
+     * Sets whether this farmer is currently disabled. It will pause all animations and disable the controller for input.
+     */
+    public set disabled(value: boolean) {
+        this.#_controller.disabled = value;
+        this.#_animator.pause(value);
+        this.#_weaponAnimator.pause(value);
+    }
 }

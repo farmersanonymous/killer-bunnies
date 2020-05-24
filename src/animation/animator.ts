@@ -77,6 +77,17 @@ export class Animator {
     }
 
     /**
+     * Pauses the current animation that is playing.
+     * @param pause True if the animation is paused. False to resume.
+     */
+    public pause(pause: boolean): void {
+        if(pause)
+            this.#_animations.get(this.stateToString(this.#_state)).pause();
+        else
+            this.#_animations.get(this.stateToString(this.#_state)).play();
+    }
+
+    /**
      * Releases all resources associated with this Animator.
      */
     public dispose(): void {

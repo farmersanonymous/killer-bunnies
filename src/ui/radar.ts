@@ -25,9 +25,7 @@ class Radar {
 
         this.#_radar.viewport = new Viewport(0.78, 0.78, 0.195, 0.21);
 
-        BabylonStore.scene.activeCameras.push(BabylonStore.camera);
-
-		this.#_radar.layerMask = 0x10000000
+        this.#_radar.layerMask = 0x10000000;
         BabylonStore.scene.activeCameras.push(this.#_radar);
 
         const backgroundMaterial: StandardMaterial = new StandardMaterial('backgroundMat', BabylonStore.scene);

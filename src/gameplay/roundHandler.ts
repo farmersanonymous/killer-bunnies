@@ -162,6 +162,15 @@ export class RoundHandler {
     }
 
     /**
+     * Called when the game is paused.
+     * @param paused True if the game is pause, false if it has been unpaused.
+     */
+    public onPause(paused: boolean): void {
+        this.#_rabbits.forEach(r => r.disabled = paused);
+        this.#_gui.paused = paused;
+    }
+
+    /**
      * Releases all resources associated with this RoundHandler.
      */
     public dispose(): void {

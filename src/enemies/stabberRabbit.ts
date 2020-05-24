@@ -108,6 +108,16 @@ export class StabberRabbit extends BaseCollidable {
     }
 
     /**
+     * Sets whether this rabbit is currently disabled. It will pause all animations and will remove the agent from the navmesh.
+     */
+    public set disabled(value: boolean) {
+        if(value)
+            Navigation.removeAgent(this.#_agent);
+        else
+            this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === StabberRabbitState.Attack ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+    }
+
+    /**
      * Updates the rabbit every frame.
      * @param farmer The farmer (player) character.
      */

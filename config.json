@@ -64,6 +64,16 @@
             "name": "Timer",
             "type": "image",
             "url": "https://storage.googleapis.com/farmer-assets/images/timer.png"
+        },
+        {
+            "name": "Pause",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/pause.png"
+        },
+        {
+            "name": "Play",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/play.png"
         }
     ],
     "player": {
