@@ -12,9 +12,12 @@ export class PlayerCameraController {
     #_targetRadius = 5;
     #_mesh: Mesh;
     #_updateHandle: number;
+    #_velocity: number;
 
     constructor(player: Farmer) {
         this.#_player = player;
+
+        this.#_velocity = 0;
 
         this._initializeCamera();
 
@@ -24,12 +27,33 @@ export class PlayerCameraController {
 
             const distance = positiondifference.length();
 
-            const direction = positiondifference.normalize().multiplyByFloats(-1,0,-1);
+            const acceleration = 0.05;
+
+            const maxVelocity = 1;
 
             if (distance > this.#_targetRadius) {
+
+                this.#_velocity += acceleration;
+
+                if (this.#_velocity >= maxVelocity) {
+                    this.#_velocity = maxVelocity;
+                }
+
+            } else {
+                this.#_velocity -= acceleration;
+
+                if (this.#_velocity <= 0) {
+                    this.#_velocity = 0;
+                }
+            }
+
+            if (this.#_velocity > 0) {
+
                 const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
 
-                this.#_softTarget.set(this.#_softTarget.x + (direction.x * this.#_targetRadius * deltaTime), 0, this.#_softTarget.z + (direction.z * this.#_targetRadius * deltaTime));
+                const pos = Vector3.Lerp(this.#_softTarget, this.#_player.position, this.#_velocity * deltaTime);
+
+                this.#_softTarget.set(pos.x, 0, pos.z);
             }
         });
     }
@@ -52,8 +76,9 @@ export class PlayerCameraController {
         this.#_mesh.position = this.#_softTarget;
         const material = new PBRMaterial('targetMaterial', BabylonStore.scene);
         material.emissiveColor = Color3.Green();
-        material.alpha = 0;
+        material.alpha = 0.5;
         this.#_mesh.material = material;
+        this.#_mesh.isVisible = false;
 
         BabylonStore.camera.lockedTarget = this.#_softTarget;
     }

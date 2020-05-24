@@ -80,7 +80,7 @@ export class Farmer extends BaseCollidable {
         this.#_controller = new CharacterController(this);
         this.#_controller.onMove = (dir): void => {
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
-            const moveDir = new Vector3(dir.y, 0, dir.x).scale(this.movementSpeed * deltaTime);
+            const moveDir = new Vector3(dir.y, 0, dir.x).normalize().scale(this.movementSpeed * deltaTime);
             this.#_root.position = Navigation.getClosestPoint(this.#_root.position.add(moveDir));
             this.#_animator.play(AnimatorState.Run);
             this.#_isMoving = true;
