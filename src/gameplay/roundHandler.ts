@@ -153,6 +153,7 @@ export class RoundHandler {
                 
                 this.#_gui.setRound(++this.#_round);
                 this.#_rabbits.forEach(r => r.retreat());
+                Carrot.disposeAll();
                 
             } else {
                 // Player defends the farm from spawning enemies.

@@ -14,6 +14,7 @@ import { Config } from '../gameplay/config';
 import { Carrot } from '../environment/carrot';
 import { Input } from '../input/input';
 import { GUIManager } from '../ui/guiManager';
+import { Garden } from '../environment/garden';
 
 /**
  * The playable Farmer character.
@@ -129,9 +130,10 @@ export class Farmer extends BaseCollidable {
 
     /**
      * Updates the Farmer every frame.
+     * @param garden The garden (the environment).
      * @param gui The gui manager for the game.
      */
-    public update(gui: GUIManager): void {
+    public update(garden: Garden, gui: GUIManager): void {
         if (this.health <= 0) {
             this.#_animator.play(AnimatorState.Death, false);
             this.#_controller.disabled = true;
@@ -155,6 +157,9 @@ export class Farmer extends BaseCollidable {
                     carrot.dispose();
                 }
             }
+
+            // Detect if in proximity of harvest basket.
+            gui.updateHarvestTimer(this.getMesh(), Vector3.Distance(garden.harvestBasketPosition, this.#_root.position), 5);
         }
     }
 

@@ -1,4 +1,4 @@
-import { AdvancedDynamicTexture, TextBlock, Rectangle, Image, Control, Button } from 'babylonjs-gui';
+import { AdvancedDynamicTexture, TextBlock, Rectangle, Image, Control, Button, Slider } from 'babylonjs-gui';
 import { PerformanceMonitor, Scalar, AbstractMesh } from 'babylonjs';
 import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { ImageManager } from './imageManager';
@@ -21,6 +21,8 @@ export class GUIManager {
     #_updateHandle: number;
     #_pickIcons: Map<AbstractMesh, Image> = new Map<AbstractMesh, Image>();
     #_carrots: Image[] = [];
+    #_harvestSlider: Slider;
+    #_harvestTimer: number;
 
     /**
      * Constructor.
@@ -94,7 +96,7 @@ export class GUIManager {
         heart.top = 12.5;
         this.#_dynamicTexture.addControl(heart);
 
-        for(let i = 0; i < 5; i++) {
+        for (let i = 0; i < 5; i++) {
             const carrotempty = ImageManager.get('CarrotEmpty');
             carrotempty.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
             carrotempty.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
@@ -103,7 +105,7 @@ export class GUIManager {
             carrotempty.left = 25 + (i * 60);
             carrotempty.top = 65;
             this.#_dynamicTexture.addControl(carrotempty);
-        }    
+        }
 
         /**
          * The round panel, with timer and total carrots.
@@ -159,7 +161,7 @@ export class GUIManager {
         carrotPanel.heightInPixels = 30;
         carrotPanel.cornerRadius = 5;
         this.#_dynamicTexture.addControl(carrotPanel);
-        
+
         const timerIcon = ImageManager.get('Timer');
         timerIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
         timerIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
@@ -300,7 +302,7 @@ export class GUIManager {
          * Dev UI. Will turn off for release.
          */
 
-        if(Config.dev) {
+        if (Config.dev) {
             const inspectorButton = new Button('InspectorButton');
             inspectorButton.thickness = 3;
             inspectorButton.color = "#2b1d0e";
@@ -325,10 +327,10 @@ export class GUIManager {
             inspectorButton.addControl(inspectorText);
 
             inspectorButton.onPointerClickObservable.add(() => {
-                if(BabylonStore.scene.debugLayer.isVisible())
+                if (BabylonStore.scene.debugLayer.isVisible())
                     BabylonStore.scene.debugLayer.hide();
                 else
-                    BabylonStore.scene.debugLayer.show({embedMode: true});
+                    BabylonStore.scene.debugLayer.show({ embedMode: true });
             });
 
             const fpsText = new TextBlock('FPS', "");
@@ -353,7 +355,7 @@ export class GUIManager {
      * Shows the pause menu.
      */
     public set paused(value: boolean) {
-        if(value) {
+        if (value) {
             this.#_dynamicTexture.addControl(this.#_pausePanel);
             this.#_dynamicTexture.addControl(this.#_pausePanelOverlay);
         }
@@ -391,7 +393,7 @@ export class GUIManager {
      * @param mesh The mesh to attach the pick icon to.
      */
     public addPickIcon(mesh: AbstractMesh): void {
-        if(this.#_pickIcons.has(mesh)) {
+        if (this.#_pickIcons.has(mesh)) {
             return;
         }
 
@@ -412,7 +414,7 @@ export class GUIManager {
      */
     public removePickIcon(mesh: AbstractMesh): void {
         const image = this.#_pickIcons.get(mesh);
-        if(image) {
+        if (image) {
             this.#_dynamicTexture.removeControl(image);
             this.#_pickIcons.delete(mesh);
             image.dispose();
@@ -424,7 +426,7 @@ export class GUIManager {
      * @returns Return true if the carrot was added. False if it was not.
      */
     public addFarmerCarrot(): boolean {
-        if(this.#_carrots.length === 5) {
+        if (this.#_carrots.length === 5) {
             return false;
         }
 
@@ -438,6 +440,63 @@ export class GUIManager {
         this.#_dynamicTexture.addControl(carrotfill);
         this.#_carrots.push(carrotfill);
         return true;
+    }
+
+    /**
+     * Updates the Harvest timer. It will start/continue a progress bar if the Farmer is in range. 
+     * If the Farmer goes out of range before the timer finishes, then the timer will get canceled.
+     * @param mesh The Farmer mesh that will get linked to the slider.
+     * @param distance The distance the Farmer is away from the harvest basket.
+     * @param requirement The distance the Farmer has to be from the harvest basket in order for the timer to continue.
+     */
+    public updateHarvestTimer(mesh: AbstractMesh, distance: number, requirement: number): void {
+        // Don't do anything if the Farmer has no carrots!
+        if (this.#_carrots.length === 0) {
+            return;
+        }
+
+        if (distance <= requirement) {
+            if (!this.#_harvestSlider) {
+                this.#_harvestSlider = new Slider('HarvestSlider');
+                this.#_harvestSlider.background = "black";
+                this.#_harvestSlider.color = "yellow";
+                this.#_harvestSlider.widthInPixels = 100;
+                this.#_harvestSlider.heightInPixels = 20;
+                this.#_harvestSlider.minimum = 0;
+                this.#_harvestSlider.maximum = 100;
+                this.#_harvestSlider.value = 0;
+                this.#_harvestSlider.displayThumb = false;
+                this.#_dynamicTexture.addControl(this.#_harvestSlider);
+                this.#_harvestSlider.linkWithMesh(mesh);
+                this.#_harvestSlider.linkOffsetYInPixels = -100;
+                this.#_harvestTimer = 0;
+            }
+
+            this.#_harvestTimer += BabylonStore.deltaTime;
+            const ratio = this.#_harvestTimer / 5;
+            this.#_harvestSlider.value = Scalar.Lerp(this.#_harvestSlider.minimum, this.#_harvestSlider.maximum, ratio);
+
+            if(ratio >= 1) {
+                // Increase carrot count on harvest.
+                this.#_carrotText.text = (parseInt(this.#_carrotText.text) + this.#_carrots.length).toString();
+
+                this.#_carrots.forEach(c => {
+                    this.#_dynamicTexture.removeControl(c);
+                    c.dispose();
+                });
+                this.#_carrots = [];
+                this.#_dynamicTexture.removeControl(this.#_harvestSlider);
+                this.#_harvestSlider.dispose();
+                this.#_harvestSlider = null;
+            }
+        }
+        else if(this.#_harvestSlider) {
+            this.#_dynamicTexture.removeControl(this.#_harvestSlider);
+            this.#_harvestSlider.dispose();
+            this.#_harvestSlider = null;
+        }
+
+        return undefined;
     }
 
     /**
