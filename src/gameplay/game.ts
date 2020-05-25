@@ -58,6 +58,7 @@ export class Game {
                 this.#_player.disabled = this.#_paused;
                 this.#_roundHandler.onPause(this.#_paused);
             }
+            Input.flush();
         });
     }
 
