@@ -76,12 +76,6 @@ export class StabberRabbit extends BaseCollidable {
         this.#_skeleton = instance.skeletons[0];
         this.#_root.position = pos;
 
-        /**
-         * Bunny_Ear_Scale_L
-         * Bunny_Ear_Scale_R
-         * Bunny_Eye_Scale_L
-         * Bunny_Eye_Scale_R
-         */
         const bones = this.#_root.getChildTransformNodes(false, n => n.name.startsWith('Bunny_Ear_Scale_') || n.name.startsWith('Bunny_Eye_Scale_'));
         bones.forEach(b => {
             const rand = Scalar.RandomRange(.75, 1.5);
@@ -98,16 +92,11 @@ export class StabberRabbit extends BaseCollidable {
         this.#_animator = new Animator(instance.animationGroups);
 
         this.#_animator.play(AnimatorState.Spawn, false, () => {
-            if(this.#_state === StabberRabbitState.Retreat) {
-                this.dispose();
-            }
-            else {
-                this.#_animator.play(AnimatorState.Run);
-                this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
-                super.registerMesh(this.#_root.getChildMeshes()[0]);
-                StabberRabbit.onRabbitCreated(this);
-                RadarManager.createBlip(this.#_root, BlipType.Stabber);
-            }
+            this.#_animator.play(AnimatorState.Run);
+            this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
+            super.registerMesh(this.#_root.getChildMeshes()[0]);
+            StabberRabbit.onRabbitCreated(this);
+            RadarManager.createBlip(this.#_root, BlipType.Stabber);
         });
     }
 
