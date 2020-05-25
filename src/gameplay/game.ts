@@ -53,7 +53,7 @@ export class Game {
             this.#_roundHandler.onPause(this.#_paused);
         };
         window.addEventListener('blur', () => {
-            if(!this.#_paused) {
+            if(!this.#_paused && !this.#_roundHandler.upgrading) {
                 this.#_paused = true;
                 this.#_player.disabled = this.#_paused;
                 this.#_roundHandler.onPause(this.#_paused);
@@ -65,7 +65,7 @@ export class Game {
      * Updates the game. Called once every frame.
      */
     public update(): void {
-        if(Input.isKeyPressed('p')) {
+        if(Input.isKeyPressed('p') && !this.#_roundHandler.upgrading) {
             this.#_paused = !this.#_paused;
             this.#_player.disabled = this.#_paused;
             this.#_roundHandler.onPause(this.#_paused);

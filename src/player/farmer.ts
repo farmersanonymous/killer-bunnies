@@ -47,6 +47,14 @@ export class Farmer extends BaseCollidable {
     #_weaponRange: number;
     // How fast the bullets will travel m/s.
     #_weaponSpeed: number;
+    // The time it takes to complete a harvest.
+    #_harvestTime: number;
+
+    // Upgrade costs.
+    #_healthCost: number;
+    #_damageCost: number;
+    #_harvestCost: number;
+    #_speedCost: number;
 
     /**
      * Constructor.
@@ -60,6 +68,12 @@ export class Farmer extends BaseCollidable {
         this.#_weaponDamage = Config.player.weaponDamage;
         this.#_weaponRange = Config.player.weaponRange;
         this.#_weaponSpeed = Config.player.weaponSpeed;
+        this.#_harvestTime = Config.player.harvestTime;
+
+        this.#_healthCost = Config.player.upgradeInitialCost;
+        this.#_damageCost = Config.player.upgradeInitialCost;
+        this.#_harvestCost = Config.player.upgradeInitialCost;
+        this.#_speedCost = Config.player.upgradeInitialCost;
 
         // The mesh is a player and can collide with the environment.
         const spawner = Spawner.getSpawner('Farmer');
@@ -159,7 +173,7 @@ export class Farmer extends BaseCollidable {
             }
 
             // Detect if in proximity of harvest basket.
-            gui.updateHarvestTimer(this.getMesh(), Vector3.Distance(garden.harvestBasketPosition, this.#_root.position), 5);
+            gui.updateHarvestTimer(this.getMesh(), Vector3.Distance(garden.harvestBasket.position, this.#_root.position), 5, this.#_harvestTime);
         }
     }
 
@@ -235,6 +249,42 @@ export class Farmer extends BaseCollidable {
     public get weaponSpeed(): number {
         return this.#_weaponSpeed;
     }
+    /**
+     * The amount of time it takes to harvest the carrots into the basket.
+     * @returns The harvest time.
+     */
+    public get harvestTime(): number {
+        return this.#_harvestTime;
+    }
+
+    /**
+     * The amount of carrots it takes to upgrade health.
+     * @returns The amount of carrots to upgrade health.
+     */
+    public get healthCost(): number {
+        return this.#_healthCost;
+    }
+    /**
+     * The amount of carrots it takes to upgrade damage.
+     * @returns The amount of carrots to upgrade damage.
+     */
+    public get damageCost(): number {
+        return this.#_damageCost;
+    }
+    /**
+     * The amount of carrots it takes to upgrade harvest speed.
+     * @returns The amount of carrots to upgrade harvest speed.
+     */
+    public get harvestCost(): number {
+        return this.#_harvestCost;
+    }
+    /**
+     * The amount of carrots it takes to upgrade movement speed.
+     * @returns The amount of carrots to upgrade movement speed.
+     */
+    public get speedCost(): number {
+        return this.#_speedCost;
+    }
 
     /**
      * Increase or decrease the current max health of the Farmer.
@@ -242,6 +292,7 @@ export class Farmer extends BaseCollidable {
      */
     public modifyMaxHealth(value: number): void {
         this.#_maxHealth += value;
+        this.#_healthCost += Config.player.upgradeIncrementCost;
         this.modifyHealth(this.health);
     }
     /**
@@ -257,6 +308,7 @@ export class Farmer extends BaseCollidable {
      */
     public modifyMovementSpeed(value: number): void {
         this.#_movementSpeed += value;
+        this.#_speedCost += Config.player.upgradeIncrementCost;
     }
     /**
      * Increase or decrease the weapon damage of the Farmer.
@@ -264,6 +316,7 @@ export class Farmer extends BaseCollidable {
      */
     public modifyWeaponDamage(value: number): void {
         this.#_weaponDamage += value;
+        this.#_damageCost += Config.player.upgradeIncrementCost;
     }
     /**
      * Increase or decrease the weapon range of the Farmer.
@@ -278,6 +331,14 @@ export class Farmer extends BaseCollidable {
      */
     public modifyWeaponSpeed(value: number): void {
         this.#_weaponSpeed += value;
+    }
+    /**
+     * Increase or decrease the harvest time of the Farmer.
+     * @param value The amount of time to increase/decrease the harvest time by.
+     */
+    public modifyHarvestTime(value: number): void {
+        this.#_harvestTime += value;
+        this.#_harvestCost += Config.player.upgradeIncrementCost;
     }
 
     /**

@@ -6,6 +6,8 @@ import { StabberRabbit } from '../enemies/stabberRabbit';
 import { Garden } from '../environment/garden';
 import { Config } from './config';
 import { Carrot } from '../environment/carrot';
+import { Vector3 } from 'babylonjs';
+import { Input } from '../input/input';
 
 /**
  * Amount of time, in seconds, that the defense round goes for.
@@ -66,6 +68,8 @@ export class RoundHandler {
 
     #_rabbits: StabberRabbit[] = [];
 
+    #_upgrading: boolean;
+
     /**
      * Constructor.
      * @param guiManager The GUIManager instance used to update the round and round timer.
@@ -90,6 +94,8 @@ export class RoundHandler {
         StabberRabbit.onRabbitDisposed = (rabbit: StabberRabbit): void => {
             this.#_rabbits = this.#_rabbits.filter(rab => rab !== rabbit);
         }
+
+        this.#_upgrading = false;
     }
 
     /**
@@ -133,6 +139,21 @@ export class RoundHandler {
                 this.#_burrows.forEach(b => b.dispose());
                 this.#_burrows = [];
             }
+
+            if(Vector3.Distance(farmer.position, garden.harvestBasket.position) <= 5) {
+                this.#_gui.addPickIcon(garden.harvestBasket);
+                if(Input.isKeyPressed('e') && !this.upgrading) {
+                    farmer.disabled = true;
+                    this.#_upgrading = true;
+                    this.#_gui.showUpgradeMenu(farmer, () => {
+                        this.#_upgrading = false;
+                        farmer.disabled = false;
+                    });
+                }
+            }
+            else {
+                this.#_gui.removePickIcon(garden.harvestBasket);
+            }
         }
 
         // Update all the carrots.
@@ -159,8 +180,17 @@ export class RoundHandler {
                 // Player defends the farm from spawning enemies.
                 this.#_type = RoundType.Defend;
                 this.#_time = defendTime;
+                this.#_gui.removePickIcon(garden.harvestBasket);
             }
         }
+    }
+
+    /**
+     * True if the round handler has the upgrading menu open.
+     * @returns True if the upgrading menu is open.
+     */
+    public get upgrading(): boolean {
+        return this.#_upgrading;
     }
 
     /**
