@@ -68,19 +68,21 @@ export class Loader {
      * @returns A promise that will resolve once the download is finished.
      */
     public static async startDownload(onProgress: (progress: number) => void): Promise<void> {
-        for (let i = 0; i < this.downloads.length; i++) {
-            if (this.downloads[i].type === LoaderType.Art) {
-                await Spawner.create(this.downloads[i].name, this.downloads[i].url, (spawnerProgress: number) => {
-                    onProgress(Scalar.Lerp(0, 1, (spawnerProgress + i) / this.downloads.length));
+        const nonImages = this.downloads.filter(d => d.type !== LoaderType.Image);
+
+        for (let i = 0; i < nonImages.length; i++) {
+            if (nonImages[i].type === LoaderType.Art) {
+                await Spawner.create(nonImages[i].name, nonImages[i].url, (spawnerProgress: number) => {
+                    onProgress(Scalar.Lerp(0, 1, (spawnerProgress + i) / nonImages.length));
                 });
             }
-            else if(this.downloads[i].type === LoaderType.Sound) {
-                await SoundManager.load(this.downloads[i].name, this.downloads[i].url);
+            else if(nonImages[i].type === LoaderType.Sound) {
+                await SoundManager.load(nonImages[i].name, nonImages[i].url);
             }
-            else if(this.downloads[i].type === LoaderType.Image) {
-                await ImageManager.load(this.downloads[i].name, this.downloads[i].url);
-            }
-            onProgress(Scalar.Lerp(0, 1, (i+1) / this.downloads.length));
+
+            onProgress(Scalar.Lerp(0, 1, (i+1) / nonImages.length));
         }
+
+        this.downloads.filter(d => d.type === LoaderType.Image).forEach(i => ImageManager.load(i.name, i.url));
     }
 }

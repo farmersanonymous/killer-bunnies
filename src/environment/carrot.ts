@@ -66,9 +66,9 @@ export class Carrot {
      * Disposes and releases all resources associated with all of the Carrots.
      */
     public static disposeAll(): void {
-        for(let i = 0; i < this._carrots.length; i++) {
-            this._carrots[i].dispose();
-        }
+        while(this._carrots.length > 0) {
+            this._carrots[0].dispose();
+        }   
     }
     /**
      * Returns a carrot that is pickable. If there are no carrots that are in range of the player, returns undefined.

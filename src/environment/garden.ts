@@ -11,7 +11,7 @@ export class Garden extends BaseCollidable {
     #_rootNodes: TransformNode[];
     #_burrowSpawnPoints: TransformNode[] = [];
     #_carrotSpawnPoints: TransformNode[] = [];
-    #_harvestBasket: TransformNode;
+    #_harvestBasket: Mesh;
 
     /**
      * Constructor.
@@ -82,11 +82,11 @@ export class Garden extends BaseCollidable {
     }
 
     /**
-     * Gets the position of the harvest basket.
-     * @returns The position of the harvest basket.
+     * Gets the mesh of the harvest basket.
+     * @returns The mesh of the harvest basket.
      */
-    public get harvestBasketPosition(): Vector3 {
-        return this.#_harvestBasket.position;
+    public get harvestBasket(): Mesh {
+        return this.#_harvestBasket;
     }
 
     /**

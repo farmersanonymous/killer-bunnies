@@ -56,6 +56,34 @@ export interface ConfigPlayerData {
      * How fast the bullets will travel.
      */
     weaponSpeed: number;
+    /**
+     * The amount of time it takes to complete a harvest.
+     */
+    harvestTime: number;
+    /**
+     * The amount of health increase when upgraded.
+     */
+    upgradeHealth: number;
+    /**
+     * The amount of damage increase when upgraded.
+     */
+    upgradeDamage: number;
+    /**
+     * The reduced amount of time it takes to harvest carrots to the basket when upgraded.
+     */
+    upgradeHarvest: number;
+    /**
+     * The amount to increase speed by when upgraded.
+     */
+    upgradeSpeed: number;
+    /**
+     * The amount of carrots upgrades will initially cost.
+     */
+    upgradeInitialCost: number;
+    /**
+     * The amount that an upgrade will increase in cost by, when purchased.
+     */
+    upgradeIncrementCost: number;
 }
 
 /**

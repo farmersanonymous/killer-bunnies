@@ -53,7 +53,7 @@ export class Game {
             this.#_roundHandler.onPause(this.#_paused);
         };
         window.addEventListener('blur', () => {
-            if(!this.#_paused) {
+            if(!this.#_paused && !this.#_roundHandler.upgrading) {
                 this.#_paused = true;
                 this.#_player.disabled = this.#_paused;
                 this.#_roundHandler.onPause(this.#_paused);
@@ -65,7 +65,7 @@ export class Game {
      * Updates the game. Called once every frame.
      */
     public update(): void {
-        if(Input.isKeyPressed('p')) {
+        if(Input.isKeyPressed('p') && !this.#_roundHandler.upgrading) {
             this.#_paused = !this.#_paused;
             this.#_player.disabled = this.#_paused;
             this.#_roundHandler.onPause(this.#_paused);
@@ -83,7 +83,7 @@ export class Game {
             }, 5000);
         }
 
-        this.#_player.update(this.#_garden, this.#_gui);
+        this.#_player.update(this.#_garden, this.#_gui, this.#_roundHandler);
 
         // Temporarily setting GUI values here. This will be fine if we only have player values, but if we need to
         // show anything per Enemy, then we will probably have to use callbacks for setting health, so it doesn't happen every frame.
