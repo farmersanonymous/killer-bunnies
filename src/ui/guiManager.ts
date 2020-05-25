@@ -1,5 +1,5 @@
 import { AdvancedDynamicTexture, TextBlock, Rectangle, Image, Control, Button } from 'babylonjs-gui';
-import { PerformanceMonitor, Scalar } from 'babylonjs';
+import { PerformanceMonitor, Scalar, AbstractMesh } from 'babylonjs';
 import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { ImageManager } from './imageManager';
 import { Config } from '../gameplay/config';
@@ -19,6 +19,7 @@ export class GUIManager {
     #_pausePanel: Rectangle;
     #_pausePanelOverlay: Rectangle;
     #_updateHandle: number;
+    #_pickIcons: Map<AbstractMesh, Image> = new Map<AbstractMesh, Image>();
     #_carrots: Image[] = [];
 
     /**
@@ -384,6 +385,59 @@ export class GUIManager {
      */
     public setRoundTimer(time: string): void {
         this.#_roundTimerText.text = time;
+    }
+    /**
+     * Adds a pick icon to the gui manager and attaches it to a mesh.
+     * @param mesh The mesh to attach the pick icon to.
+     */
+    public addPickIcon(mesh: AbstractMesh): void {
+        if(this.#_pickIcons.has(mesh)) {
+            return;
+        }
+
+        const image = ImageManager.get('EKey');
+        image.widthInPixels = 32;
+        image.heightInPixels = 32;
+        this.#_dynamicTexture.addControl(image);
+        image.linkWithMesh(mesh);
+        image.linkOffsetYInPixels = -100;
+        mesh.onDisposeObservable.add(() => {
+            this.removePickIcon(mesh);
+        });
+        this.#_pickIcons.set(mesh, image);
+    }
+    /**
+     * Removes the pick icon from the gui manager.
+     * @param mesh The mesh to remove the pick icon from.
+     */
+    public removePickIcon(mesh: AbstractMesh): void {
+        const image = this.#_pickIcons.get(mesh);
+        if(image) {
+            this.#_dynamicTexture.removeControl(image);
+            this.#_pickIcons.delete(mesh);
+            image.dispose();
+        }
+    }
+
+    /**
+     * Attempts to add a carrot to the Farmer inventory. He can only carry 5.
+     * @returns Return true if the carrot was added. False if it was not.
+     */
+    public addFarmerCarrot(): boolean {
+        if(this.#_carrots.length === 5) {
+            return false;
+        }
+
+        const carrotfill = ImageManager.get('CarrotFill');
+        carrotfill.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        carrotfill.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        carrotfill.widthInPixels = 48;
+        carrotfill.heightInPixels = 48;
+        carrotfill.left = 25 + (this.#_carrots.length * 60);
+        carrotfill.top = 65;
+        this.#_dynamicTexture.addControl(carrotfill);
+        this.#_carrots.push(carrotfill);
+        return true;
     }
 
     /**

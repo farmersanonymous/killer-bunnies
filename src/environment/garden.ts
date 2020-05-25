@@ -32,13 +32,14 @@ export class Garden extends BaseCollidable {
         const meteoriteSpawner = Spawner.getSpawner('Meteorite');
         meteoriteSpawner.instantiate();
 
+        const gardenGround = Spawner.getSpawner('Ground');
+        gardenGround.instantiate();
+
         this.#_ground = MeshBuilder.CreateGround('Ground', {
             width: 100,
             height: 100
         });
         this.#_ground.isVisible = false;
-
-        // Remove old nodes from garden.
 
         const colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
         colliders.forEach(c => {            
@@ -47,6 +48,7 @@ export class Garden extends BaseCollidable {
         });
 
         const navMesh = this.#_rootNodes[0].getChildMeshes(false, m => m.name === 'GroundNavMesh');
+        navMesh.forEach(n => n.setEnabled(false));
         Navigation.init(navMesh as Mesh[]);
     }
 

@@ -11,6 +11,9 @@ import { Animator, AnimatorState } from '../animation/animator';
 import { StabberRabbit } from '../enemies/stabberRabbit';
 import { RadarManager, BlipType } from '../ui/radar'
 import { Config } from '../gameplay/config';
+import { Carrot } from '../environment/carrot';
+import { Input } from '../input/input';
+import { GUIManager } from '../ui/guiManager';
 
 /**
  * The playable Farmer character.
@@ -126,8 +129,9 @@ export class Farmer extends BaseCollidable {
 
     /**
      * Updates the Farmer every frame.
+     * @param gui The gui manager for the game.
      */
-    public update(): void {
+    public update(gui: GUIManager): void {
         if (this.health <= 0) {
             this.#_animator.play(AnimatorState.Death, false);
             this.#_controller.disabled = true;
@@ -143,6 +147,14 @@ export class Farmer extends BaseCollidable {
             this.#_hitTimer -= BabylonStore.deltaTime;
 
             RadarManager.updateBlip(this.#_root);
+
+            // Try to get carrot.
+            const carrot = Carrot.getPickableCarrot();
+            if(carrot && Input.isKeyPressed('e')) {
+                if(gui.addFarmerCarrot()) {
+                    carrot.dispose();
+                }
+            }
         }
     }
 

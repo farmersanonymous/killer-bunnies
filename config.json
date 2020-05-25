@@ -37,6 +37,11 @@
             "url": "https://storage.googleapis.com/farmer-assets/well/3/Well.gltf"
         },
         {
+            "name": "Ground",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/ground/2/Ground.gltf"
+        },
+        {
             "name": "Music",
             "type": "sound",
             "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3"
@@ -75,6 +80,11 @@
             "name": "Play",
             "type": "image",
             "url": "https://storage.googleapis.com/farmer-assets/images/play.png"
+        },
+        {
+            "name": "EKey",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/e-key.png"
         }
     ],
     "player": {
