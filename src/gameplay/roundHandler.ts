@@ -8,21 +8,21 @@ import { Config } from './config';
 import { Carrot } from '../environment/carrot';
 
 /**
+ * Amount of time, in seconds, that the rest round goes for.
+ */
+const restTime = 30
+
+/**
  * Amount of time, in seconds, that the defense round goes for.
  */
 const defendTime = 120
 
 /**
- * Amount of time, in seconds, that the fortification round goes for.
- */
-const fortifyTime = 30
-
-/**
  * Types of rounds to switch between.
  */
 export enum RoundType {
-    Defend,
-    Fortify
+    Rest,
+    Defend
 }
 
 /**
@@ -47,7 +47,7 @@ export class RoundHandler {
     /**
      * The current round type.
      */
-    #_type = RoundType.Fortify;
+    #_type = RoundType.Rest;
 
     /**
      * The current time left before the next burrow spawns.
@@ -92,6 +92,13 @@ export class RoundHandler {
         }
     }
 
+    /**
+     * 
+     */
+    private _getDifficultyModifier(): number {
+        return 0.25 * (this.#_round - 1);
+    }
+    
     /**
      * Formats the current round timer to a string.
      */
@@ -146,8 +153,8 @@ export class RoundHandler {
         if (this.#_time <= 0) {
             if (this.#_type === RoundType.Defend) {
                 // Player builds up their defenses for the next Defend round.
-                this.#_type = RoundType.Fortify;
-                this.#_time = fortifyTime;
+                this.#_type = RoundType.Rest;
+                this.#_time = restTime;
                 this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
                 this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
                 
