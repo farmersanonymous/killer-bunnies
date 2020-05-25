@@ -1,4 +1,4 @@
-import { TransformNode, Mesh, MeshBuilder } from 'babylonjs';
+import { TransformNode, Mesh, MeshBuilder, Vector3 } from 'babylonjs';
 import { Spawner } from '../assets/spawner';
 import { Navigation } from '../gameplay/navigation';
 import { BaseCollidable } from '../collision/baseCollidable';
@@ -9,9 +9,9 @@ import { CollisionGroup } from '../collision/collisionManager';
  */
 export class Garden extends BaseCollidable {
     #_rootNodes: TransformNode[];
-    #_ground: Mesh;
     #_burrowSpawnPoints: TransformNode[] = [];
     #_carrotSpawnPoints: TransformNode[] = [];
+    #_harvestBasket: TransformNode;
 
     /**
      * Constructor.
@@ -35,11 +35,8 @@ export class Garden extends BaseCollidable {
         const gardenGround = Spawner.getSpawner('Ground');
         gardenGround.instantiate();
 
-        this.#_ground = MeshBuilder.CreateGround('Ground', {
-            width: 100,
-            height: 100
-        });
-        this.#_ground.isVisible = false;
+        this.#_harvestBasket = MeshBuilder.CreateBox('HarvestBasket', { size: 3 });
+        this.#_harvestBasket.position = new Vector3(22, 1.5, 0);
 
         const colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
         colliders.forEach(c => {            
@@ -85,11 +82,19 @@ export class Garden extends BaseCollidable {
     }
 
     /**
+     * Gets the position of the harvest basket.
+     * @returns The position of the harvest basket.
+     */
+    public get harvestBasketPosition(): Vector3 {
+        return this.#_harvestBasket.position;
+    }
+
+    /**
      * Release all resources associated with this Garden.
      */
     public dispose(): void {
         super.dispose();
-        this.#_ground.dispose();
+        this.#_harvestBasket.dispose();
         this.#_rootNodes.forEach(n => n.dispose());
     }
 }
