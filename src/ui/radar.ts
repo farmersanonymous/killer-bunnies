@@ -126,8 +126,10 @@ export class RadarManager {
      * @param root The root TransformNode associated with a blip.
      */
     public static removeBlip(root: TransformNode): void {
-        this.getInstance().#_blips.get(root).dispose();
-        this.getInstance().#_blips.delete(root);
+        if(this.getInstance().#_blips.has(root)) {
+            this.getInstance().#_blips.get(root).dispose();
+            this.getInstance().#_blips.delete(root);
+        }
     }
 
     /**

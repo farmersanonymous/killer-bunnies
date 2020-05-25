@@ -61,11 +61,6 @@ export class RoundHandler {
      */
     #_carrotSpawnTimer: number;
 
-    /**
-     * A list of Burrows that have been created by the RoundHandler.
-     */
-    #_burrows: Burrow[] = [];
-
     #_rabbits: StabberRabbit[] = [];
 
     #_upgrading: boolean;
@@ -80,13 +75,6 @@ export class RoundHandler {
 
         this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
         this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
-
-        Burrow.onBurrowCreated = (burrow: Burrow): void => {
-            this.#_burrows.push(burrow);
-        };
-        Burrow.onBurrowDisposed = (burrow: Burrow): void => {
-            this.#_burrows = this.#_burrows.filter(bur => bur !== burrow);
-        };
 
         StabberRabbit.onRabbitCreated = (rabbit: StabberRabbit): void => {
             this.#_rabbits.push(rabbit);
@@ -130,16 +118,9 @@ export class RoundHandler {
             }
 
             // Update all the burrows.
-            for(let i = 0; i < this.#_burrows.length; i++) {
-                this.#_burrows[i].update();
-            }
+            Burrow.updateAll();
         }
         else {
-            if(this.#_rabbits.length === 0 && this.#_burrows.length > 0) {
-                this.#_burrows.forEach(b => b.dispose());
-                this.#_burrows = [];
-            }
-
             if(Vector3.Distance(farmer.position, garden.harvestBasket.position) <= 5) {
                 this.#_gui.addPickIcon(garden.harvestBasket);
                 if(Input.isKeyPressed('e') && !this.upgrading) {
@@ -176,6 +157,8 @@ export class RoundHandler {
                 this.#_rabbits.forEach(r => r.retreat());
                 Carrot.disposeAll();
                 this.#_gui.clearFarmerCarrots();
+
+                Burrow.disposeAll();
             } else {
                 // Player defends the farm from spawning enemies.
                 this.#_type = RoundType.Defend;
@@ -220,12 +203,10 @@ export class RoundHandler {
      * Releases all resources associated with this RoundHandler.
      */
     public dispose(): void {
-        Burrow.onBurrowCreated = null;
-        Burrow.onBurrowDisposed = null;
         StabberRabbit.onRabbitCreated = null;
         StabberRabbit.onRabbitDisposed = null;
-        this.#_burrows.forEach(b => b.dispose());
         this.#_rabbits.forEach(r => r.dispose());
         Carrot.disposeAll();
+        Burrow.disposeAll();
     }
 }

@@ -121,7 +121,7 @@ export class Farmer extends BaseCollidable {
             }
 
             const backward = this.#_root.forward.negate();
-            new Bullet(this.#_bulletSpawnPoint.getWorldMatrix().getRow(3).toVector3(), this.weaponSpeed, backward, this.weaponRange);
+            new Bullet(this.#_bulletSpawnPoint.getWorldMatrix().getRow(3).toVector3(), this.weaponSpeed, backward, this.weaponDamage, this.weaponRange);
             this.#_gunCooldown = true;
             window.setTimeout(() => {
                 this.#_gunCooldown = false;

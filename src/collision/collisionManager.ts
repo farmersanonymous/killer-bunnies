@@ -61,8 +61,10 @@ export class CollisionManager {
      */
     public static deregister(group: CollisionGroup, collidable: BaseCollidable): void {
         let arr = this.collidables.get(group);
-        arr = arr.filter(c => c !== collidable);
-        this.collidables.set(group, arr);
+        if(arr) {
+            arr = arr.filter(c => c !== collidable);
+            this.collidables.set(group, arr);
+        }
     }
     /**
      * Updates the collision manager. Should be called once per frame.
@@ -105,7 +107,7 @@ export class CollisionManager {
                 const enemies = this.collidables.get(CollisionGroup.Enemy);
                 for(let j = 0; j < enemies.length; j++) {
                     const enemyMesh = enemies[j].getMesh();
-                    if(bullet.getMesh().intersectsMesh(enemyMesh)) {
+                    if(enemyMesh && bullet.getMesh().intersectsMesh(enemyMesh)) {
                         bullet.onCollide(enemies[j]);
                         enemies[j].onCollide(bullet);
                         break;
