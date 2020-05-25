@@ -1,4 +1,4 @@
-import { Sound, Vector3 } from "babylonjs";
+import { Sound, Vector3, Engine } from "babylonjs";
 import { BabylonStore } from "../store/babylonStore";
 
 /**
@@ -19,7 +19,7 @@ export class SoundOptions {
  * Handles loading and playing music and sfx for the game.
  */
 export class SoundManager {
-    private static sounds: Map<string, Sound> = new Map<string, Sound>();
+    private static _sounds: Map<string, Sound> = new Map<string, Sound>();
 
     private constructor() { /** Static class */ }
 
@@ -34,7 +34,7 @@ export class SoundManager {
             const sound = new Sound(name, url, BabylonStore.scene, () => {
                 resolve();
             });
-            this.sounds.set(name, sound);
+            this._sounds.set(name, sound);
         });
     }
     /**
@@ -43,9 +43,13 @@ export class SoundManager {
      * @param loop If the sound should loop or not. Default: false.
      */
     public static play(name: string, options?: SoundOptions): void {
+        if(!Engine.audioEngine.unlocked) {
+            return;
+        }
         options = options || { };
 
-        const sound = this.sounds.get(name);
+        const sound = this._sounds.get(name);
+        
         sound.loop = options.loop || false;
         sound.spatialSound = options.position ? true : false;
         sound.setPosition(options.position || Vector3.Zero());
@@ -56,7 +60,11 @@ export class SoundManager {
      * @param name The name of the sound.
      */
     public static stop(name: string): void {
-        const sound = this.sounds.get(name);
+        if(!Engine.audioEngine.unlocked) {
+            return;
+        }
+
+        const sound = this._sounds.get(name);
         sound.stop();
     }
 }
