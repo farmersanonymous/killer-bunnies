@@ -177,7 +177,7 @@ export class Farmer extends BaseCollidable {
             // Detect if in proximity of harvest basket.
             let distance = Vector3.Distance(garden.harvestBasket.position, this.#_root.position);
             // If round is forify, make distance higher than requirement.
-            if(round.type === RoundType.Fortify)
+            if(round.type === RoundType.Rest)
                 distance = 6;
             gui.updateHarvestTimer(this.getMesh(), distance, 5, this.#_harvestTime);
         }

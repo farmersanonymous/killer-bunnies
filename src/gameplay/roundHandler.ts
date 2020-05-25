@@ -12,12 +12,12 @@ import { Input } from '../input/input';
 /**
  * Amount of time, in seconds, that the rest round goes for.
  */
-const restTime = 30
+const restTime = 30;
 
 /**
  * Amount of time, in seconds, that the defense round goes for.
  */
-const defendTime = 120
+const defendTime = 120;
 
 /**
  * Types of rounds to switch between.
@@ -82,6 +82,7 @@ export class RoundHandler {
         this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
 
         Burrow.onBurrowCreated = (burrow: Burrow): void => {
+            burrow.modifyDifficulty(this._getDifficultyModifier());
             this.#_burrows.push(burrow);
         };
         Burrow.onBurrowDisposed = (burrow: Burrow): void => {
@@ -89,6 +90,7 @@ export class RoundHandler {
         };
 
         StabberRabbit.onRabbitCreated = (rabbit: StabberRabbit): void => {
+            rabbit.modifyDifficulty(this._getDifficultyModifier());
             this.#_rabbits.push(rabbit);
         }
         StabberRabbit.onRabbitDisposed = (rabbit: StabberRabbit): void => {
@@ -99,13 +101,6 @@ export class RoundHandler {
     }
 
     /**
-     * 
-     */
-    private _getDifficultyModifier(): number {
-        return 0.25 * (this.#_round - 1);
-    }
-    
-    /**
      * Formats the current round timer to a string.
      */
     private _getTimeString(): string {
@@ -113,6 +108,13 @@ export class RoundHandler {
         return Math.floor(this.#_time / 60) + ':' + (seconds < 10 ? '0' : '') + seconds;
     }
 
+    /**
+     * Returns a difficulty modifier, on the current round, used to manipulate values in the game.
+     */
+    private _getDifficultyModifier(): number {
+        return 0.25 * (this.#_round - 1);
+    }
+    
     /**
      * Updates the current round.
      */
@@ -174,8 +176,8 @@ export class RoundHandler {
         if (this.#_time <= 0) {
             if (this.#_type === RoundType.Defend) {
                 // Player builds up their defenses for the next Defend round.
-                this.#_type = RoundType.Rest;
                 this.#_time = restTime;
+                this.#_type = RoundType.Rest;
                 this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
                 this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
                 

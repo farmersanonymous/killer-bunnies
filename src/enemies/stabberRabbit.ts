@@ -156,11 +156,19 @@ export class StabberRabbit extends BaseCollidable {
     }
 
     /**
-     * 
-     * @param modifer 
+     * Modifies the rabbit's health, damage, and speed based on a given value.
+     * @param modifier Difficulty modifier used to calculate new values for the rabbit.
      */
-    public modifyDifficulty(modifer: number): void {
+    public modifyDifficulty(modifier: number): void {
+        // Damage
+        this.#_damage += (Config.stabberRabbit.damage * modifier);
 
+        // Health
+        this.#_maxHealth += (Config.stabberRabbit.health * modifier);
+
+        // Speed
+        const speed = Config.stabberRabbit.speed;
+        Navigation.agentUpdateSpeed(this.#_agent, speed + (speed * modifier));
     }
 
     /**
@@ -176,19 +184,15 @@ export class StabberRabbit extends BaseCollidable {
      */
     public onCollide(collidable: BaseCollidable): void {
         if (collidable instanceof Bullet) {
+            console.log(this.#_health, (this.#_maxHealth / 2));
             this.#_health -= (this.#_maxHealth / 2);
 
-            if (this.#_health === 0) {
+            if (this.#_health <= 0) {
                 StabberRabbit.onRabbitDisposed(this);
                 this.dispose();
             }
         }
     }
-
-    //public onCollide(): void {
-    //    StabberRabbit.onRabbitDisposed(this);
-    //    this.dispose();
-    //}
 
     /**
      * Release all resources associated with this StabberRabbit.
