@@ -1,4 +1,4 @@
-import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader, Engine } from 'babylonjs';
+import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader, Engine, Angle } from 'babylonjs';
 import { BabylonStore } from './store/babylonStore';
 import { Loader, LoaderType } from './assets/loader';
 import { Input } from './input/input';
@@ -108,7 +108,7 @@ export class Bootstrap {
         });
 
         // Creates the main camera.
-        BabylonStore.createCamera('mainCamera', 3.141592, 0.785398, 20, Vector3.Zero(), BabylonStore.scene, true);
+        BabylonStore.createCamera('mainCamera', Angle.FromDegrees(205).radians(), Angle.FromDegrees(45).radians(), 30, Vector3.Zero(), BabylonStore.scene, true);
         BabylonStore.scene.activeCameras.push(BabylonStore.camera);
         BabylonStore.scene.cameraToUseForPointers = BabylonStore.camera;
 

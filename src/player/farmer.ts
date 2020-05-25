@@ -132,8 +132,7 @@ export class Farmer extends BaseCollidable {
         }
 
         this.#_controller.onRotate = (dir): void => {
-            // Rotation is off for some reason, don't really feal like looking into it, so subtracting 90 degrees in radians to offset.
-            this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(180).radians(), 0);
+            this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), dir).radians() - Angle.FromDegrees(200).radians(), 0);
         };
 
         // Initialize the camera.
