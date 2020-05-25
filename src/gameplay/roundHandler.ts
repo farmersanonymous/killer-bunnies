@@ -175,12 +175,18 @@ export class RoundHandler {
                 this.#_gui.setRound(++this.#_round);
                 this.#_rabbits.forEach(r => r.retreat());
                 Carrot.disposeAll();
-                
+                this.#_gui.clearFarmerCarrots();
             } else {
                 // Player defends the farm from spawning enemies.
                 this.#_type = RoundType.Defend;
                 this.#_time = defendTime;
                 this.#_gui.removePickIcon(garden.harvestBasket);
+                
+                // Hides the upgrade panel in case it is still visible.
+                if(this.#_gui.hideUpgradePanel()) {
+                    farmer.disabled = false;
+                    this.#_upgrading = false;
+                }
             }
         }
     }
@@ -191,6 +197,14 @@ export class RoundHandler {
      */
     public get upgrading(): boolean {
         return this.#_upgrading;
+    }
+
+    /**
+     * The current round type.
+     * @returns The current round type.
+     */
+    public get type(): RoundType {
+        return this.#_type;
     }
 
     /**

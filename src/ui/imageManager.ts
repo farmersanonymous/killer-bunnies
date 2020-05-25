@@ -12,13 +12,9 @@ export class ImageManager {
      * Loads an image from a url.
      * @param name The name of the image. Needed to get the image later.
      * @param url The url of the image to load.
-     * @returns A promise that will resolve when the image has been loaded.
      */
-    public static load(name: string, url: string): Promise<void> {
-        return new Promise((resolve) => {
-            this.images.set(name, url);
-            resolve();
-        });
+    public static load(name: string, url: string): void {
+        this.images.set(name, url);
     }
     /**
      * Returns a new image based on the name that was passed into 'load'.

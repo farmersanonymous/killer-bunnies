@@ -15,6 +15,7 @@ import { Carrot } from '../environment/carrot';
 import { Input } from '../input/input';
 import { GUIManager } from '../ui/guiManager';
 import { Garden } from '../environment/garden';
+import { RoundHandler, RoundType } from '../gameplay/roundHandler';
 
 /**
  * The playable Farmer character.
@@ -146,8 +147,9 @@ export class Farmer extends BaseCollidable {
      * Updates the Farmer every frame.
      * @param garden The garden (the environment).
      * @param gui The gui manager for the game.
+     * @param round The round handler.
      */
-    public update(garden: Garden, gui: GUIManager): void {
+    public update(garden: Garden, gui: GUIManager, round: RoundHandler): void {
         if (this.health <= 0) {
             this.#_animator.play(AnimatorState.Death, false);
             this.#_controller.disabled = true;
@@ -173,7 +175,11 @@ export class Farmer extends BaseCollidable {
             }
 
             // Detect if in proximity of harvest basket.
-            gui.updateHarvestTimer(this.getMesh(), Vector3.Distance(garden.harvestBasket.position, this.#_root.position), 5, this.#_harvestTime);
+            let distance = Vector3.Distance(garden.harvestBasket.position, this.#_root.position);
+            // If round is forify, make distance higher than requirement.
+            if(round.type === RoundType.Fortify)
+                distance = 6;
+            gui.updateHarvestTimer(this.getMesh(), distance, 5, this.#_harvestTime);
         }
     }
 
@@ -293,7 +299,7 @@ export class Farmer extends BaseCollidable {
     public modifyMaxHealth(value: number): void {
         this.#_maxHealth += value;
         this.#_healthCost += Config.player.upgradeIncrementCost;
-        this.modifyHealth(this.health);
+        this.modifyHealth(value);
     }
     /**
      * Increase or decrease the current health of the Farmer.

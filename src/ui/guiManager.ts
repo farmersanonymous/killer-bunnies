@@ -24,6 +24,7 @@ export class GUIManager {
     #_carrots: Image[] = [];
     #_harvestSlider: Slider;
     #_harvestTimer: number;
+    #_upgradePanel: Rectangle;
 
     /**
      * Constructor.
@@ -444,6 +445,14 @@ export class GUIManager {
     }
 
     /**
+     * Clears all the farmer carrots from the gui.
+     */
+    public clearFarmerCarrots(): void {
+        this.#_carrots.forEach(c => c.dispose());
+        this.#_carrots = [];
+    }
+
+    /**
      * Updates the Harvest timer. It will start/continue a progress bar if the Farmer is in range. 
      * If the Farmer goes out of range before the timer finishes, then the timer will get canceled.
      * @param mesh The Farmer mesh that will get linked to the slider.
@@ -454,6 +463,11 @@ export class GUIManager {
     public updateHarvestTimer(mesh: AbstractMesh, distance: number, requirement: number, time: number): void {
         // Don't do anything if the Farmer has no carrots!
         if (this.#_carrots.length === 0) {
+            if (this.#_harvestSlider) {
+                this.#_dynamicTexture.removeControl(this.#_harvestSlider);
+                this.#_harvestSlider.dispose();
+                this.#_harvestSlider = null;
+            }
             return;
         }
 
@@ -478,7 +492,7 @@ export class GUIManager {
             const ratio = this.#_harvestTimer / time;
             this.#_harvestSlider.value = Scalar.Lerp(this.#_harvestSlider.minimum, this.#_harvestSlider.maximum, ratio);
 
-            if(ratio >= 1) {
+            if (ratio >= 1) {
                 // Increase carrot count on harvest.
                 this.#_carrotText.text = (parseInt(this.#_carrotText.text) + this.#_carrots.length).toString();
 
@@ -492,7 +506,7 @@ export class GUIManager {
                 this.#_harvestSlider = null;
             }
         }
-        else if(this.#_harvestSlider) {
+        else if (this.#_harvestSlider) {
             this.#_dynamicTexture.removeControl(this.#_harvestSlider);
             this.#_harvestSlider.dispose();
             this.#_harvestSlider = null;
@@ -511,16 +525,16 @@ export class GUIManager {
         onClose;
         this.#_dynamicTexture.addControl(this.#_pausePanel);
 
-        const upgradePanel = new Rectangle();
-        upgradePanel.thickness = 3;
-        upgradePanel.color = "#2b1d0e";
-        upgradePanel.background = "#654321";
-        upgradePanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-        upgradePanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-        upgradePanel.widthInPixels = 500;
-        upgradePanel.heightInPixels = 600;
-        upgradePanel.cornerRadius = 5;
-        this.#_dynamicTexture.addControl(upgradePanel);
+        this.#_upgradePanel = new Rectangle();
+        this.#_upgradePanel.thickness = 3;
+        this.#_upgradePanel.color = "#2b1d0e";
+        this.#_upgradePanel.background = "#654321";
+        this.#_upgradePanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this.#_upgradePanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.#_upgradePanel.widthInPixels = 500;
+        this.#_upgradePanel.heightInPixels = 600;
+        this.#_upgradePanel.cornerRadius = 5;
+        this.#_dynamicTexture.addControl(this.#_upgradePanel);
 
         const carrotPanel = new Rectangle();
         carrotPanel.thickness = 3;
@@ -533,7 +547,7 @@ export class GUIManager {
         carrotPanel.widthInPixels = 100;
         carrotPanel.heightInPixels = 30;
         carrotPanel.cornerRadius = 5;
-        upgradePanel.addControl(carrotPanel);
+        this.#_upgradePanel.addControl(carrotPanel);
 
         const carrotIcon = ImageManager.get('CarrotBasket');
         carrotIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
@@ -542,7 +556,7 @@ export class GUIManager {
         carrotIcon.widthInPixels = 30;
         carrotIcon.left = 140;
         carrotIcon.top = 75;
-        upgradePanel.addControl(carrotIcon);
+        this.#_upgradePanel.addControl(carrotIcon);
 
         const carrotText = new TextBlock('CarrotCount', totalCarrots.toString());
         carrotText.color = "white";
@@ -554,7 +568,7 @@ export class GUIManager {
         carrotText.left = 170;
         carrotText.widthInPixels = 100;
         carrotText.heightInPixels = 30;
-        upgradePanel.addControl(carrotText);
+        this.#_upgradePanel.addControl(carrotText);
 
         const upgradeTitle = new TextBlock('UpgradeTitle', 'Upgrade');
         upgradeTitle.color = "white";
@@ -565,7 +579,7 @@ export class GUIManager {
         upgradeTitle.top = 5;
         upgradeTitle.widthInPixels = 250;
         upgradeTitle.heightInPixels = 50;
-        upgradePanel.addControl(upgradeTitle);
+        this.#_upgradePanel.addControl(upgradeTitle);
 
         const healthButton = new Button();
         healthButton.thickness = 3;
@@ -578,7 +592,7 @@ export class GUIManager {
         healthButton.widthInPixels = 150;
         healthButton.heightInPixels = 150;
         healthButton.cornerRadius = 5;
-        upgradePanel.addControl(healthButton);
+        this.#_upgradePanel.addControl(healthButton);
 
         const healthTitle = new TextBlock('HealthTitle', 'Health');
         healthTitle.color = "white";
@@ -641,7 +655,7 @@ export class GUIManager {
         newHealthText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
         newHealthText.left = 40;
         newHealthText.heightInPixels = 25;
-        healthButton.addControl(newHealthText);        
+        healthButton.addControl(newHealthText);
 
         const healthIcon = ImageManager.get("Heart");
         healthIcon.widthInPixels = 32;
@@ -662,7 +676,7 @@ export class GUIManager {
         damageButton.widthInPixels = 150;
         damageButton.heightInPixels = 150;
         damageButton.cornerRadius = 5;
-        upgradePanel.addControl(damageButton);
+        this.#_upgradePanel.addControl(damageButton);
 
         const damageTitle = new TextBlock('DamageTitle', 'Damage');
         damageTitle.color = "white";
@@ -746,7 +760,7 @@ export class GUIManager {
         harvestButton.widthInPixels = 150;
         harvestButton.heightInPixels = 150;
         harvestButton.cornerRadius = 5;
-        upgradePanel.addControl(harvestButton);
+        this.#_upgradePanel.addControl(harvestButton);
 
         const harvestTitle = new TextBlock('HarvestTitle', 'Harvest\nSpeed');
         harvestTitle.color = "white";
@@ -830,7 +844,7 @@ export class GUIManager {
         moveSpeedButton.widthInPixels = 150;
         moveSpeedButton.heightInPixels = 150;
         moveSpeedButton.cornerRadius = 5;
-        upgradePanel.addControl(moveSpeedButton);
+        this.#_upgradePanel.addControl(moveSpeedButton);
 
         const moveSpeedTitle = new TextBlock('HarvestTitle', 'Move Speed');
         moveSpeedTitle.color = "white";
@@ -911,7 +925,7 @@ export class GUIManager {
         closeButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
         closeButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
         closeButton.cornerRadius = 50;
-        upgradePanel.addControl(closeButton);
+        this.#_upgradePanel.addControl(closeButton);
 
         function updateSingleUpgrade(button: Button, currText: TextBlock, newText: TextBlock, costText: TextBlock, noIcon: Image, value: number, upgrade: number, cost: number, fixed: number): void {
             button.isEnabled = totalCarrots >= cost;
@@ -932,10 +946,6 @@ export class GUIManager {
             totalCarrots -= farmer.healthCost;
             farmer.modifyMaxHealth(Config.player.upgradeHealth);
             updateUpgrades();
-            /*this.#_dynamicTexture.removeControl(upgradePanel);
-            this.#_dynamicTexture.removeControl(this.#_pausePanel);
-            upgradePanel.dispose();
-            onClose?.();*/
         });
         damageButton.onPointerClickObservable.add(() => {
             totalCarrots -= farmer.damageCost;
@@ -953,14 +963,27 @@ export class GUIManager {
             updateUpgrades();
         });
         closeButton.onPointerClickObservable.add(() => {
-            this.#_carrotText.text = totalCarrots.toFixed(0);
-            this.#_dynamicTexture.removeControl(upgradePanel);
-            this.#_dynamicTexture.removeControl(this.#_pausePanel);
-            upgradePanel.dispose();
+            this.hideUpgradePanel();
             onClose?.();
         });
 
         updateUpgrades();
+    }
+
+    /**
+     * Hides the upgrade panel.
+     * @returns True if the upgrade panel was hidden, false if it wasn't being shown.
+     */
+    public hideUpgradePanel(): boolean {
+        if (this.#_upgradePanel) {
+            const textControl = this.#_upgradePanel.getChildByName('CarrotCount') as TextBlock;
+            this.#_carrotText.text = textControl.text;
+            this.#_dynamicTexture.removeControl(this.#_upgradePanel);
+            this.#_dynamicTexture.removeControl(this.#_pausePanel);
+            this.#_upgradePanel.dispose();
+            this.#_upgradePanel = null;
+            return true;
+        }
     }
 
     /**

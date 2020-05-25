@@ -83,7 +83,7 @@ export class Game {
             }, 5000);
         }
 
-        this.#_player.update(this.#_garden, this.#_gui);
+        this.#_player.update(this.#_garden, this.#_gui, this.#_roundHandler);
 
         // Temporarily setting GUI values here. This will be fine if we only have player values, but if we need to
         // show anything per Enemy, then we will probably have to use callbacks for setting health, so it doesn't happen every frame.
