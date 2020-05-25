@@ -85,6 +85,31 @@
             "name": "EKey",
             "type": "image",
             "url": "https://storage.googleapis.com/farmer-assets/images/e-key.png"
+        },
+        {
+            "name": "Boots",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/boots.png"
+        },
+        {
+            "name": "CorncobberIcon",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/corncobber-icon.png"
+        },
+        {
+            "name": "CarrotBasket",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/carrotbasket.png"
+        },
+        {
+            "name": "Arrow",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/arrow.png"
+        },
+        {
+            "name": "CircleNo",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/circle-no.png"
         }
     ],
     "player": {
@@ -92,7 +117,14 @@
         "speed": 5,
         "weaponDamage": 10,
         "weaponRange": 5,
-        "weaponSpeed": 20
+        "weaponSpeed": 20,
+        "harvestTime": 5,
+        "upgradeHealth": 10,
+        "upgradeDamage": 2,
+        "upgradeHarvest": -0.2,
+        "upgradeSpeed": 0.5,
+        "upgradeInitialCost": 5,
+        "upgradeIncrementCost": 5
     },
     "burrow": {
         "spawnFrequency": {

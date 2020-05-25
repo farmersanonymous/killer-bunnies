@@ -4,6 +4,7 @@ import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { ImageManager } from './imageManager';
 import { Config } from '../gameplay/config';
 import { BabylonStore } from '../store/babylonStore';
+import { Farmer } from '../player/farmer';
 
 const HEALTH_BAR_WIDTH = 262;
 
@@ -23,6 +24,7 @@ export class GUIManager {
     #_carrots: Image[] = [];
     #_harvestSlider: Slider;
     #_harvestTimer: number;
+    #_upgradePanel: Rectangle;
 
     /**
      * Constructor.
@@ -171,11 +173,11 @@ export class GUIManager {
         timerIcon.top = 75;
         this.#_dynamicTexture.addControl(timerIcon);
 
-        const carrotIcon = ImageManager.get('CarrotFill');
+        const carrotIcon = ImageManager.get('CarrotBasket');
         carrotIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
         carrotIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
         carrotIcon.heightInPixels = 20;
-        carrotIcon.widthInPixels = 20;
+        carrotIcon.widthInPixels = 30;
         carrotIcon.left = 50;
         carrotIcon.top = 75;
         this.#_dynamicTexture.addControl(carrotIcon);
@@ -316,7 +318,7 @@ export class GUIManager {
             inspectorButton.cornerRadius = 5;
             this.#_dynamicTexture.addControl(inspectorButton);
 
-            const inspectorText = new TextBlock('InspectorText', 'Inpsector');
+            const inspectorText = new TextBlock('InspectorText', 'Inspector');
             inspectorText.color = "white";
             inspectorText.fontFamily = "ActionMan";
             inspectorText.fontSize = "14px";
@@ -443,15 +445,29 @@ export class GUIManager {
     }
 
     /**
+     * Clears all the farmer carrots from the gui.
+     */
+    public clearFarmerCarrots(): void {
+        this.#_carrots.forEach(c => c.dispose());
+        this.#_carrots = [];
+    }
+
+    /**
      * Updates the Harvest timer. It will start/continue a progress bar if the Farmer is in range. 
      * If the Farmer goes out of range before the timer finishes, then the timer will get canceled.
      * @param mesh The Farmer mesh that will get linked to the slider.
      * @param distance The distance the Farmer is away from the harvest basket.
      * @param requirement The distance the Farmer has to be from the harvest basket in order for the timer to continue.
+     * @param time The time it takes for the harvest to complete.
      */
-    public updateHarvestTimer(mesh: AbstractMesh, distance: number, requirement: number): void {
+    public updateHarvestTimer(mesh: AbstractMesh, distance: number, requirement: number, time: number): void {
         // Don't do anything if the Farmer has no carrots!
         if (this.#_carrots.length === 0) {
+            if (this.#_harvestSlider) {
+                this.#_dynamicTexture.removeControl(this.#_harvestSlider);
+                this.#_harvestSlider.dispose();
+                this.#_harvestSlider = null;
+            }
             return;
         }
 
@@ -473,10 +489,10 @@ export class GUIManager {
             }
 
             this.#_harvestTimer += BabylonStore.deltaTime;
-            const ratio = this.#_harvestTimer / 5;
+            const ratio = this.#_harvestTimer / time;
             this.#_harvestSlider.value = Scalar.Lerp(this.#_harvestSlider.minimum, this.#_harvestSlider.maximum, ratio);
 
-            if(ratio >= 1) {
+            if (ratio >= 1) {
                 // Increase carrot count on harvest.
                 this.#_carrotText.text = (parseInt(this.#_carrotText.text) + this.#_carrots.length).toString();
 
@@ -490,13 +506,484 @@ export class GUIManager {
                 this.#_harvestSlider = null;
             }
         }
-        else if(this.#_harvestSlider) {
+        else if (this.#_harvestSlider) {
             this.#_dynamicTexture.removeControl(this.#_harvestSlider);
             this.#_harvestSlider.dispose();
             this.#_harvestSlider = null;
         }
 
         return undefined;
+    }
+
+    /**
+     * Shows the upgrade menu.
+     * @param farmer The farmer (player character).
+     * @param onClose A callback that will be triggered when the menu closes.
+     */
+    public showUpgradeMenu(farmer: Farmer, onClose: () => void): void {
+        let totalCarrots = parseInt(this.#_carrotText.text);
+        onClose;
+        this.#_dynamicTexture.addControl(this.#_pausePanel);
+
+        this.#_upgradePanel = new Rectangle();
+        this.#_upgradePanel.thickness = 3;
+        this.#_upgradePanel.color = "#2b1d0e";
+        this.#_upgradePanel.background = "#654321";
+        this.#_upgradePanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this.#_upgradePanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.#_upgradePanel.widthInPixels = 500;
+        this.#_upgradePanel.heightInPixels = 600;
+        this.#_upgradePanel.cornerRadius = 5;
+        this.#_dynamicTexture.addControl(this.#_upgradePanel);
+
+        const carrotPanel = new Rectangle();
+        carrotPanel.thickness = 3;
+        carrotPanel.color = "black";
+        carrotPanel.background = "#2b1d0e";
+        carrotPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        carrotPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        carrotPanel.top = 70;
+        carrotPanel.left = 150;
+        carrotPanel.widthInPixels = 100;
+        carrotPanel.heightInPixels = 30;
+        carrotPanel.cornerRadius = 5;
+        this.#_upgradePanel.addControl(carrotPanel);
+
+        const carrotIcon = ImageManager.get('CarrotBasket');
+        carrotIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        carrotIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        carrotIcon.heightInPixels = 20;
+        carrotIcon.widthInPixels = 30;
+        carrotIcon.left = 140;
+        carrotIcon.top = 75;
+        this.#_upgradePanel.addControl(carrotIcon);
+
+        const carrotText = new TextBlock('CarrotCount', totalCarrots.toString());
+        carrotText.color = "white";
+        carrotText.fontFamily = "ActionMan";
+        carrotText.fontSize = "16px";
+        carrotText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        carrotText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        carrotText.top = 69;
+        carrotText.left = 170;
+        carrotText.widthInPixels = 100;
+        carrotText.heightInPixels = 30;
+        this.#_upgradePanel.addControl(carrotText);
+
+        const upgradeTitle = new TextBlock('UpgradeTitle', 'Upgrade');
+        upgradeTitle.color = "white";
+        upgradeTitle.fontFamily = "ActionMan";
+        upgradeTitle.fontSize = "48px";
+        upgradeTitle.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        upgradeTitle.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        upgradeTitle.top = 5;
+        upgradeTitle.widthInPixels = 250;
+        upgradeTitle.heightInPixels = 50;
+        this.#_upgradePanel.addControl(upgradeTitle);
+
+        const healthButton = new Button();
+        healthButton.thickness = 3;
+        healthButton.color = "black";
+        healthButton.background = "#2b1d0e";
+        healthButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        healthButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        healthButton.top = -150;
+        healthButton.left = 0;
+        healthButton.widthInPixels = 150;
+        healthButton.heightInPixels = 150;
+        healthButton.cornerRadius = 5;
+        this.#_upgradePanel.addControl(healthButton);
+
+        const healthTitle = new TextBlock('HealthTitle', 'Health');
+        healthTitle.color = "white";
+        healthTitle.fontFamily = "ActionMan";
+        healthTitle.fontSize = "24px";
+        healthTitle.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        healthTitle.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        healthTitle.top = 10;
+        healthTitle.widthInPixels = 150;
+        healthTitle.heightInPixels = 50;
+        healthButton.addControl(healthTitle);
+
+        const currentHealthText = new TextBlock('CurrentHealth', farmer.maxHealth.toString());
+        currentHealthText.color = "white";
+        currentHealthText.fontFamily = "ActionMan";
+        currentHealthText.fontSize = "18px";
+        currentHealthText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        currentHealthText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        currentHealthText.left = -40;
+        currentHealthText.heightInPixels = 25;
+        healthButton.addControl(currentHealthText);
+
+        const middleHealthIcon = ImageManager.get('Arrow');
+        middleHealthIcon.widthInPixels = 40;
+        middleHealthIcon.heightInPixels = 40;
+        middleHealthIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        middleHealthIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        healthButton.addControl(middleHealthIcon);
+
+        const healthCost = new TextBlock('HealthCost', farmer.healthCost.toString());
+        healthCost.color = "white";
+        healthCost.fontFamily = "ActionMan";
+        healthCost.fontSize = "12px";
+        healthCost.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        healthCost.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        healthCost.left = -7;
+        healthCost.heightInPixels = 25;
+        healthButton.addControl(healthCost);
+
+        const healthCarrot = ImageManager.get('CarrotFill');
+        healthCarrot.widthInPixels = 12;
+        healthCarrot.heightInPixels = 12;
+        healthCarrot.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        healthCarrot.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        healthCarrot.left = 7;
+        healthButton.addControl(healthCarrot);
+
+        const noHealthIcon = ImageManager.get('CircleNo');
+        noHealthIcon.widthInPixels = 40;
+        noHealthIcon.heightInPixels = 40;
+        noHealthIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        noHealthIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        healthButton.addControl(noHealthIcon);
+
+        const newHealthText = new TextBlock('NewHealth', (farmer.maxHealth + Config.player.upgradeHealth).toString());
+        newHealthText.color = "green";
+        newHealthText.fontFamily = "ActionMan";
+        newHealthText.fontSize = "18px";
+        newHealthText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        newHealthText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        newHealthText.left = 40;
+        newHealthText.heightInPixels = 25;
+        healthButton.addControl(newHealthText);
+
+        const healthIcon = ImageManager.get("Heart");
+        healthIcon.widthInPixels = 32;
+        healthIcon.heightInPixels = 32;
+        healthIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        healthIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        healthIcon.top = -10;
+        healthButton.addControl(healthIcon);
+
+        const damageButton = new Button();
+        damageButton.thickness = 3;
+        damageButton.color = "black";
+        damageButton.background = "#2b1d0e";
+        damageButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        damageButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        damageButton.top = 25;
+        damageButton.left = -90;
+        damageButton.widthInPixels = 150;
+        damageButton.heightInPixels = 150;
+        damageButton.cornerRadius = 5;
+        this.#_upgradePanel.addControl(damageButton);
+
+        const damageTitle = new TextBlock('DamageTitle', 'Damage');
+        damageTitle.color = "white";
+        damageTitle.fontFamily = "ActionMan";
+        damageTitle.fontSize = "24px";
+        damageTitle.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        damageTitle.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        damageTitle.top = 5;
+        damageTitle.widthInPixels = 150;
+        damageTitle.heightInPixels = 50;
+        damageButton.addControl(damageTitle);
+
+        const currentDamageText = new TextBlock('CurrentDamage', farmer.weaponDamage.toString());
+        currentDamageText.color = "white";
+        currentDamageText.fontFamily = "ActionMan";
+        currentDamageText.fontSize = "18px";
+        currentDamageText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        currentDamageText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        currentDamageText.left = -40;
+        currentDamageText.heightInPixels = 25;
+        damageButton.addControl(currentDamageText);
+
+        const middleDamageIcon = ImageManager.get('Arrow');
+        middleDamageIcon.widthInPixels = 40;
+        middleDamageIcon.heightInPixels = 40;
+        middleDamageIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        middleDamageIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        damageButton.addControl(middleDamageIcon);
+
+        const damageCost = new TextBlock('DamageCost', farmer.damageCost.toString());
+        damageCost.color = "white";
+        damageCost.fontFamily = "ActionMan";
+        damageCost.fontSize = "12px";
+        damageCost.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        damageCost.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        damageCost.left = -7;
+        damageCost.heightInPixels = 25;
+        damageButton.addControl(damageCost);
+
+        const damageCarrot = ImageManager.get('CarrotFill');
+        damageCarrot.widthInPixels = 12;
+        damageCarrot.heightInPixels = 12;
+        damageCarrot.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        damageCarrot.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        damageCarrot.left = 7;
+        damageButton.addControl(damageCarrot);
+
+        const noDamageIcon = ImageManager.get('CircleNo');
+        noDamageIcon.widthInPixels = 40;
+        noDamageIcon.heightInPixels = 40;
+        noDamageIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        noDamageIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        damageButton.addControl(noDamageIcon);
+
+        const newDamageText = new TextBlock('NewDamage', (farmer.weaponDamage + Config.player.upgradeDamage).toString());
+        newDamageText.color = "green";
+        newDamageText.fontFamily = "ActionMan";
+        newDamageText.fontSize = "18px";
+        newDamageText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        newDamageText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        newDamageText.left = 40;
+        newDamageText.heightInPixels = 25;
+        damageButton.addControl(newDamageText);
+
+        const damageIcon = ImageManager.get("CorncobberIcon");
+        damageIcon.widthInPixels = 32;
+        damageIcon.heightInPixels = 32;
+        damageIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        damageIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        damageIcon.top = -10;
+        damageButton.addControl(damageIcon);
+
+        const harvestButton = new Button();
+        harvestButton.thickness = 3;
+        harvestButton.color = "black";
+        harvestButton.background = "#2b1d0e";
+        harvestButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        harvestButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        harvestButton.top = 25;
+        harvestButton.left = 90;
+        harvestButton.widthInPixels = 150;
+        harvestButton.heightInPixels = 150;
+        harvestButton.cornerRadius = 5;
+        this.#_upgradePanel.addControl(harvestButton);
+
+        const harvestTitle = new TextBlock('HarvestTitle', 'Harvest\nSpeed');
+        harvestTitle.color = "white";
+        harvestTitle.fontFamily = "ActionMan";
+        harvestTitle.fontSize = "24px";
+        harvestTitle.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        harvestTitle.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        harvestTitle.top = 5;
+        harvestTitle.widthInPixels = 150;
+        harvestTitle.heightInPixels = 50;
+        harvestButton.addControl(harvestTitle);
+
+        const currentHarvestText = new TextBlock('CurrentHarvest', farmer.harvestTime.toString());
+        currentHarvestText.color = "white";
+        currentHarvestText.fontFamily = "ActionMan";
+        currentHarvestText.fontSize = "18px";
+        currentHarvestText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        currentHarvestText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        currentHarvestText.left = -40;
+        currentHarvestText.heightInPixels = 25;
+        harvestButton.addControl(currentHarvestText);
+
+        const middleHarvestIcon = ImageManager.get('Arrow');
+        middleHarvestIcon.widthInPixels = 40;
+        middleHarvestIcon.heightInPixels = 40;
+        middleHarvestIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        middleHarvestIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        harvestButton.addControl(middleHarvestIcon);
+
+        const harvestCost = new TextBlock('HarvestCost', farmer.harvestCost.toString());
+        harvestCost.color = "white";
+        harvestCost.fontFamily = "ActionMan";
+        harvestCost.fontSize = "12px";
+        harvestCost.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        harvestCost.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        harvestCost.left = -7;
+        harvestCost.heightInPixels = 25;
+        harvestButton.addControl(harvestCost);
+
+        const harvestCarrot = ImageManager.get('CarrotFill');
+        harvestCarrot.widthInPixels = 12;
+        harvestCarrot.heightInPixels = 12;
+        harvestCarrot.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        harvestCarrot.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        harvestCarrot.left = 7;
+        harvestButton.addControl(harvestCarrot);
+
+        const noHarvestIcon = ImageManager.get('CircleNo');
+        noHarvestIcon.widthInPixels = 40;
+        noHarvestIcon.heightInPixels = 40;
+        noHarvestIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        noHarvestIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        harvestButton.addControl(noHarvestIcon);
+
+        const newHarvestText = new TextBlock('NewHarvest', (farmer.harvestTime + Config.player.upgradeHarvest).toString());
+        newHarvestText.color = "green";
+        newHarvestText.fontFamily = "ActionMan";
+        newHarvestText.fontSize = "18px";
+        newHarvestText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        newHarvestText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        newHarvestText.left = 40;
+        newHarvestText.heightInPixels = 25;
+        harvestButton.addControl(newHarvestText);
+
+        const harvestIcon = ImageManager.get("CarrotBasket");
+        harvestIcon.widthInPixels = 42;
+        harvestIcon.heightInPixels = 32;
+        harvestIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        harvestIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        harvestIcon.top = -10;
+        harvestButton.addControl(harvestIcon);
+
+        const moveSpeedButton = new Button();
+        moveSpeedButton.thickness = 3;
+        moveSpeedButton.color = "black";
+        moveSpeedButton.background = "#2b1d0e";
+        moveSpeedButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        moveSpeedButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        moveSpeedButton.top = 200;
+        moveSpeedButton.left = 0;
+        moveSpeedButton.widthInPixels = 150;
+        moveSpeedButton.heightInPixels = 150;
+        moveSpeedButton.cornerRadius = 5;
+        this.#_upgradePanel.addControl(moveSpeedButton);
+
+        const moveSpeedTitle = new TextBlock('HarvestTitle', 'Move Speed');
+        moveSpeedTitle.color = "white";
+        moveSpeedTitle.fontFamily = "ActionMan";
+        moveSpeedTitle.fontSize = "24px";
+        moveSpeedTitle.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        moveSpeedTitle.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        moveSpeedTitle.top = 5;
+        moveSpeedTitle.widthInPixels = 150;
+        moveSpeedTitle.heightInPixels = 50;
+        moveSpeedButton.addControl(moveSpeedTitle);
+
+        const currentMoveSpeedText = new TextBlock('CurrentMoveSpeed', farmer.movementSpeed.toString());
+        currentMoveSpeedText.color = "white";
+        currentMoveSpeedText.fontFamily = "ActionMan";
+        currentMoveSpeedText.fontSize = "18px";
+        currentMoveSpeedText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        currentMoveSpeedText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        currentMoveSpeedText.left = -40;
+        currentMoveSpeedText.heightInPixels = 25;
+        moveSpeedButton.addControl(currentMoveSpeedText);
+
+        const middleMoveSpeedIcon = ImageManager.get('Arrow');
+        middleMoveSpeedIcon.widthInPixels = 40;
+        middleMoveSpeedIcon.heightInPixels = 40;
+        middleMoveSpeedIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        middleMoveSpeedIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        moveSpeedButton.addControl(middleMoveSpeedIcon);
+
+        const moveSpeedCost = new TextBlock('MoveSpeedCost', farmer.speedCost.toString());
+        moveSpeedCost.color = "white";
+        moveSpeedCost.fontFamily = "ActionMan";
+        moveSpeedCost.fontSize = "12px";
+        moveSpeedCost.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        moveSpeedCost.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        moveSpeedCost.left = -7;
+        moveSpeedCost.heightInPixels = 25;
+        moveSpeedButton.addControl(moveSpeedCost);
+
+        const moveSpeedCarrot = ImageManager.get('CarrotFill');
+        moveSpeedCarrot.widthInPixels = 12;
+        moveSpeedCarrot.heightInPixels = 12;
+        moveSpeedCarrot.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        moveSpeedCarrot.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        moveSpeedCarrot.left = 7;
+        moveSpeedButton.addControl(moveSpeedCarrot);
+
+        const noMoveSpeedIcon = ImageManager.get('CircleNo');
+        noMoveSpeedIcon.widthInPixels = 40;
+        noMoveSpeedIcon.heightInPixels = 40;
+        noMoveSpeedIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        noMoveSpeedIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        moveSpeedButton.addControl(noMoveSpeedIcon);
+
+        const newMoveSpeedText = new TextBlock('NewMoveSpeed', (farmer.movementSpeed + Config.player.upgradeSpeed).toString());
+        newMoveSpeedText.color = "green";
+        newMoveSpeedText.fontFamily = "ActionMan";
+        newMoveSpeedText.fontSize = "18px";
+        newMoveSpeedText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        newMoveSpeedText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        newMoveSpeedText.left = 40;
+        newMoveSpeedText.heightInPixels = 25;
+        moveSpeedButton.addControl(newMoveSpeedText);
+
+        const moveSpeedIcon = ImageManager.get("Boots");
+        moveSpeedIcon.widthInPixels = 32;
+        moveSpeedIcon.heightInPixels = 32;
+        moveSpeedIcon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        moveSpeedIcon.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        moveSpeedIcon.top = -10;
+        moveSpeedButton.addControl(moveSpeedIcon);
+
+        const closeButton = Button.CreateSimpleButton('CloseButton', 'X');
+        closeButton.color = "black";
+        closeButton.background = "#2b1d0e";
+        closeButton.widthInPixels = 32;
+        closeButton.heightInPixels = 32;
+        closeButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        closeButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        closeButton.cornerRadius = 50;
+        this.#_upgradePanel.addControl(closeButton);
+
+        function updateSingleUpgrade(button: Button, currText: TextBlock, newText: TextBlock, costText: TextBlock, noIcon: Image, value: number, upgrade: number, cost: number, fixed: number): void {
+            button.isEnabled = totalCarrots >= cost;
+            noIcon.isVisible = !button.isEnabled;
+            currText.text = value.toFixed(fixed);
+            newText.text = (value + upgrade).toFixed(fixed);
+            costText.text = cost.toFixed(fixed);
+        }
+
+        function updateUpgrades(): void {
+            carrotText.text = totalCarrots.toString();
+            updateSingleUpgrade(healthButton, currentHealthText, newHealthText, healthCost, noHealthIcon, farmer.maxHealth, Config.player.upgradeHealth, farmer.healthCost, 0);
+            updateSingleUpgrade(damageButton, currentDamageText, newDamageText, damageCost, noDamageIcon, farmer.weaponDamage, Config.player.upgradeDamage, farmer.damageCost, 0);
+            updateSingleUpgrade(harvestButton, currentHarvestText, newHarvestText, harvestCost, noHarvestIcon, farmer.harvestTime, Config.player.upgradeHarvest, farmer.harvestCost, 1);
+            updateSingleUpgrade(moveSpeedButton, currentMoveSpeedText, newMoveSpeedText, moveSpeedCost, noMoveSpeedIcon, farmer.movementSpeed, Config.player.upgradeSpeed, farmer.speedCost, 1);
+        }
+        healthButton.onPointerClickObservable.add(() => {
+            totalCarrots -= farmer.healthCost;
+            farmer.modifyMaxHealth(Config.player.upgradeHealth);
+            updateUpgrades();
+        });
+        damageButton.onPointerClickObservable.add(() => {
+            totalCarrots -= farmer.damageCost;
+            farmer.modifyWeaponDamage(Config.player.upgradeDamage);
+            updateUpgrades();
+        });
+        harvestButton.onPointerClickObservable.add(() => {
+            totalCarrots -= farmer.harvestCost;
+            farmer.modifyHarvestTime(Config.player.upgradeHarvest);
+            updateUpgrades();
+        });
+        moveSpeedButton.onPointerClickObservable.add(() => {
+            totalCarrots -= farmer.speedCost;
+            farmer.modifyMovementSpeed(Config.player.upgradeSpeed);
+            updateUpgrades();
+        });
+        closeButton.onPointerClickObservable.add(() => {
+            this.hideUpgradePanel();
+            onClose?.();
+        });
+
+        updateUpgrades();
+    }
+
+    /**
+     * Hides the upgrade panel.
+     * @returns True if the upgrade panel was hidden, false if it wasn't being shown.
+     */
+    public hideUpgradePanel(): boolean {
+        if (this.#_upgradePanel) {
+            const textControl = this.#_upgradePanel.getChildByName('CarrotCount') as TextBlock;
+            this.#_carrotText.text = textControl.text;
+            this.#_dynamicTexture.removeControl(this.#_upgradePanel);
+            this.#_dynamicTexture.removeControl(this.#_pausePanel);
+            this.#_upgradePanel.dispose();
+            this.#_upgradePanel = null;
+            return true;
+        }
     }
 
     /**

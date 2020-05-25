@@ -1,4 +1,4 @@
-import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader } from 'babylonjs';
+import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader, Engine } from 'babylonjs';
 import { BabylonStore } from './store/babylonStore';
 import { Loader, LoaderType } from './assets/loader';
 import { Input } from './input/input';
@@ -104,7 +104,7 @@ export class Bootstrap {
         SoundManager.load('Title', 'https://storage.googleapis.com/farmer-assets/sound/meadowlark_daniel-simion.mp3').then(() => {
             SoundManager.play('Title', {
                 loop: true
-            })
+            });
         });
 
         // Creates the main camera.
@@ -149,6 +149,7 @@ export class Bootstrap {
 
             // Checks for any button/key input for getting passed the splash screen.
             Input.onAnyDown = (): void => {
+                Engine.audioEngine.unlock();
                 this.#_game = new Game(this, this._onGameOver);
                 BabylonStore.engine.hideLoadingUI();
                 Input.onAnyDown = null;
