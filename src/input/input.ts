@@ -82,6 +82,13 @@ export class Input {
     }
 
     /**
+     * Flushes input and removes all key presses.
+     */
+    public static flush(): void {
+        this._keyMap.clear();
+    }
+
+    /**
      * Updates the input every frame.
      */
     public static update(): void {
