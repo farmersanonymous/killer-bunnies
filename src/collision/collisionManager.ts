@@ -77,7 +77,7 @@ export class CollisionManager {
             const enemies = this.collidables.get(CollisionGroup.Enemy);
             for(let j = 0; j < enemies.length; j++) {
                 const weaponMesh = enemies[i].getMesh('weapon');
-                if(player.getMesh().intersectsMesh(weaponMesh)) {
+                if(weaponMesh && player.getMesh().intersectsMesh(weaponMesh)) {
                     player.onCollide(enemies[i]);
                 }
             }

@@ -91,7 +91,7 @@ export class Bootstrap {
         Config.init(config);
 
         // Create the Babylon Engine. Need to set the opacity to '0' or '1' in order to show the splash screen, otherwise Babylon likes to freak out.
-        BabylonStore.createEngine(canvas, true, { preserveDrawingBuffer: true });
+        BabylonStore.createEngine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
         this.#_canvas = canvas;
         this.#_canvas.style.opacity = '0';
 

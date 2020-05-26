@@ -393,18 +393,20 @@ export class GUIManager {
     /**
      * Adds a pick icon to the gui manager and attaches it to a mesh.
      * @param mesh The mesh to attach the pick icon to.
+     * @param imageName The name of the image to use for the icon.
+     * @param offset The offset y in pixels.
      */
-    public addPickIcon(mesh: AbstractMesh): void {
+    public addPickIcon(mesh: AbstractMesh, imageName: string, offset = -100): void {
         if (this.#_pickIcons.has(mesh)) {
             return;
         }
 
-        const image = ImageManager.get('EKey');
+        const image = ImageManager.get(imageName);
         image.widthInPixels = 32;
         image.heightInPixels = 32;
         this.#_dynamicTexture.addControl(image);
         image.linkWithMesh(mesh);
-        image.linkOffsetYInPixels = -100;
+        image.linkOffsetYInPixels = offset;
         mesh.onDisposeObservable.add(() => {
             this.removePickIcon(mesh);
         });

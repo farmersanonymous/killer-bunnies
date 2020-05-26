@@ -19,7 +19,7 @@
         {
             "name": "Garden",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/garden/9/Environment.gltf"
+            "url": "https://storage.googleapis.com/farmer-assets/garden/10/Environment.gltf"
         },
         {
             "name": "Fencing",
@@ -144,16 +144,22 @@
         "timeLimit": {
             "min": 30,
             "max": 60
-        }
+        },
+        "rabbitSpawnFrequency": {
+            "min": 5,
+            "max": 10
+        },
+        "nabberSpawnRatio": 0.2
     },
     "stabberRabbit": {
-        "spawnFrequency": {
-            "min": 1,
-            "max": 5
-        },
         "health": 30,
         "damage": 10,
         "speed": 6,
+        "retreatSpeed": 10
+    },
+    "nabberRabbit": {
+        "health": 20,
+        "speed": 7,
         "retreatSpeed": 10
     },
     "carrot": {

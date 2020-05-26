@@ -143,6 +143,14 @@ export class Farmer extends BaseCollidable {
     }
 
     /**
+     * Gets the root transform of the Farmer.
+     * @returns The root transform of the Farmer.
+     */
+    public get root(): TransformNode {
+        return this.#_root;
+    }
+
+    /**
      * Updates the Farmer every frame.
      * @param garden The garden (the environment).
      * @param gui The gui manager for the game.
