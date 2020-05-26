@@ -1,9 +1,13 @@
-import { AnimationGroup } from "babylonjs";
+import { AnimationGroup, Scalar } from "babylonjs";
 
 /**
  * Animator state that is used to store the current state of the animator.
  */
 export enum AnimatorState {
+    /**
+     * The spawn animator state. Used by the Rabbit.
+     */
+    Spawn,
     /**
      * The idle animator state.
      */
@@ -21,9 +25,17 @@ export enum AnimatorState {
      */
     Shoot,
     /**
+     * The attack animator state. Used by the Rabbits.
+     */
+    Attack,
+    /**
      * The death animator state.
      */
-    Death
+    Death,
+    /**
+     * The Rabbit death animations. Will randomly choose 1 or 2.
+     */
+    RabbitDeath
 }
 
 /**
@@ -32,6 +44,7 @@ export enum AnimatorState {
 export class Animator {
     #_animations: Map<string, AnimationGroup> = new Map<string, AnimationGroup>();
     #_state: AnimatorState = null;
+    #_isPlaying: boolean;
 
     /**
      * Constructor.
@@ -54,15 +67,19 @@ export class Animator {
             this.#_animations.set(anim.name, anim);
         });
 
+        this.#_isPlaying = false;
+
         // Play the idle animation by default.
-        this.play(AnimatorState.Idle);
+        if(this.#_animations.has(this.stateToString(AnimatorState.Idle)))
+            this.play(AnimatorState.Idle);
     }
     /**
      * Play an animation. This will stop the old animation and start the new one.
      * @param state The animator state animation to play.
      * @param loop If the animation should loop.
+     * @param onEnd Callback that will trigger when the animation is finished playing.
      */
-    public play(state: AnimatorState, loop = true): void {
+    public play(state: AnimatorState, loop = true, onEnd?: () => void): void {
         if(this.#_state === state) {
             return;
         }
@@ -71,9 +88,18 @@ export class Animator {
             this.#_animations.get(this.stateToString(this.#_state)).stop();
         }
 
-        this.#_animations.get(this.stateToString(state)).play(loop);
+        const animation = this.#_animations.get(this.stateToString(state));
+        animation.play(loop);
+        if(!loop) {
+            animation.onAnimationEndObservable.add(() => {
+                this.#_isPlaying = false;
+                animation.onAnimationEndObservable.clear();
+                onEnd?.();
+            });
+        }
 
         this.#_state = state;
+        this.#_isPlaying = true;
     }
 
     /**
@@ -81,10 +107,15 @@ export class Animator {
      * @param pause True if the animation is paused. False to resume.
      */
     public pause(pause: boolean): void {
+        if(!this.#_isPlaying) {
+            return;
+        }
+
+        const animation = this.#_animations.get(this.stateToString(this.#_state));
         if(pause)
-            this.#_animations.get(this.stateToString(this.#_state)).pause();
+            animation.pause();
         else
-            this.#_animations.get(this.stateToString(this.#_state)).play();
+            animation.play();
     }
 
     /**
@@ -95,7 +126,10 @@ export class Animator {
     }
 
     private stateToString(state: AnimatorState): string {
-        if(state === AnimatorState.Idle) {
+        if(state === AnimatorState.Spawn) {
+            return "Spawn"
+        }
+        else if(state === AnimatorState.Idle) {
             return "Idle";
         }
         else if(state === AnimatorState.Run) {
@@ -107,8 +141,14 @@ export class Animator {
         else if(state === AnimatorState.Shoot) {
             return "Shoot";
         }
+        else if(state === AnimatorState.Attack) {
+            return "Attack";
+        }
         else if(state === AnimatorState.Death) {
             return "Death";
+        }
+        else if(state === AnimatorState.RabbitDeath) {
+            return Scalar.RandomRange(0, 1) > 0.5 ? "Death01" : "Death02";
         }
         else {
             return null;

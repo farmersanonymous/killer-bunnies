@@ -4,19 +4,13 @@ import { StabberRabbit } from "../enemies/stabberRabbit";
 import { SoundManager } from "../assets/soundManager";
 import { Spawner } from "../assets/spawner";
 import { Config } from "../gameplay/config";
+import { RoundHandler } from "../gameplay/roundHandler";
 
 /**
  * The Burrow will control how often and the spawn position of the Rabbit enemies.
  */
 export class Burrow {
-    /**
-     * Callback that will get fired when a burrow has been created.
-     */
-    public static onBurrowCreated: (burrow: Burrow) => void;
-    /**
-     * Callback that will get fired when a burrow is about to be disposed.
-     */
-    public static onBurrowDisposed: (burrow: Burrow) => void;
+    private static _burrows: Burrow[] = [];
 
     #_root: TransformNode;
     #_spawnTimer: number;
@@ -25,8 +19,9 @@ export class Burrow {
     /**
      * Constructor.
      * @param parent The parent that the Burrow will be spawned at.
+     * @param round The round handler.
      */
-    constructor(parent: TransformNode) {
+    constructor(parent: TransformNode, round: RoundHandler) {
         SoundManager.play("Burrow", {
             position: parent.position
         });
@@ -39,7 +34,9 @@ export class Burrow {
         this.#_disposeTime = BabylonStore.time + Config.burrow.randomTimeLimit();
         this.#_spawnTimer = Config.stabberRabbit.randomSpawnFrequency();
 
-        Burrow.onBurrowCreated(this);
+        Burrow._burrows.push(this);
+
+        this.modifyDifficulty(round.getDifficultyModifier());
     }
 
     /**
@@ -56,7 +53,6 @@ export class Burrow {
      */
     public update(): void {
         if(this.#_disposeTime < BabylonStore.time) {
-            Burrow.onBurrowDisposed(this);
             this.dispose();
         }
         else {
@@ -73,5 +69,23 @@ export class Burrow {
      */
     public dispose(): void {
         this.#_root.dispose();
+        Burrow._burrows = Burrow._burrows.filter(bur => bur !== this);
+    }
+
+    /**
+     * Updates all the burrows.
+     */
+    public static updateAll(): void {
+        for(let i = 0; i < this._burrows.length; i++) {
+            this._burrows[i].update();
+        }
+    }
+    /**
+     * Disposes and releases all resources associated with all of the Burrows.
+     */
+    public static disposeAll(): void {
+        while(this._burrows.length > 0) {
+            this._burrows[0].dispose();
+        }
     }
 }

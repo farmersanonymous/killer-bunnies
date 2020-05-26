@@ -8,6 +8,7 @@ import { CollisionManager } from '../collision/collisionManager';
 import { RadarManager } from '../ui/radar';
 import { SoundManager } from '../assets/soundManager';
 import { Input } from '../input/input';
+import { BabylonStore } from '../store/babylonStore';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -105,6 +106,8 @@ export class Game {
      * Release all resources associated with this Game.
      */
     public dispose(): void {
+        BabylonStore.scene.stopAllAnimations();
+
         Bullet.onBulletCreated = null;
         Bullet.onBulletDisposed = null;
         this.#_roundHandler.dispose();

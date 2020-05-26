@@ -61,11 +61,6 @@ export class RoundHandler {
      */
     #_carrotSpawnTimer: number;
 
-    /**
-     * A list of Burrows that have been created by the RoundHandler.
-     */
-    #_burrows: Burrow[] = [];
-
     #_rabbits: StabberRabbit[] = [];
 
     #_upgrading: boolean;
@@ -81,16 +76,8 @@ export class RoundHandler {
         this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
         this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
 
-        Burrow.onBurrowCreated = (burrow: Burrow): void => {
-            burrow.modifyDifficulty(this._getDifficultyModifier());
-            this.#_burrows.push(burrow);
-        };
-        Burrow.onBurrowDisposed = (burrow: Burrow): void => {
-            this.#_burrows = this.#_burrows.filter(bur => bur !== burrow);
-        };
-
         StabberRabbit.onRabbitCreated = (rabbit: StabberRabbit): void => {
-            rabbit.modifyDifficulty(this._getDifficultyModifier());
+            rabbit.modifyDifficulty(this.getDifficultyModifier());
             this.#_rabbits.push(rabbit);
         }
         StabberRabbit.onRabbitDisposed = (rabbit: StabberRabbit): void => {
@@ -111,7 +98,7 @@ export class RoundHandler {
     /**
      * Returns a difficulty modifier, on the current round, used to manipulate values in the game.
      */
-    private _getDifficultyModifier(): number {
+    public getDifficultyModifier(): number {
         return 0.25 * (this.#_round - 1);
     }
     
@@ -129,7 +116,7 @@ export class RoundHandler {
             this.#_carrotSpawnTimer -= BabylonStore.deltaTime;
 
             if(this.#_burrowSpawnTimer <= 0) {
-                new Burrow(garden.getRandomBurrowNode());
+                new Burrow(garden.getRandomBurrowNode(), this);
                 this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
             }
 
@@ -139,16 +126,9 @@ export class RoundHandler {
             }
 
             // Update all the burrows.
-            for(let i = 0; i < this.#_burrows.length; i++) {
-                this.#_burrows[i].update();
-            }
+            Burrow.updateAll();
         }
         else {
-            if(this.#_rabbits.length === 0 && this.#_burrows.length > 0) {
-                this.#_burrows.forEach(b => b.dispose());
-                this.#_burrows = [];
-            }
-
             if(Vector3.Distance(farmer.position, garden.harvestBasket.position) <= 5) {
                 this.#_gui.addPickIcon(garden.harvestBasket);
                 if(Input.isKeyPressed('e') && !this.upgrading) {
@@ -170,7 +150,7 @@ export class RoundHandler {
 
         // Update all the rabbits.
         for(let i = 0; i < this.#_rabbits.length; i++) {
-            this.#_rabbits[i].update(farmer);
+            this.#_rabbits[i].update(farmer, this);
         }
 
         if (this.#_time <= 0) {
@@ -185,6 +165,8 @@ export class RoundHandler {
                 this.#_rabbits.forEach(r => r.retreat());
                 Carrot.disposeAll();
                 this.#_gui.clearFarmerCarrots();
+
+                Burrow.disposeAll();
             } else {
                 // Player defends the farm from spawning enemies.
                 this.#_type = RoundType.Defend;
@@ -229,12 +211,10 @@ export class RoundHandler {
      * Releases all resources associated with this RoundHandler.
      */
     public dispose(): void {
-        Burrow.onBurrowCreated = null;
-        Burrow.onBurrowDisposed = null;
         StabberRabbit.onRabbitCreated = null;
         StabberRabbit.onRabbitDisposed = null;
-        this.#_burrows.forEach(b => b.dispose());
         this.#_rabbits.forEach(r => r.dispose());
         Carrot.disposeAll();
+        Burrow.disposeAll();
     }
 }

@@ -12,9 +12,19 @@
             "url": "https://storage.googleapis.com/farmer-assets/weapon/2/Corncobber.gltf"
         },
         {
+            "name": "Bunny",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/stabbyBunny/6/StabbyBunny.gltf"
+        },
+        {
             "name": "Garden",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/garden/8/Environment.gltf"
+            "url": "https://storage.googleapis.com/farmer-assets/garden/9/Environment.gltf"
+        },
+        {
+            "name": "Fencing",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/fencing/2/Fencing.gltf"
         },
         {
             "name": "Burrow",
@@ -143,7 +153,7 @@
         },
         "speed": 4,
         "damage": 10,
-        "health": 100,
+        "health": 20,
         "retreatSpeed": 10
     },
     "carrot": {

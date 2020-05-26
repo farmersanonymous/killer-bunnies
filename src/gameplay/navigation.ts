@@ -67,7 +67,8 @@ export class Navigation {
      * @param agent The agent identifier to remove.
      */
     public static removeAgent(agent: number): void {
-        this._crowd.removeAgent(agent);
+        if(agent !== undefined)
+            this._crowd.removeAgent(agent);
     }
     /**
      * Tells the agent to travel to a location within the NavMesh.
@@ -75,7 +76,8 @@ export class Navigation {
      * @param pos The position to travel to. Will be clamped to a position within the NavMesh.
      */
     public static agentGoTo(agent: number, pos: Vector3): void {
-        this._crowd.agentGoto(agent, this._plugin.getClosestPoint(pos));
+        if(agent !== undefined)
+            this._crowd.agentGoto(agent, this._plugin.getClosestPoint(pos));
     }
     /**
      * Changes the speed of an agent.
@@ -83,15 +85,16 @@ export class Navigation {
      * @param speed The new speed for the agent.
      */
     public static agentUpdateSpeed(agent: number, speed: number): void {
-        this._crowd.updateAgentParameters(agent, {
-            radius: 0.5,
-            height: 0.5,
-            maxAcceleration: speed,
-            maxSpeed: speed,
-            collisionQueryRange: 1.5,
-            pathOptimizationRange: 0.0,
-            separationWeight: 1.0
-        });
+        if(agent !== undefined)
+            this._crowd.updateAgentParameters(agent, {
+                radius: 0.5,
+                height: 0.5,
+                maxAcceleration: speed,
+                maxSpeed: speed,
+                collisionQueryRange: 1.5,
+                pathOptimizationRange: 0.0,
+                separationWeight: 1.0
+            });
     }
     /**
      * Gets the velocity of the current agent.
@@ -99,6 +102,9 @@ export class Navigation {
      * @returns The velocity of the agent.
      */
     public static getAgentVelocity(agent: number): Vector3 {
-        return this._crowd.getAgentVelocity(agent);
+        if(agent !== undefined)
+            return this._crowd.getAgentVelocity(agent);
+        else 
+            return undefined;
     }
 }

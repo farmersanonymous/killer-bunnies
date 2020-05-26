@@ -1,12 +1,15 @@
-import { Mesh, MeshBuilder, Vector3, Angle, Vector2, Animation, TransformNode } from 'babylonjs';
+import { Vector3, Angle, Vector2, TransformNode, Skeleton, Animation, MeshBuilder, Scalar, PBRMaterial, Color3 } from 'babylonjs';
 import { Navigation } from '../gameplay/navigation';
 import { Farmer } from '../player/farmer';
 import { CollisionGroup } from '../collision/collisionManager';
 import { BaseCollidable } from '../collision/baseCollidable';
-import { BabylonStore } from '../store/babylonStore';
 import { RadarManager, BlipType } from '../ui/radar';
 import { Config } from '../gameplay/config';
+import { Animator, AnimatorState } from '../animation/animator';
+import { Spawner } from '../assets/spawner';
+import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from '../player/bullet';
+import { RoundHandler, RoundType } from '../gameplay/roundHandler';
 
 const RabbitAttackDistance = 3;
 
@@ -21,7 +24,11 @@ export enum StabberRabbitState {
     /**
      * The retreat state. The rabbit will retreat to the burrow that it spawned from.
      */
-    Retreat
+    Retreat,
+    /**
+     * The death state. The rabbit will decompose after 5 seconds.
+     */
+    Death
 }
 
 /**
@@ -42,10 +49,14 @@ export class StabberRabbit extends BaseCollidable {
     #_spawnPosition: Vector3;
     #_state: StabberRabbitState;
     #_root: TransformNode;
-    #_mesh: Mesh;
-    #_weapon: Mesh;
+    #_material: PBRMaterial;
+    // #_weapon: Mesh;
     #_agent: number;
     #_attacking = false;
+    #_gothit = false;
+    #_animator: Animator;
+    #_skeleton: Skeleton;
+    #_deathTimer: number;
 
     // Stats
     #_damage: number;
@@ -61,40 +72,43 @@ export class StabberRabbit extends BaseCollidable {
 
         this.#_spawnPosition = pos.clone();
         this.#_state = StabberRabbitState.Attack;
+        this.#_health = Config.stabberRabbit.health;
         this.#_damage = Config.stabberRabbit.damage;
 
-        this.#_root = new TransformNode('rabbit');
+        // The mesh is a player and can collide with the environment.
+        const spawner = Spawner.getSpawner('Bunny');
+        const instance = spawner.instantiate(true);
+        this.#_root = instance.rootNodes[0];
+        this.#_skeleton = instance.skeletons[0];
         this.#_root.position = pos;
-        this.#_mesh = MeshBuilder.CreateSphere('stabberRabbit', { diameter: 1 });
-        this.#_mesh.position = new Vector3(0, 0.75, 0);
-        this.#_mesh.parent = this.#_root;
 
-        this.#_weapon = MeshBuilder.CreateBox('stabberRabbitWeapon', { width: 0.25, height: 1.5, depth: 0.25 });
-        this.#_weapon.parent = this.#_mesh;
-        this.#_weapon.position = this.#_weapon.position.subtract(this.#_weapon.right.scale(0.25));
+        const mesh = this.#_root.getChildMeshes()[0];
+        this.#_material = (mesh.material as PBRMaterial);
+        this.#_material.albedoColor = new Color3(Scalar.RandomRange(206, 255) / 255, Scalar.RandomRange(135, 255) / 255, Scalar.RandomRange(189, 255) / 255);
+        // this.#_material.albedoColor = new Color3(Scalar.RandomRange(221, 230) / 255, Scalar.RandomRange(155, 160) / 255, Scalar.RandomRange(24, 106) / 255);
 
-        super.registerMesh(this.#_weapon);
-        super.registerMesh(this.#_weapon, 'weapon');
-
-        this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
-
-        StabberRabbit.onRabbitCreated(this);
-        
-        RadarManager.createBlip(this.#_root, BlipType.Stabber);
-
-        // Setup a temp animation for rabbit attack.
-        const anim = new Animation('rabbitAttack', 'rotation.z', 60, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_RELATIVE);
-        const keys = [];
-        keys.push({
-            frame: 0,
-            value: 0
+        const bones = this.#_root.getChildTransformNodes(false, n => n.name.startsWith('Bunny_Ear_Scale_') || n.name.startsWith('Bunny_Eye_Scale_'));
+        bones.forEach(b => {
+            const rand = Scalar.RandomRange(.75, 1.5);
+            b.scaling = Vector3.One().scale(rand);
         });
-        keys.push({
-            frame: 60,
-            value: Angle.FromDegrees(-90).radians()
+
+        const weaponPoint = this.#_root.getChildTransformNodes(false, n => n.name === 'WeaponPoint')[0];
+        const collider = MeshBuilder.CreateBox('collider', { width: 0.5, height: 1.5, depth: 0.5 });
+        collider.parent = weaponPoint;
+        collider.position = weaponPoint.forward.scale(0.75);
+        collider.isVisible = false;
+        super.registerMesh(collider, 'weapon');
+
+        this.#_animator = new Animator(instance.animationGroups);
+
+        this.#_animator.play(AnimatorState.Spawn, false, () => {
+            this.#_animator.play(AnimatorState.Run);
+            this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
+            super.registerMesh(mesh);
+            StabberRabbit.onRabbitCreated(this);
+            RadarManager.createBlip(this.#_root, BlipType.Stabber);
         });
-        anim.setKeys(keys);
-        this.#_weapon.animations.push(anim);
     }
 
     /**
@@ -117,30 +131,44 @@ export class StabberRabbit extends BaseCollidable {
      * Sets whether this rabbit is currently disabled. It will pause all animations and will remove the agent from the navmesh.
      */
     public set disabled(value: boolean) {
-        if(value)
-            Navigation.removeAgent(this.#_agent);
-        else
-            this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === StabberRabbitState.Attack ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+        this.#_animator.pause(value);
+
+        if (this.#_agent !== undefined) {
+            if (value)
+                Navigation.removeAgent(this.#_agent);
+            else
+                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === StabberRabbitState.Attack ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+        }
     }
 
     /**
      * Updates the rabbit every frame.
      * @param farmer The farmer (player) character.
      */
-    public update(farmer: Farmer): void {
+    public update(farmer: Farmer, round: RoundHandler): void {
         if (this.#_state === StabberRabbitState.Attack) {
-            Navigation.agentGoTo(this.#_agent, farmer.position);
+            // Hack fix. Weird bug where not all rabbits retreat properly. This is to force them to retreat.
+            if (round.type === RoundType.Rest) {
+                this.retreat();
+            }
+            else {
+                if (!this.#_gothit) {
+                    if (!this.attacking) {
+                        Navigation.agentGoTo(this.#_agent, farmer.position);
+                    }
 
-            if (!this.#_attacking && Vector3.Distance(farmer.position, this.#_root.position) < RabbitAttackDistance) {
-                this.#_attacking = true;
-                BabylonStore.scene.beginAnimation(this.#_weapon, 0, 60, false, 1, () => {
-                    BabylonStore.scene.beginAnimation(this.#_weapon, 60, 0, false, 1, () => {
-                        this.#_attacking = false;
-                    });
-                });
+                    if (!this.#_attacking && farmer.health > 0 && Vector3.Distance(farmer.position, this.#_root.position) < RabbitAttackDistance) {
+                        this.#_attacking = true;
+                        this.#_animator.play(AnimatorState.Attack, false, () => {
+                            this.#_attacking = false;
+                            if (this.#_state !== StabberRabbitState.Death && !this.#_gothit)
+                                this.#_animator.play(AnimatorState.Run);
+                        });
+                    }
+                }
             }
         }
-        else if(this.#_state === StabberRabbitState.Retreat) {
+        else if (this.#_state === StabberRabbitState.Retreat) {
             Navigation.agentGoTo(this.#_agent, this.#_spawnPosition);
 
             if (Vector3.Distance(this.#_spawnPosition, this.#_root.position) < 1) {
@@ -148,9 +176,34 @@ export class StabberRabbit extends BaseCollidable {
                 this.dispose();
             }
         }
+        else if (this.#_state === StabberRabbitState.Death) {
+            this.#_deathTimer += BabylonStore.deltaTime;
+            if (this.#_deathTimer >= 5) {
+                // So the timer won't go off again.
+                this.#_deathTimer = -100;
+                const animation = new Animation("animateDeath", "position.y", 30, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
+                const keys = [
+                    {
+                        frame: 0,
+                        value: this.#_root.position.y
+                    },
+                    {
+                        frame: 30,
+                        value: this.#_root.position.y - 2
+                    }
+                ];
+                animation.setKeys(keys);
+                this.#_root.animations.push(animation);
+                BabylonStore.scene.beginAnimation(this.#_root, 0, 30, false, 1, () => {
+                    StabberRabbit.onRabbitDisposed(this);
+                    this.dispose();
+                });
+            }
+        }
 
         const dir = Navigation.getAgentVelocity(this.#_agent);
-        this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), new Vector2(dir.x, dir.z)).radians(), 0);
+        if (dir)
+            this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), new Vector2(dir.x, dir.z)).radians() + Angle.FromDegrees(90).radians(), 0);
 
         RadarManager.updateBlip(this.#_root);
     }
@@ -175,22 +228,40 @@ export class StabberRabbit extends BaseCollidable {
      * Changes the rabbit state to retreat. It will go back to it's original spawn point and dispose itself.
      */
     public retreat(): void {
-        this.#_state = StabberRabbitState.Retreat;
-        Navigation.agentUpdateSpeed(this.#_agent, Config.stabberRabbit.retreatSpeed);
+        if (this.#_state !== StabberRabbitState.Death) {
+            this.#_state = StabberRabbitState.Retreat;
+            Navigation.agentUpdateSpeed(this.#_agent, Config.stabberRabbit.retreatSpeed);
+        }
     }
 
     /**
      * Callback that will get fired when the enemy hits a bullet.
+     * @param collidable The collidable that hit the rabbit.
      */
     public onCollide(collidable: BaseCollidable): void {
-        if (collidable instanceof Bullet) {
-            console.log(this.#_health, (this.#_maxHealth / 2));
-            this.#_health -= (this.#_maxHealth / 2);
+        const bullet = collidable as Bullet;
+        this.#_health -= bullet.damage;
 
-            if (this.#_health <= 0) {
-                StabberRabbit.onRabbitDisposed(this);
-                this.dispose();
-            }
+        if (this.#_health <= 0) {
+            this.#_state = StabberRabbitState.Death;
+            Navigation.removeAgent(this.#_agent);
+            this.#_agent = undefined;
+            super.dispose();
+            RadarManager.removeBlip(this.#_root);
+            this.#_animator.play(AnimatorState.RabbitDeath, false, () => {
+                this.#_deathTimer = 0;
+            });
+        }
+        else {
+            this.#_gothit = true;
+            Navigation.removeAgent(this.#_agent);
+            this.#_agent = undefined;
+            this.#_animator.play(AnimatorState.TakeHit, false, () => {
+                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === StabberRabbitState.Attack ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+                this.#_gothit = false;
+                if (this.#_state !== StabberRabbitState.Death)
+                    this.#_animator.play(AnimatorState.Run);
+            });
         }
     }
 
@@ -200,10 +271,12 @@ export class StabberRabbit extends BaseCollidable {
     public dispose(): void {
         super.dispose();
         Navigation.removeAgent(this.#_agent);
-
         RadarManager.removeBlip(this.#_root);
 
-        this.#_weapon.dispose();
-        this.#_mesh.dispose();
+        // this.#_weapon.dispose();
+        this.#_root.dispose();
+        this.#_animator.dispose();
+        this.#_skeleton.dispose();
+        this.#_material.dispose();
     }
 }
