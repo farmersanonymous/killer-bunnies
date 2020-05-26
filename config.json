@@ -152,9 +152,9 @@
         "nabberSpawnRatio": 0.2
     },
     "stabberRabbit": {
-        "health": 30,
+        "health": 20,
         "damage": 10,
-        "speed": 6,
+        "speed": 4,
         "retreatSpeed": 10
     },
     "nabberRabbit": {

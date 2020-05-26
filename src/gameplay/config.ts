@@ -128,17 +128,25 @@ export interface ConfigBurrowData {
  */
 export interface StabberRabbitConfigData {
     /**
+<<<<<<< HEAD
      * Stabber rabbit health
+=======
+     * How often a rabbit gets spawned from the burrow. Set min/max range. Random.
      */
-    health: number;
+    spawnFrequency: ConfigRange;
+    /**
+     * Stabber rabbit speed
+>>>>>>> ff4fe2277bc3233a5c4cd576b5c5e9912b4d21af
+     */
+    speed: number;
     /**
      * Stabber rabbit damage
      */
     damage: number;
     /**
-     * Stabber rabbit speed
+     * The health of the rabbit.
      */
-    speed: number;
+    health: number;
     /**
      * Stabber rabbit retreat speed
      */

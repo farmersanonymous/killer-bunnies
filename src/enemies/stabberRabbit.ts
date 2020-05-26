@@ -37,6 +37,9 @@ export enum StabberRabbitState {
 export class StabberRabbit extends BaseCollidable {
     private static _rabbits: StabberRabbit[] = [];
 
+    #_maxHealth: number;
+    #_health: number;
+    #_damage: number;
     #_spawnPosition: Vector3;
     #_state: StabberRabbitState;
     #_root: TransformNode;
@@ -47,17 +50,18 @@ export class StabberRabbit extends BaseCollidable {
     #_gothit = false;
     #_animator: Animator;
     #_skeleton: Skeleton;
-    #_deathTimer: number;
-
-    // Stats
-    #_health: number;
-    #_damage: number;
+    #_deathTimer: number;    
 
     /**
      * Constructor. The position that the rabbit will spawn at.
+     * @param pos The position to spawn the rabbit.
+     * @param round The round handler.
      */
-    constructor(pos: Vector3) {
+    constructor(pos: Vector3, round: RoundHandler) {
         super(CollisionGroup.Enemy);
+
+        this.#_maxHealth = Config.stabberRabbit.health;
+        this.#_health = this.#_maxHealth;
 
         this.#_spawnPosition = pos.clone();
         this.#_state = StabberRabbitState.Attack;
@@ -98,6 +102,8 @@ export class StabberRabbit extends BaseCollidable {
         });
         RadarManager.createBlip(this.#_root, BlipType.Stabber);
         StabberRabbit._rabbits.push(this);
+
+        this.modifyDifficulty(round.getDifficultyModifier());
     }
 
     /**
@@ -137,7 +143,7 @@ export class StabberRabbit extends BaseCollidable {
     public update(farmer: Farmer, round: RoundHandler): void {
         if (this.#_state === StabberRabbitState.Attack) {
             // Hack fix. Weird bug where not all rabbits retreat properly. This is to force them to retreat.
-            if (round.type === RoundType.Fortify) {
+            if (round.type === RoundType.Rest) {
                 this.retreat();
             }
             else {
@@ -193,6 +199,22 @@ export class StabberRabbit extends BaseCollidable {
             this.#_root.rotation = new Vector3(0, -Angle.BetweenTwoPoints(Vector2.Zero(), new Vector2(dir.x, dir.z)).radians() + Angle.FromDegrees(90).radians(), 0);
 
         RadarManager.updateBlip(this.#_root);
+    }
+
+    /**
+     * Modifies the rabbit's health, damage, and speed based on a given value.
+     * @param modifier Difficulty modifier used to calculate new values for the rabbit.
+     */
+    public modifyDifficulty(modifier: number): void {
+        // Damage
+        this.#_damage += (Config.stabberRabbit.damage * modifier);
+
+        // Health
+        this.#_maxHealth += (Config.stabberRabbit.health * modifier);
+
+        // Speed
+        const speed = Config.stabberRabbit.speed;
+        Navigation.agentUpdateSpeed(this.#_agent, speed + (speed * modifier));
     }
 
     /**

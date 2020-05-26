@@ -40,6 +40,8 @@ export enum NabberRabbitState {
 export class NabberRabbit extends BaseCollidable {
     private static _rabbits: NabberRabbit[] = [];
 
+    #_maxHealth: number;
+    #_health: number;
     #_spawnPosition: Vector3;
     #_state: NabberRabbitState;
     #_root: TransformNode;
@@ -53,18 +55,19 @@ export class NabberRabbit extends BaseCollidable {
     #_target: TransformNode;
     #_hasCarrot: boolean;
 
-    // Stats
-    #_health: number;
-
     /**
      * Constructor. The position that the rabbit will spawn at.
+     * @param pos The position to spawn the rabbit.
+     * @param round The round handler.
      */
-    constructor(pos: Vector3) {
+    constructor(pos: Vector3, round: RoundHandler) {
         super(CollisionGroup.Enemy);
+        
+        this.#_maxHealth = Config.nabberRabbit.health;
+        this.#_health = this.#_maxHealth;
 
         this.#_spawnPosition = pos.clone();
         this.#_state = NabberRabbitState.Gather;
-        this.#_health = Config.stabberRabbit.health;
         this.#_hasCarrot = false;
 
         // The mesh is a player and can collide with the environment.
@@ -88,12 +91,14 @@ export class NabberRabbit extends BaseCollidable {
 
         this.#_animator.play(AnimatorState.Spawn, false, () => {
             this.#_animator.play(AnimatorState.Run);
-            this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
+            this.#_agent = Navigation.addAgent(pos, Config.nabberRabbit.speed, this.#_root);
             super.registerMesh(mesh);
 
         });
         RadarManager.createBlip(this.#_root, BlipType.Stabber);
         NabberRabbit._rabbits.push(this);
+
+        this.modifyDifficulty(round.getDifficultyModifier());
     }
 
     /**
@@ -106,7 +111,7 @@ export class NabberRabbit extends BaseCollidable {
             if (value)
                 Navigation.removeAgent(this.#_agent);
             else
-                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === NabberRabbitState.Gather ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === NabberRabbitState.Gather ? Config.nabberRabbit.speed : Config.nabberRabbit.retreatSpeed, this.#_root);
         }
     }
 
@@ -119,7 +124,7 @@ export class NabberRabbit extends BaseCollidable {
     public update(farmer: Farmer, gui: GUIManager, round: RoundHandler): void {
         if (this.#_state === NabberRabbitState.Gather) {
             // Hack fix. Weird bug where not all rabbits retreat properly. This is to force them to retreat.
-            if (round.type === RoundType.Fortify) {
+            if (round.type === RoundType.Rest) {
                 this.retreat();
             }
             else {
@@ -194,12 +199,25 @@ export class NabberRabbit extends BaseCollidable {
     }
 
     /**
+     * Modifies the rabbit's health, damage, and speed based on a given value.
+     * @param modifier Difficulty modifier used to calculate new values for the rabbit.
+     */
+    public modifyDifficulty(modifier: number): void {
+        // Health
+        this.#_maxHealth += (Config.nabberRabbit.health * modifier);
+
+        // Speed
+        const speed = Config.nabberRabbit.speed;
+        Navigation.agentUpdateSpeed(this.#_agent, speed + (speed * modifier));
+    }
+
+    /**
      * Changes the rabbit state to retreat. It will go back to it's original spawn point and dispose itself.
      */
     public retreat(): void {
         if (this.#_state !== NabberRabbitState.Death) {
             this.#_state = NabberRabbitState.Retreat;
-            Navigation.agentUpdateSpeed(this.#_agent, Config.stabberRabbit.retreatSpeed);
+            Navigation.agentUpdateSpeed(this.#_agent, Config.nabberRabbit.retreatSpeed);
         }
     }
 
@@ -233,7 +251,7 @@ export class NabberRabbit extends BaseCollidable {
             Navigation.removeAgent(this.#_agent);
             this.#_agent = undefined;
             this.#_animator.play(AnimatorState.TakeHit, false, () => {
-                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === NabberRabbitState.Gather ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === NabberRabbitState.Gather ? Config.nabberRabbit.speed : Config.nabberRabbit.retreatSpeed, this.#_root);
                 this.#_gothit = false;
                 if (this.#_state !== NabberRabbitState.Death)
                     this.#_animator.play(AnimatorState.Run);
@@ -242,7 +260,7 @@ export class NabberRabbit extends BaseCollidable {
     }
 
     /**
-     * Release all resources associated with this StabberRabbit.
+     * Release all resources associated with this NabberRabbit.
      */
     public dispose(): void {
         super.dispose();

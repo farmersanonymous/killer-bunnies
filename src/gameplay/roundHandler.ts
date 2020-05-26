@@ -12,21 +12,21 @@ import { NabberRabbit } from '../enemies/nabberRabbit';
 import { CarrotDrop } from '../droppable/carrotDrop';
 
 /**
- * Amount of time, in seconds, that the defense round goes for.
+ * Amount of time, in seconds, that the rest round goes for.
  */
-const defendTime = 120
+const restTime = 30;
 
 /**
- * Amount of time, in seconds, that the fortification round goes for.
+ * Amount of time, in seconds, that the defense round goes for.
  */
-const fortifyTime = 30
+const defendTime = 120;
 
 /**
  * Types of rounds to switch between.
  */
 export enum RoundType {
-    Defend,
-    Fortify
+    Rest,
+    Defend
 }
 
 /**
@@ -51,7 +51,7 @@ export class RoundHandler {
     /**
      * The current round type.
      */
-    #_type = RoundType.Fortify;
+    #_type = RoundType.Rest;
 
     /**
      * The current time left before the next burrow spawns.
@@ -88,6 +88,13 @@ export class RoundHandler {
     }
 
     /**
+     * Returns a difficulty modifier, on the current round, used to manipulate values in the game.
+     */
+    public getDifficultyModifier(): number {
+        return 0.25 * (this.#_round - 1);
+    }
+    
+    /**
      * Updates the current round.
      */
     public update(farmer: Farmer, garden: Garden): void {
@@ -101,7 +108,7 @@ export class RoundHandler {
             this.#_carrotSpawnTimer -= BabylonStore.deltaTime;
 
             if(this.#_burrowSpawnTimer <= 0) {
-                new Burrow(garden.getRandomBurrowNode());
+                new Burrow(garden.getRandomBurrowNode(), this);
                 this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
             }
 
@@ -141,8 +148,8 @@ export class RoundHandler {
         if (this.#_time <= 0) {
             if (this.#_type === RoundType.Defend) {
                 // Player builds up their defenses for the next Defend round.
-                this.#_type = RoundType.Fortify;
-                this.#_time = fortifyTime;
+                this.#_time = restTime;
+                this.#_type = RoundType.Rest;
                 this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
                 this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
                 
