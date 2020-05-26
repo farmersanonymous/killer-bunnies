@@ -119,13 +119,17 @@ export interface StabberRabbitConfigData {
      */
     spawnFrequency: ConfigRange;
     /**
+     * Stabber rabbit speed
+     */
+    speed: number;
+    /**
      * Stabber rabbit damage
      */
     damage: number;
     /**
-     * Stabber rabbit speed
+     * The health of the rabbit.
      */
-    speed: number;
+    health: number;
     /**
      * Stabber rabbit retreat speed
      */

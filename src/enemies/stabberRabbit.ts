@@ -6,6 +6,7 @@ import { BaseCollidable } from '../collision/baseCollidable';
 import { BabylonStore } from '../store/babylonStore';
 import { RadarManager, BlipType } from '../ui/radar';
 import { Config } from '../gameplay/config';
+import { Bullet } from '../player/bullet';
 
 const RabbitAttackDistance = 3;
 
@@ -36,6 +37,8 @@ export class StabberRabbit extends BaseCollidable {
      */
     public static onRabbitDisposed: (rabbit: StabberRabbit) => void;
 
+    #_maxHealth: number;
+    #_health: number;
     #_spawnPosition: Vector3;
     #_state: StabberRabbitState;
     #_root: TransformNode;
@@ -52,6 +55,9 @@ export class StabberRabbit extends BaseCollidable {
      */
     constructor(pos: Vector3) {
         super(CollisionGroup.Enemy);
+
+        this.#_maxHealth = Config.stabberRabbit.health;
+        this.#_health = this.#_maxHealth;
 
         this.#_spawnPosition = pos.clone();
         this.#_state = StabberRabbitState.Attack;
@@ -150,6 +156,22 @@ export class StabberRabbit extends BaseCollidable {
     }
 
     /**
+     * Modifies the rabbit's health, damage, and speed based on a given value.
+     * @param modifier Difficulty modifier used to calculate new values for the rabbit.
+     */
+    public modifyDifficulty(modifier: number): void {
+        // Damage
+        this.#_damage += (Config.stabberRabbit.damage * modifier);
+
+        // Health
+        this.#_maxHealth += (Config.stabberRabbit.health * modifier);
+
+        // Speed
+        const speed = Config.stabberRabbit.speed;
+        Navigation.agentUpdateSpeed(this.#_agent, speed + (speed * modifier));
+    }
+
+    /**
      * Changes the rabbit state to retreat. It will go back to it's original spawn point and dispose itself.
      */
     public retreat(): void {
@@ -160,9 +182,16 @@ export class StabberRabbit extends BaseCollidable {
     /**
      * Callback that will get fired when the enemy hits a bullet.
      */
-    public onCollide(): void {
-        StabberRabbit.onRabbitDisposed(this);
-        this.dispose();
+    public onCollide(collidable: BaseCollidable): void {
+        if (collidable instanceof Bullet) {
+            console.log(this.#_health, (this.#_maxHealth / 2));
+            this.#_health -= (this.#_maxHealth / 2);
+
+            if (this.#_health <= 0) {
+                StabberRabbit.onRabbitDisposed(this);
+                this.dispose();
+            }
+        }
     }
 
     /**

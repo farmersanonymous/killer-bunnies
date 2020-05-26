@@ -1,4 +1,4 @@
-import { TransformNode } from "babylonjs";
+import { Scalar, TransformNode } from "babylonjs";
 import { BabylonStore } from "../store/babylonStore";
 import { StabberRabbit } from "../enemies/stabberRabbit";
 import { SoundManager } from "../assets/soundManager";
@@ -31,15 +31,24 @@ export class Burrow {
             position: parent.position
         });
 
-         const spawner = Spawner.getSpawner('Burrow');
-         const instance = spawner.instantiate();
-         this.#_root = instance.rootNodes[0];
-         this.#_root.parent = parent;
+        const spawner = Spawner.getSpawner('Burrow');
+        const instance = spawner.instantiate();
+        this.#_root = instance.rootNodes[0];
+        this.#_root.parent = parent;
 
         this.#_disposeTime = BabylonStore.time + Config.burrow.randomTimeLimit();
         this.#_spawnTimer = Config.stabberRabbit.randomSpawnFrequency();
 
         Burrow.onBurrowCreated(this);
+    }
+
+    /**
+     * Modifies the burrow's spawn timer based on a given value.
+     * @param modifier Difficulty modifier used to calculate new spawn timer value.
+     */
+    public modifyDifficulty(modifier: number): void {
+        const newMax = this.#_spawnTimer - (Config.burrow.spawnFrequency.min * modifier)
+        this.#_spawnTimer = Scalar.RandomRange(Config.burrow.spawnFrequency.max, newMax);
     }
 
     /**

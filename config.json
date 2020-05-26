@@ -141,8 +141,9 @@
             "min": 1,
             "max": 5
         },
-        "damage": 10,
         "speed": 4,
+        "damage": 10,
+        "health": 100,
         "retreatSpeed": 10
     },
     "carrot": {
