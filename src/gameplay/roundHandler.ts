@@ -142,7 +142,7 @@ export class RoundHandler {
 
         // Update all the rabbits.
         for(let i = 0; i < this.#_rabbits.length; i++) {
-            this.#_rabbits[i].update(farmer);
+            this.#_rabbits[i].update(farmer, this);
         }
 
         if (this.#_time <= 0) {

@@ -22,10 +22,11 @@ export class Spawner {
 
     /**
      * Instantiate a new instance from the asset container.
+     * @param cloneMaterials Clones the materials.
      * @returns The InstantiatedEntries returned from the asset container instantiation.
      */
-    public instantiate(): InstantiatedEntries {
-        return this.#_assetContainer.instantiateModelsToScene((name) => name);
+    public instantiate(cloneMaterials?: boolean): InstantiatedEntries {
+        return this.#_assetContainer.instantiateModelsToScene((name) => name, cloneMaterials);
     }
 
     /**
