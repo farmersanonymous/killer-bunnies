@@ -38,6 +38,9 @@ export class Garden extends BaseCollidable {
         const fencing = Spawner.getSpawner('Fencing');
         fencing.instantiate();
 
+        const shed = Spawner.getSpawner('Shed');
+        shed.instantiate();
+
         this.#_harvestBasket = MeshBuilder.CreateBox('HarvestBasket', { size: 3 });
         this.#_harvestBasket.position = new Vector3(22, 1.5, 0);
 

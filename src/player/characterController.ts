@@ -10,6 +10,7 @@ import { BabylonObserverStore } from '../store/babylonObserverStore';
 export class CharacterController {
     #_updateHandle: number;
     #_disabled = false;
+    #_useMouse = false;
 
     /**
      * Constructor.
@@ -23,7 +24,6 @@ export class CharacterController {
             rightJoystick = new VirtualJoystick(false)
         }
 
-        let useMouse = false;
         let hasMoved = false;
         let hasFired = false;
         let hasFiredController = false;
@@ -87,7 +87,7 @@ export class CharacterController {
                 if (this.#_disabled) {
                     return;
                 }
-                useMouse = true;
+                this.#_useMouse = true;
             }
 
             // If a game pad exists, handle input.
@@ -113,11 +113,11 @@ export class CharacterController {
                 if (Input.controllerRightStick.x > 0.5 || Input.controllerRightStick.x < -0.5 ||
                     Input.controllerRightStick.y > 0.5 || Input.controllerRightStick.y < -0.5) {
                     this.onRotate?.call(this, new Vector2(-Input.controllerRightStick.x, -Input.controllerRightStick.y));
-                    useMouse = false;
+                    this.#_useMouse = false;
                 }
             }
 
-            if (useMouse) {
+            if (this.#_useMouse) {
                 // Handle rotation around the mouse position.
                 const projectedFarmerPosition = Vector3.Project(player.position, Matrix.Identity(), BabylonStore.camera.getTransformationMatrix(), BabylonStore.camera.viewport);
                 projectedFarmerPosition.x *= BabylonStore.engine.getRenderWidth();
@@ -159,6 +159,14 @@ export class CharacterController {
         this.onFireEnd = null;
 
         BabylonObserverStore.deregisterAfterRender(this.#_updateHandle);
+    }
+
+    /**
+     * Returns true if the mouse should be used. If it is false, then a controller is being used.
+     * @returns True if a mouse is being used, false if a controller is being used.
+     */
+    public get useMouse(): boolean {
+        return this.#_useMouse;
     }
 
     /**

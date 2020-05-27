@@ -6,10 +6,11 @@ import { StabberRabbit } from '../enemies/stabberRabbit';
 import { Garden } from '../environment/garden';
 import { Config } from './config';
 import { Carrot } from '../environment/carrot';
-import { Vector3 } from 'babylonjs';
+import { Vector3, Vector2 } from 'babylonjs';
 import { Input } from '../input/input';
 import { NabberRabbit } from '../enemies/nabberRabbit';
 import { CarrotDrop } from '../droppable/carrotDrop';
+import { Button, Vector2WithInfo } from 'babylonjs-gui';
 
 /**
  * Amount of time, in seconds, that the rest round goes for.
@@ -64,6 +65,7 @@ export class RoundHandler {
     #_carrotSpawnTimer: number;
 
     #_upgrading: boolean;
+    #_upgradeButtons: Button[];
 
     /**
      * Constructor.
@@ -122,14 +124,41 @@ export class RoundHandler {
         }
         else {
             if(Vector3.Distance(farmer.position, garden.harvestBasket.position) <= 5) {
-                this.#_gui.addPickIcon(garden.harvestBasket, 'EKey');
-                if(Input.isKeyPressed('e') && !this.upgrading) {
+
+                if(farmer.useMouse)
+                    this.#_gui.addPickIcon(garden.harvestBasket, 'EKey');
+                else
+                    this.#_gui.addPickIcon(garden.harvestBasket, 'AButton');
+                if((Input.isKeyPressed('e') || Input.isKeyPressed('gamepadA')) && !this.upgrading) {
                     farmer.disabled = true;
                     this.#_upgrading = true;
-                    this.#_gui.showUpgradeMenu(farmer, () => {
+                    this.#_upgradeButtons = this.#_gui.showUpgradeMenu(farmer, () => {
                         this.#_upgrading = false;
                         farmer.disabled = false;
                     });
+                }
+
+                if(this.upgrading) {
+                    // Upgrade health if the up button is pressed.
+                    if(Input.isKeyPressed('gamepadUP')) {
+                        this.#_upgradeButtons[0].onPointerClickObservable.notifyObservers(new Vector2WithInfo(Vector2.Zero()));
+                    }
+                    // Upgrade damage if the left button is pressed.
+                    if(Input.isKeyPressed('gamepadLEFT')) {
+                        this.#_upgradeButtons[1].onPointerClickObservable.notifyObservers(new Vector2WithInfo(Vector2.Zero()));
+                    }
+                    // Upgrade harvest speed if the right button is pressed.
+                    if(Input.isKeyPressed('gamepadRIGHT')) {
+                        this.#_upgradeButtons[2].onPointerClickObservable.notifyObservers(new Vector2WithInfo(Vector2.Zero()));
+                    }
+                    // Upgrade move speed if the down button is pressed.
+                    if(Input.isKeyPressed('gamepadDOWN')) {
+                        this.#_upgradeButtons[3].onPointerClickObservable.notifyObservers(new Vector2WithInfo(Vector2.Zero()));
+                    }
+                    // Close the menu if the B button is pressed.
+                    if(Input.isKeyPressed('gamepadB')) {
+                        this.#_upgradeButtons[4].onPointerClickObservable.notifyObservers(new Vector2WithInfo(Vector2.Zero()));
+                    }
                 }
             }
             else {

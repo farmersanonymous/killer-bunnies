@@ -67,7 +67,7 @@ export class Game {
      * Updates the game. Called once every frame.
      */
     public update(): void {
-        if(Input.isKeyPressed('p') && !this.#_roundHandler.upgrading) {
+        if((Input.isKeyPressed('p') || Input.isKeyPressed('gamepadStart')) && !this.#_roundHandler.upgrading) {
             this.#_paused = !this.#_paused;
             this.#_player.disabled = this.#_paused;
             this.#_roundHandler.onPause(this.#_paused);
