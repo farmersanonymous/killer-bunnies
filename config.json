@@ -17,6 +17,11 @@
             "url": "https://storage.googleapis.com/farmer-assets/stabbyBunny/6/StabbyBunny.gltf"
         },
         {
+            "name": "StabberWeapon",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/stabbyWeapon/2/CarrotShiv.gltf"
+        },
+        {
             "name": "Garden",
             "type": "art",
             "url": "https://storage.googleapis.com/farmer-assets/garden/10/Environment.gltf"

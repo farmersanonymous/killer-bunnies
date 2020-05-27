@@ -44,7 +44,7 @@ export class StabberRabbit extends BaseCollidable {
     #_state: StabberRabbitState;
     #_root: TransformNode;
     #_material: PBRMaterial;
-    // #_weapon: Mesh;
+    #_weapon: TransformNode;
     #_agent: number;
     #_attacking = false;
     #_gothit = false;
@@ -86,12 +86,17 @@ export class StabberRabbit extends BaseCollidable {
         });
 
         const weaponPoint = this.#_root.getChildTransformNodes(false, n => n.name === 'WeaponPoint')[0];
+        const spawnerWeapon = Spawner.getSpawner('StabberWeapon');
+        const instanceWeapon = spawnerWeapon.instantiate();
+        this.#_weapon = instanceWeapon.rootNodes[0];
+        this.#_weapon.parent = weaponPoint;
+        
         const collider = MeshBuilder.CreateBox('collider', { width: 0.5, height: 1.5, depth: 0.5 });
         collider.parent = weaponPoint;
         collider.position = weaponPoint.forward.scale(0.75);
         collider.isVisible = false;
         super.registerMesh(collider, 'weapon');
-
+        
         this.#_animator = new Animator(instance.animationGroups);
 
         this.#_animator.play(AnimatorState.Spawn, false, () => {
