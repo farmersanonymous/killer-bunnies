@@ -22,9 +22,18 @@ export class Carrot {
         this.#_root = instance.rootNodes[0];
         this.#_root.parent = parent;
         this.#_root.scaling = Vector3.One().scale(3);
+        this.root.position.y = 0.25;
         this.#_pickable = false;
 
         Carrot._carrots.push(this);
+    }
+
+    /**
+     * Gets the root transform of the Carrot.
+     * @returns The root transform of the Carrot.
+     */
+    public get root(): TransformNode {
+        return this.#_root;
     }
 
     /**
@@ -37,7 +46,7 @@ export class Carrot {
         const pos = worldMatrix.getRow(3);
         this.#_pickable = Vector3.Distance(pos.toVector3(), farmer.position) < 1;
         if(this.#_pickable) {
-            gui.addPickIcon(this.#_root.getChildMeshes()[0]);
+            gui.addPickIcon(this.#_root.getChildMeshes()[0], 'EKey');
         }
         else {
             gui.removePickIcon(this.#_root.getChildMeshes()[0]);
@@ -80,5 +89,26 @@ export class Carrot {
             return pickableCarrots[0];
         else
             return undefined;
+    }
+    /**
+     * Returns a random carrot transform node.
+     * @returns The transform node of the carrot to return.
+     */
+    public static getRandomCarrotTransform(): TransformNode {
+        if(this._carrots.length === 0) {
+            return undefined;
+        }
+
+        const min = 0;
+        const max = Math.floor(this._carrots.length - 1);
+        const randInt = Math.floor(Math.random() * (max - min + 1)) + min;
+        return this._carrots[randInt].root;
+    }
+    /**
+     * Disposes and releases all resources associated with the Carrot that was created with the passed in transform.
+     * @param transform The transform that belongs to the Carrot to dispose.
+     */
+    public static disposeCarrotByTransform(transform: TransformNode): void {
+        this._carrots.find(c => c.#_root === transform).dispose();
     }
 }

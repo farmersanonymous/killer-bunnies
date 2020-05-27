@@ -8,6 +8,8 @@ import { Config } from './config';
 import { Carrot } from '../environment/carrot';
 import { Vector3 } from 'babylonjs';
 import { Input } from '../input/input';
+import { NabberRabbit } from '../enemies/nabberRabbit';
+import { CarrotDrop } from '../droppable/carrotDrop';
 
 /**
  * Amount of time, in seconds, that the rest round goes for.
@@ -61,8 +63,6 @@ export class RoundHandler {
      */
     #_carrotSpawnTimer: number;
 
-    #_rabbits: StabberRabbit[] = [];
-
     #_upgrading: boolean;
 
     /**
@@ -75,14 +75,6 @@ export class RoundHandler {
 
         this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
         this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
-
-        StabberRabbit.onRabbitCreated = (rabbit: StabberRabbit): void => {
-            rabbit.modifyDifficulty(this.getDifficultyModifier());
-            this.#_rabbits.push(rabbit);
-        }
-        StabberRabbit.onRabbitDisposed = (rabbit: StabberRabbit): void => {
-            this.#_rabbits = this.#_rabbits.filter(rab => rab !== rabbit);
-        }
 
         this.#_upgrading = false;
     }
@@ -130,7 +122,7 @@ export class RoundHandler {
         }
         else {
             if(Vector3.Distance(farmer.position, garden.harvestBasket.position) <= 5) {
-                this.#_gui.addPickIcon(garden.harvestBasket);
+                this.#_gui.addPickIcon(garden.harvestBasket, 'EKey');
                 if(Input.isKeyPressed('e') && !this.upgrading) {
                     farmer.disabled = true;
                     this.#_upgrading = true;
@@ -147,11 +139,11 @@ export class RoundHandler {
 
         // Update all the carrots.
         Carrot.updateAll(farmer, this.#_gui);
+        CarrotDrop.updateAll(farmer, this.#_gui);
 
         // Update all the rabbits.
-        for(let i = 0; i < this.#_rabbits.length; i++) {
-            this.#_rabbits[i].update(farmer, this);
-        }
+        StabberRabbit.updateAll(farmer, this);
+        NabberRabbit.updateAll(farmer, this.#_gui, this);
 
         if (this.#_time <= 0) {
             if (this.#_type === RoundType.Defend) {
@@ -162,8 +154,10 @@ export class RoundHandler {
                 this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
                 
                 this.#_gui.setRound(++this.#_round);
-                this.#_rabbits.forEach(r => r.retreat());
+                StabberRabbit.retreatAll();
+                NabberRabbit.retreatAll();
                 Carrot.disposeAll();
+                CarrotDrop.disposeAll();
                 this.#_gui.clearFarmerCarrots();
 
                 Burrow.disposeAll();
@@ -203,7 +197,8 @@ export class RoundHandler {
      * @param paused True if the game is pause, false if it has been unpaused.
      */
     public onPause(paused: boolean): void {
-        this.#_rabbits.forEach(r => r.disabled = paused);
+        StabberRabbit.disableAll(paused);
+        NabberRabbit.disableAll(paused);
         this.#_gui.paused = paused;
     }
 
@@ -211,10 +206,10 @@ export class RoundHandler {
      * Releases all resources associated with this RoundHandler.
      */
     public dispose(): void {
-        StabberRabbit.onRabbitCreated = null;
-        StabberRabbit.onRabbitDisposed = null;
-        this.#_rabbits.forEach(r => r.dispose());
+        StabberRabbit.disposeAll();
+        NabberRabbit.disposeAll();
         Carrot.disposeAll();
+        CarrotDrop.disposeAll();
         Burrow.disposeAll();
     }
 }

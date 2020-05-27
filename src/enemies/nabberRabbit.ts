@@ -1,4 +1,4 @@
-import { Vector3, Angle, Vector2, TransformNode, Skeleton, Animation, MeshBuilder, Scalar, PBRMaterial, Color3 } from 'babylonjs';
+import { Vector3, Angle, Vector2, TransformNode, Skeleton, Animation, Scalar, PBRMaterial, Color3 } from 'babylonjs';
 import { Navigation } from '../gameplay/navigation';
 import { Farmer } from '../player/farmer';
 import { CollisionGroup } from '../collision/collisionManager';
@@ -10,17 +10,20 @@ import { Spawner } from '../assets/spawner';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from '../player/bullet';
 import { RoundHandler, RoundType } from '../gameplay/roundHandler';
+import { Carrot } from '../environment/carrot';
+import { GUIManager } from '../ui/guiManager';
+import { CarrotDrop } from '../droppable/carrotDrop';
 
-const RabbitAttackDistance = 3;
+const RabbitGatherDistance = 1;
 
 /**
  * The state that the stabber rabbit is currently in.
  */
-export enum StabberRabbitState {
+export enum NabberRabbitState {
     /**
-     * The attack state. The rabbit will try to murder the Farmer.
+     * The gather state. The rabbit will try to grab a carrot and get away.
      */
-    Attack,
+    Gather,
     /**
      * The retreat state. The rabbit will retreat to the burrow that it spawned from.
      */
@@ -34,23 +37,23 @@ export enum StabberRabbitState {
 /**
  * The rabbit that will try and stab the farmer.
  */
-export class StabberRabbit extends BaseCollidable {
-    private static _rabbits: StabberRabbit[] = [];
+export class NabberRabbit extends BaseCollidable {
+    private static _rabbits: NabberRabbit[] = [];
 
     #_maxHealth: number;
     #_health: number;
-    #_damage: number;
     #_spawnPosition: Vector3;
-    #_state: StabberRabbitState;
+    #_state: NabberRabbitState;
     #_root: TransformNode;
     #_material: PBRMaterial;
     // #_weapon: Mesh;
     #_agent: number;
-    #_attacking = false;
     #_gothit = false;
     #_animator: Animator;
     #_skeleton: Skeleton;
-    #_deathTimer: number;    
+    #_deathTimer: number;
+    #_target: TransformNode;
+    #_hasCarrot: boolean;
 
     /**
      * Constructor. The position that the rabbit will spawn at.
@@ -59,14 +62,13 @@ export class StabberRabbit extends BaseCollidable {
      */
     constructor(pos: Vector3, round: RoundHandler) {
         super(CollisionGroup.Enemy);
-
-        this.#_maxHealth = Config.stabberRabbit.health;
+        
+        this.#_maxHealth = Config.nabberRabbit.health;
         this.#_health = this.#_maxHealth;
 
         this.#_spawnPosition = pos.clone();
-        this.#_state = StabberRabbitState.Attack;
-        this.#_health = Config.stabberRabbit.health;
-        this.#_damage = Config.stabberRabbit.damage;
+        this.#_state = NabberRabbitState.Gather;
+        this.#_hasCarrot = false;
 
         // The mesh is a player and can collide with the environment.
         const spawner = Spawner.getSpawner('Bunny');
@@ -77,7 +79,7 @@ export class StabberRabbit extends BaseCollidable {
 
         const mesh = this.#_root.getChildMeshes()[0];
         this.#_material = (mesh.material as PBRMaterial);
-        this.#_material.albedoColor = new Color3(Scalar.RandomRange(206, 255) / 255, Scalar.RandomRange(135, 255) / 255, Scalar.RandomRange(189, 255) / 255);
+        this.#_material.albedoColor = new Color3(Scalar.RandomRange(221, 230) / 255, Scalar.RandomRange(155, 160) / 255, Scalar.RandomRange(24, 106) / 255);
 
         const bones = this.#_root.getChildTransformNodes(false, n => n.name.startsWith('Bunny_Ear_Scale_') || n.name.startsWith('Bunny_Eye_Scale_'));
         bones.forEach(b => {
@@ -85,41 +87,18 @@ export class StabberRabbit extends BaseCollidable {
             b.scaling = Vector3.One().scale(rand);
         });
 
-        const weaponPoint = this.#_root.getChildTransformNodes(false, n => n.name === 'WeaponPoint')[0];
-        const collider = MeshBuilder.CreateBox('collider', { width: 0.5, height: 1.5, depth: 0.5 });
-        collider.parent = weaponPoint;
-        collider.position = weaponPoint.forward.scale(0.75);
-        collider.isVisible = false;
-        super.registerMesh(collider, 'weapon');
-
         this.#_animator = new Animator(instance.animationGroups);
 
         this.#_animator.play(AnimatorState.Spawn, false, () => {
             this.#_animator.play(AnimatorState.Run);
-            this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
+            this.#_agent = Navigation.addAgent(pos, Config.nabberRabbit.speed, this.#_root);
             super.registerMesh(mesh);
-            
+
         });
         RadarManager.createBlip(this.#_root, BlipType.Stabber);
-        StabberRabbit._rabbits.push(this);
+        NabberRabbit._rabbits.push(this);
 
         this.modifyDifficulty(round.getDifficultyModifier());
-    }
-
-    /**
-     * Checks if the stabber rabbit is attacking or not.
-     * @returns If the stabber rabbit is attacking.
-     */
-    public get attacking(): boolean {
-        return this.#_attacking;
-    }
-
-    /**
-     * The amount of damage that the rabbit can do.
-     * @returns The damage of the rabbit.
-     */
-    public get damage(): number {
-        return this.#_damage;
     }
 
     /**
@@ -132,45 +111,63 @@ export class StabberRabbit extends BaseCollidable {
             if (value)
                 Navigation.removeAgent(this.#_agent);
             else
-                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === StabberRabbitState.Attack ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === NabberRabbitState.Gather ? Config.nabberRabbit.speed : Config.nabberRabbit.retreatSpeed, this.#_root);
         }
     }
 
     /**
      * Updates the rabbit every frame.
      * @param farmer The farmer (player) character.
+     * @param gui The gui manager for the game.
+     * @param round The round handler.
      */
-    public update(farmer: Farmer, round: RoundHandler): void {
-        if (this.#_state === StabberRabbitState.Attack) {
+    public update(farmer: Farmer, gui: GUIManager, round: RoundHandler): void {
+        if (this.#_state === NabberRabbitState.Gather) {
             // Hack fix. Weird bug where not all rabbits retreat properly. This is to force them to retreat.
             if (round.type === RoundType.Rest) {
                 this.retreat();
             }
             else {
                 if (!this.#_gothit) {
-                    if (!this.attacking) {
-                        Navigation.agentGoTo(this.#_agent, farmer.position);
-                    }
+                    // Logic if nabber does not have a carrot.
+                    // Set the Farmer as a target by default.
+                    if (!this.#_target || this.#_target.isDisposed())
+                        this.#_target = farmer.root;
 
-                    if (!this.#_attacking && farmer.health > 0 && Vector3.Distance(farmer.position, this.#_root.position) < RabbitAttackDistance) {
-                        this.#_attacking = true;
-                        this.#_animator.play(AnimatorState.Attack, false, () => {
-                            this.#_attacking = false;
-                            if (this.#_state !== StabberRabbitState.Death && !this.#_gothit)
-                                this.#_animator.play(AnimatorState.Run);
-                        });
+                    // If on the farmer, try to focus on a carrot, if there is one.
+                    if (this.#_target === farmer.root) {
+                        const carrot = Carrot.getRandomCarrotTransform();
+                        if(carrot)
+                            this.#_target = carrot;
+                    }
+                    
+                    // Navigate to the targets position in world spacce.
+                    const worldMatrix = this.#_target.getWorldMatrix();
+                    const worldPosition = worldMatrix.getRow(3).toVector3();
+                    Navigation.agentGoTo(this.#_agent, worldPosition);
+
+                    // If the target is not the farmer, try to nab the carrot.
+                    if(this.#_target !== farmer.root)
+                    {                        
+                        if (Vector3.Distance(this.#_root.position, worldPosition) < RabbitGatherDistance) {
+                            Carrot.disposeCarrotByTransform(this.#_target);
+                            this.#_state = NabberRabbitState.Retreat;
+                            this.#_hasCarrot = true;
+                            gui.addPickIcon(this.getMesh(), 'CarrotFill', -50);
+                        }
                     }
                 }
             }
         }
-        else if (this.#_state === StabberRabbitState.Retreat) {
+        else if (this.#_state === NabberRabbitState.Retreat) {
             Navigation.agentGoTo(this.#_agent, this.#_spawnPosition);
 
             if (Vector3.Distance(this.#_spawnPosition, this.#_root.position) < 1) {
                 this.dispose();
             }
         }
-        else if (this.#_state === StabberRabbitState.Death) {
+        else if (this.#_state === NabberRabbitState.Death) {
+            gui.removePickIcon(this.getMesh());
             this.#_deathTimer += BabylonStore.deltaTime;
             if (this.#_deathTimer >= 5) {
                 // So the timer won't go off again.
@@ -206,14 +203,11 @@ export class StabberRabbit extends BaseCollidable {
      * @param modifier Difficulty modifier used to calculate new values for the rabbit.
      */
     public modifyDifficulty(modifier: number): void {
-        // Damage
-        this.#_damage += (Config.stabberRabbit.damage * modifier);
-
         // Health
-        this.#_maxHealth += (Config.stabberRabbit.health * modifier);
+        this.#_maxHealth += (Config.nabberRabbit.health * modifier);
 
         // Speed
-        const speed = Config.stabberRabbit.speed;
+        const speed = Config.nabberRabbit.speed;
         Navigation.agentUpdateSpeed(this.#_agent, speed + (speed * modifier));
     }
 
@@ -221,9 +215,9 @@ export class StabberRabbit extends BaseCollidable {
      * Changes the rabbit state to retreat. It will go back to it's original spawn point and dispose itself.
      */
     public retreat(): void {
-        if (this.#_state !== StabberRabbitState.Death) {
-            this.#_state = StabberRabbitState.Retreat;
-            Navigation.agentUpdateSpeed(this.#_agent, Config.stabberRabbit.retreatSpeed);
+        if (this.#_state !== NabberRabbitState.Death) {
+            this.#_state = NabberRabbitState.Retreat;
+            Navigation.agentUpdateSpeed(this.#_agent, Config.nabberRabbit.retreatSpeed);
         }
     }
 
@@ -236,7 +230,14 @@ export class StabberRabbit extends BaseCollidable {
         this.#_health -= bullet.damage;
 
         if (this.#_health <= 0) {
-            this.#_state = StabberRabbitState.Death;
+            // Drop the carrot on to the ground so it can be picked up.
+            if(this.#_hasCarrot) {
+                const worldMatrix = this.#_root.getWorldMatrix();
+                const worldPosition = worldMatrix.getRow(3).toVector3();
+                new CarrotDrop(worldPosition.add(Vector3.Up()));
+            }
+
+            this.#_state = NabberRabbitState.Death;
             Navigation.removeAgent(this.#_agent);
             this.#_agent = undefined;
             super.dispose();
@@ -250,16 +251,16 @@ export class StabberRabbit extends BaseCollidable {
             Navigation.removeAgent(this.#_agent);
             this.#_agent = undefined;
             this.#_animator.play(AnimatorState.TakeHit, false, () => {
-                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === StabberRabbitState.Attack ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === NabberRabbitState.Gather ? Config.nabberRabbit.speed : Config.nabberRabbit.retreatSpeed, this.#_root);
                 this.#_gothit = false;
-                if (this.#_state !== StabberRabbitState.Death)
+                if (this.#_state !== NabberRabbitState.Death)
                     this.#_animator.play(AnimatorState.Run);
             });
         }
     }
 
     /**
-     * Release all resources associated with this StabberRabbit.
+     * Release all resources associated with this NabberRabbit.
      */
     public dispose(): void {
         super.dispose();
@@ -271,17 +272,18 @@ export class StabberRabbit extends BaseCollidable {
         this.#_animator.dispose();
         this.#_skeleton.dispose();
         this.#_material.dispose();
-        StabberRabbit._rabbits = StabberRabbit._rabbits.filter(rab => rab !== this);
+        NabberRabbit._rabbits = NabberRabbit._rabbits.filter(rab => rab !== this);
     }
 
     /**
      * Updates all the rabbits.
      * @param farmer The farmer (player character).
-     * @param gui The round handler.
+     * @param gui The GUI for the game.
+     * @param round The round handler.
      */
-    public static updateAll(farmer: Farmer, round: RoundHandler): void {
-        for(let i = 0; i < this._rabbits.length; i++) {
-            this._rabbits[i].update(farmer, round);
+    public static updateAll(farmer: Farmer, gui: GUIManager, round: RoundHandler): void {
+        for (let i = 0; i < this._rabbits.length; i++) {
+            this._rabbits[i].update(farmer, gui, round);
         }
     }
     /**
@@ -289,7 +291,7 @@ export class StabberRabbit extends BaseCollidable {
      * @param value True if the rabbits should be disabled, false otherwise.
      */
     public static disableAll(value: boolean): void {
-        for(let i = 0; i < this._rabbits.length; i++) {
+        for (let i = 0; i < this._rabbits.length; i++) {
             this._rabbits[i].disabled = value;
         }
     }
@@ -297,7 +299,7 @@ export class StabberRabbit extends BaseCollidable {
      * Commands all the rabbits to retreat.
      */
     public static retreatAll(): void {
-        for(let i = 0; i < this._rabbits.length; i++) {
+        for (let i = 0; i < this._rabbits.length; i++) {
             this._rabbits[i].retreat();
         }
     }
@@ -305,8 +307,8 @@ export class StabberRabbit extends BaseCollidable {
      * Disposes and releases all resources associated with all of the Rabbits.
      */
     public static disposeAll(): void {
-        while(this._rabbits.length > 0) {
+        while (this._rabbits.length > 0) {
             this._rabbits[0].dispose();
-        }   
+        }
     }
 }

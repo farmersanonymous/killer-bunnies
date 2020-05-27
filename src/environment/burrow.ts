@@ -1,9 +1,10 @@
-import { Scalar, TransformNode } from "babylonjs";
+import { TransformNode, Scalar } from "babylonjs";
 import { BabylonStore } from "../store/babylonStore";
 import { StabberRabbit } from "../enemies/stabberRabbit";
 import { SoundManager } from "../assets/soundManager";
 import { Spawner } from "../assets/spawner";
 import { Config } from "../gameplay/config";
+import { NabberRabbit } from "../enemies/nabberRabbit";
 import { RoundHandler } from "../gameplay/roundHandler";
 
 /**
@@ -15,6 +16,7 @@ export class Burrow {
     #_root: TransformNode;
     #_spawnTimer: number;
     #_disposeTime: number;
+    #_round: RoundHandler;
 
     /**
      * Constructor.
@@ -32,11 +34,12 @@ export class Burrow {
         this.#_root.parent = parent;
 
         this.#_disposeTime = BabylonStore.time + Config.burrow.randomTimeLimit();
-        this.#_spawnTimer = Config.stabberRabbit.randomSpawnFrequency();
+        this.#_spawnTimer = Config.burrow.randomRabbitSpawnFrequency();
 
         Burrow._burrows.push(this);
 
-        this.modifyDifficulty(round.getDifficultyModifier());
+        this.#_round = round;
+        this.modifyDifficulty(this.#_round.getDifficultyModifier());
     }
 
     /**
@@ -58,8 +61,12 @@ export class Burrow {
         else {
             this.#_spawnTimer -= BabylonStore.deltaTime;
             if(this.#_spawnTimer <= 0) {
-                new StabberRabbit((this.#_root.parent as TransformNode).position.clone());
-                this.#_spawnTimer = Config.burrow.randomSpawnFrequency();
+                const rand = Scalar.RandomRange(0, 1);
+                if(rand <= Config.burrow.nabberSpawnRatio)
+                    new NabberRabbit((this.#_root.parent as TransformNode).position.clone(), this.#_round);
+                else
+                    new StabberRabbit((this.#_root.parent as TransformNode).position.clone(), this.#_round);
+                this.#_spawnTimer = Config.burrow.randomRabbitSpawnFrequency();
             }
         }
     }
