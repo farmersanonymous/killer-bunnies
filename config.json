@@ -62,14 +62,114 @@
             "url": "https://storage.googleapis.com/farmer-assets/ground/2/Ground.gltf"
         },
         {
-            "name": "Music",
+            "name": "Music1",
             "type": "sound",
             "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3"
         },
         {
-            "name": "Burrow",
+            "name": "Music2",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/burrow.mp3"
+            "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-punky.mp3"
+        },
+        {
+            "name": "Music3",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-happiness.mp3"
+        },
+        {
+            "name": "Die",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/die1.wav"
+        },
+        {
+            "name": "Pain1",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/pain1.wav"
+        },
+        {
+            "name": "Pain2",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/pain2.wav"
+        },
+        {
+            "name": "Pain3",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/pain3.wav"
+        },
+        {
+            "name": "Shoot",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/shot_02.ogg"
+        },
+        {
+            "name": "Squeal1",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/squeal_1.wav"
+        },
+        {
+            "name": "Squeal2",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/squeal_2.wav"
+        },
+        {
+            "name": "Squeal3",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/squeal_3.wav"
+        },
+        {
+            "name": "Squeal4",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/squeal_4.wav"
+        },
+        {
+            "name": "SquealDeath1",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/squeak_death_1.wav"
+        },
+        {
+            "name": "SquealDeath2",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/squeak_death_2.wav"
+        },
+        {
+            "name": "Harvest1",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/harvest_1.mp3"
+        },
+        {
+            "name": "Harvest2",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/harvest_2.mp3"
+        },
+        {
+            "name": "Harvest3",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/harvest_3.mp3"
+        },
+        {
+            "name": "Burrow1",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/burrow_1.mp3"
+        },
+        {
+            "name": "Burrow2",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/burrow_2.mp3"
+        },
+        {
+            "name": "Steps",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/steps.mp3"
+        },
+        {
+            "name": "Select",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/select_001.ogg"
+        },
+        {
+            "name": "OpenUpgrade",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/maximize_008.ogg"
         },
         {
             "name": "CarrotEmpty",
@@ -197,9 +297,9 @@
         "nabberSpawnRatio": 0.2
     },
     "stabberRabbit": {
-        "health": 20,
+        "health": 30,
         "damage": 10,
-        "speed": 4,
+        "speed": 5,
         "retreatSpeed": 10
     },
     "nabberRabbit": {
@@ -209,8 +309,8 @@
     },
     "carrot": {
         "spawnFrequency": {
-            "min": 1,
-            "max": 5
+            "min": 4,
+            "max": 6
         }
     }
 }

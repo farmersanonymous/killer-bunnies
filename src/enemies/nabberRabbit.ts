@@ -13,6 +13,8 @@ import { RoundHandler, RoundType } from '../gameplay/roundHandler';
 import { Carrot } from '../environment/carrot';
 import { GUIManager } from '../ui/guiManager';
 import { CarrotDrop } from '../droppable/carrotDrop';
+import { SoundManager } from '../assets/soundManager';
+import { MathUtil } from '../util/mathUtil';
 
 const RabbitGatherDistance = 1;
 
@@ -150,6 +152,7 @@ export class NabberRabbit extends BaseCollidable {
                     if(this.#_target !== farmer.root)
                     {                        
                         if (Vector3.Distance(this.#_root.position, worldPosition) < RabbitGatherDistance) {
+                            SoundManager.play(`Harvest${MathUtil.randomInt(1, 3)}`, { volume: 0.2 });
                             Carrot.disposeCarrotByTransform(this.#_target);
                             this.#_state = NabberRabbitState.Retreat;
                             this.#_hasCarrot = true;
@@ -237,6 +240,10 @@ export class NabberRabbit extends BaseCollidable {
                 new CarrotDrop(worldPosition.add(Vector3.Up()));
             }
 
+            if(this.#_state !== NabberRabbitState.Death) {
+                SoundManager.play(`SquealDeath${MathUtil.randomInt(1, 2)}`, { volume: 0.2 });
+            }
+
             this.#_state = NabberRabbitState.Death;
             Navigation.removeAgent(this.#_agent);
             this.#_agent = undefined;
@@ -256,6 +263,8 @@ export class NabberRabbit extends BaseCollidable {
                 if (this.#_state !== NabberRabbitState.Death)
                     this.#_animator.play(AnimatorState.Run);
             });
+
+            SoundManager.play(`Squeal${MathUtil.randomInt(1, 4)}`, { volume: 0.2 });
         }
     }
 

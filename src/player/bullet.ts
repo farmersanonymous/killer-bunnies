@@ -2,6 +2,7 @@ import { MeshBuilder, Mesh, Vector3, Color3, PBRMaterial } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { CollisionGroup } from '../collision/collisionManager';
 import { BaseCollidable } from '../collision/baseCollidable';
+import { SoundManager } from '../assets/soundManager';
 
 /**
  * A bullet that gets spawned by the Farmer.
@@ -54,6 +55,10 @@ export class Bullet extends BaseCollidable {
         this.#_mesh.material = bulletMaterial;
 
         Bullet.onBulletCreated?.call(this, this);
+
+        SoundManager.play('Shoot', {
+            volume: 0.2
+        });
     }
 
     /**

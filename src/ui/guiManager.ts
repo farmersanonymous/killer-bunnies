@@ -5,6 +5,7 @@ import { ImageManager } from './imageManager';
 import { Config } from '../gameplay/config';
 import { BabylonStore } from '../store/babylonStore';
 import { Farmer } from '../player/farmer';
+import { SoundManager } from '../assets/soundManager';
 
 const HEALTH_BAR_WIDTH = 262;
 
@@ -992,6 +993,7 @@ export class GUIManager {
             if(!healthButton.isEnabled)
                 return;
 
+            SoundManager.play('Select');
             totalCarrots -= farmer.healthCost;
             farmer.modifyMaxHealth(Config.player.upgradeHealth);
             updateUpgrades();
@@ -1000,6 +1002,7 @@ export class GUIManager {
             if(!damageButton.isEnabled)
                 return;
 
+            SoundManager.play('Select');
             totalCarrots -= farmer.damageCost;
             farmer.modifyWeaponDamage(Config.player.upgradeDamage);
             updateUpgrades();
@@ -1008,6 +1011,7 @@ export class GUIManager {
             if(!harvestButton.isEnabled)
                 return;
 
+            SoundManager.play('Select');
             totalCarrots -= farmer.harvestCost;
             farmer.modifyHarvestTime(Config.player.upgradeHarvest);
             updateUpgrades();
@@ -1016,15 +1020,18 @@ export class GUIManager {
             if(!moveSpeedButton.isEnabled)
                 return;
 
+            SoundManager.play('Select');
             totalCarrots -= farmer.speedCost;
             farmer.modifyMovementSpeed(Config.player.upgradeSpeed);
             updateUpgrades();
         });
         closeButton.onPointerClickObservable.add(() => {
+            SoundManager.play('Select');
             this.hideUpgradePanel();
             onClose?.();
         });
 
+        SoundManager.play('OpenUpgrade');
         updateUpgrades();
 
         return [healthButton, damageButton, harvestButton, moveSpeedButton, closeButton];
