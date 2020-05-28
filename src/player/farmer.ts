@@ -175,7 +175,7 @@ export class Farmer extends BaseCollidable {
 
             // Try to get carrot.
             const carrot = Carrot.getPickableCarrot();
-            if(carrot && Input.isKeyPressed('e')) {
+            if(carrot && (Input.isKeyPressed('e') || Input.isKeyPressed('gamepadRB'))) {
                 if(gui.addFarmerCarrot()) {
                     carrot.dispose();
                 }
@@ -360,6 +360,14 @@ export class Farmer extends BaseCollidable {
      */
     public get position(): Vector3 {
         return this.#_root.position;
+    }
+
+    /**
+     * True if a mouse is being used, false if a controller is being used.
+     * @returns True if a mouse is being used, false if a controller is being used.
+     */
+    public get useMouse(): boolean {
+        return this.#_controller.useMouse;
     }
 
     /**

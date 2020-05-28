@@ -17,9 +17,19 @@
             "url": "https://storage.googleapis.com/farmer-assets/stabbyBunny/6/StabbyBunny.gltf"
         },
         {
+            "name": "StabberWeapon",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/stabbyWeapon/2/CarrotShiv.gltf"
+        },
+        {
             "name": "Garden",
             "type": "art",
             "url": "https://storage.googleapis.com/farmer-assets/garden/10/Environment.gltf"
+        },
+        {
+            "name": "Shed",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/shed/1/Shed.gltf"
         },
         {
             "name": "Fencing",
@@ -120,6 +130,41 @@
             "name": "CircleNo",
             "type": "image",
             "url": "https://storage.googleapis.com/farmer-assets/images/circle-no.png"
+        },
+        {
+            "name": "AButton",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_A.png"
+        },
+        {
+            "name": "BButton",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_B.png"
+        },
+        {
+            "name": "UpButton",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_Dpad_Up.png"
+        },
+        {
+            "name": "LeftButton",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_Dpad_Left.png"
+        },
+        {
+            "name": "RightButton",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_Dpad_Right.png"
+        },
+        {
+            "name": "DownButton",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_Dpad_Down.png"
+        },
+        {
+            "name": "RBButton",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_RB.png"
         }
     ],
     "player": {

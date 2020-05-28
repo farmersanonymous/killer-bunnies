@@ -49,8 +49,17 @@ export class Input {
             if (!this.genericPad) {
                 this.genericPad = gamepad as GenericPad;
                 if (this.genericPad instanceof Xbox360Pad || this.genericPad instanceof DualShockPad) {
-                    this.genericPad.onButtonDownObservable.add(() => {
-                        this.onAnyDown?.call(this);
+                    this.genericPad.onButtonDownObservable.add(data => {
+                        this.mapControllerInput(data, true);
+                    });
+                    this.genericPad.onButtonUpObservable.add(data => {
+                        this.mapControllerInput(data, false);
+                    });
+                    this.genericPad.onPadDownObservable.add((data: number) => {
+                        this.mapControllerInput(data, true);
+                    });
+                    this.genericPad.onPadUpObservable.add((data: number) => {
+                        this.mapControllerInput(data, false);
                     });
                 }
             }
@@ -140,5 +149,44 @@ export class Input {
     private static mapInput(key: string, value: boolean): void {
         this._keyMap.set(key, value);
         this.onAnyDown?.call(this);
+    }
+
+    private static mapControllerInput(data: number, value: boolean): void {
+        // Xbox A Button
+        if (data === 0)
+            this.mapInput('gamepadA', value);
+        // Xbox B Button
+        else if (data === 1)
+            this.mapInput('gamepadB', value);
+        // Xbox X Button
+        else if (data === 2)
+            this.mapInput('gamepadX', value);
+        // Xbox Y Button
+        else if (data === 3)
+            this.mapInput('gamepadY', value);
+        // Xbox Left Bumper
+        else if (data === 4)
+            this.mapInput('gamepadLB', value);
+        // Xbox Right Bumper
+        else if (data === 5)
+            this.mapInput('gamepadRB', value);
+        // Xbox Select Button
+        else if (data === 8)
+            this.mapInput('gamepadSelect', value);
+        // Xbox Start Button
+        else if (data === 9)
+            this.mapInput('gamepadStart', value);
+        // Xbox Up Button
+        else if(data === 12)
+            this.mapInput('gamepadUP', value);
+        // Xbox Down Button
+        else if(data === 13)
+            this.mapInput('gamepadDOWN', value);
+        // Xbox Left Button
+        else if(data === 14)
+            this.mapInput('gamepadLEFT', value);
+        // Xbox Right Button
+        else if(data === 15)
+            this.mapInput('gamepadRIGHT', value);
     }
 }

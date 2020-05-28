@@ -521,8 +521,9 @@ export class GUIManager {
      * Shows the upgrade menu.
      * @param farmer The farmer (player character).
      * @param onClose A callback that will be triggered when the menu closes.
+     * @returns Returns the five buttons in this order: health, damage, harvest, move speed, close.
      */
-    public showUpgradeMenu(farmer: Farmer, onClose: () => void): void {
+    public showUpgradeMenu(farmer: Farmer, onClose: () => void): Button[] {
         let totalCarrots = parseInt(this.#_carrotText.text);
         onClose;
         this.#_dynamicTexture.addControl(this.#_pausePanel);
@@ -764,10 +765,10 @@ export class GUIManager {
         harvestButton.cornerRadius = 5;
         this.#_upgradePanel.addControl(harvestButton);
 
-        const harvestTitle = new TextBlock('HarvestTitle', 'Harvest\nSpeed');
+        const harvestTitle = new TextBlock('HarvestTitle', 'Harvest Speed');
         harvestTitle.color = "white";
         harvestTitle.fontFamily = "ActionMan";
-        harvestTitle.fontSize = "24px";
+        harvestTitle.fontSize = "20px";
         harvestTitle.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
         harvestTitle.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
         harvestTitle.top = 5;
@@ -848,7 +849,7 @@ export class GUIManager {
         moveSpeedButton.cornerRadius = 5;
         this.#_upgradePanel.addControl(moveSpeedButton);
 
-        const moveSpeedTitle = new TextBlock('HarvestTitle', 'Move Speed');
+        const moveSpeedTitle = new TextBlock('MoveSpeedTitle', 'Move Speed');
         moveSpeedTitle.color = "white";
         moveSpeedTitle.fontFamily = "ActionMan";
         moveSpeedTitle.fontSize = "24px";
@@ -929,6 +930,49 @@ export class GUIManager {
         closeButton.cornerRadius = 50;
         this.#_upgradePanel.addControl(closeButton);
 
+        // Add UI for controller.
+        if(!farmer.useMouse) {
+            // B Button to close.
+            const bButton = ImageManager.get('BButton');
+            bButton.widthInPixels = 32;
+            bButton.heightInPixels = 32;
+            bButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+            bButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+            closeButton.addControl(bButton);
+
+            // Up Button for Health.
+            const upButton = ImageManager.get('UpButton');
+            upButton.widthInPixels = 24;
+            upButton.heightInPixels = 24;
+            upButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+            upButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+            healthButton.addControl(upButton);
+
+            // Left Button for Damage.
+            const leftButton = ImageManager.get('LeftButton');
+            leftButton.widthInPixels = 24;
+            leftButton.heightInPixels = 24;
+            leftButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+            leftButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+            damageButton.addControl(leftButton);
+
+            // Right Button for Harvest.
+            const rightButton = ImageManager.get('RightButton');
+            rightButton.widthInPixels = 24;
+            rightButton.heightInPixels = 24;
+            rightButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+            rightButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+            harvestButton.addControl(rightButton);
+
+            // Down Button for Move Speed.
+            const downButton = ImageManager.get('DownButton');
+            downButton.widthInPixels = 24;
+            downButton.heightInPixels = 24;
+            downButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+            downButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+            moveSpeedButton.addControl(downButton);
+        }
+
         function updateSingleUpgrade(button: Button, currText: TextBlock, newText: TextBlock, costText: TextBlock, noIcon: Image, value: number, upgrade: number, cost: number, fixed: number): void {
             button.isEnabled = totalCarrots >= cost;
             noIcon.isVisible = !button.isEnabled;
@@ -945,21 +989,33 @@ export class GUIManager {
             updateSingleUpgrade(moveSpeedButton, currentMoveSpeedText, newMoveSpeedText, moveSpeedCost, noMoveSpeedIcon, farmer.movementSpeed, Config.player.upgradeSpeed, farmer.speedCost, 1);
         }
         healthButton.onPointerClickObservable.add(() => {
+            if(!healthButton.isEnabled)
+                return;
+
             totalCarrots -= farmer.healthCost;
             farmer.modifyMaxHealth(Config.player.upgradeHealth);
             updateUpgrades();
         });
         damageButton.onPointerClickObservable.add(() => {
+            if(!damageButton.isEnabled)
+                return;
+
             totalCarrots -= farmer.damageCost;
             farmer.modifyWeaponDamage(Config.player.upgradeDamage);
             updateUpgrades();
         });
         harvestButton.onPointerClickObservable.add(() => {
+            if(!harvestButton.isEnabled)
+                return;
+
             totalCarrots -= farmer.harvestCost;
             farmer.modifyHarvestTime(Config.player.upgradeHarvest);
             updateUpgrades();
         });
         moveSpeedButton.onPointerClickObservable.add(() => {
+            if(!moveSpeedButton.isEnabled)
+                return;
+
             totalCarrots -= farmer.speedCost;
             farmer.modifyMovementSpeed(Config.player.upgradeSpeed);
             updateUpgrades();
@@ -970,6 +1026,8 @@ export class GUIManager {
         });
 
         updateUpgrades();
+
+        return [healthButton, damageButton, harvestButton, moveSpeedButton, closeButton];
     }
 
     /**

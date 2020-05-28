@@ -46,7 +46,10 @@ export class Carrot {
         const pos = worldMatrix.getRow(3);
         this.#_pickable = Vector3.Distance(pos.toVector3(), farmer.position) < 1;
         if(this.#_pickable) {
-            gui.addPickIcon(this.#_root.getChildMeshes()[0], 'EKey');
+            if(farmer.useMouse)
+                gui.addPickIcon(this.#_root.getChildMeshes()[0], 'EKey');
+            else
+                gui.addPickIcon(this.root.getChildMeshes()[0], 'RBButton');
         }
         else {
             gui.removePickIcon(this.#_root.getChildMeshes()[0]);
