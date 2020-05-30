@@ -13,6 +13,14 @@ export class SoundOptions {
      * The position in space to apply the sound.
      */
     position?: Vector3;
+    /**
+     * The volume to use for the sound.
+     */
+    volume?: number;
+    /**
+     * The callback to trigger when the sound has finished.
+     */
+    onEnd?: () => void;
 }
 
 /**
@@ -43,24 +51,40 @@ export class SoundManager {
      * @param loop If the sound should loop or not. Default: false.
      */
     public static play(name: string, options?: SoundOptions): void {
-        if(!Engine.audioEngine.unlocked) {
+        if (!Engine.audioEngine.unlocked) {
             return;
         }
-        options = options || { };
+        options = options || {};
 
         const sound = this._sounds.get(name);
-        
         sound.loop = options.loop || false;
         sound.spatialSound = options.position ? true : false;
         sound.setPosition(options.position || Vector3.Zero());
+        if (options.onEnd) {
+            sound.onEndedObservable.clear();
+            sound.onEndedObservable.add(() => {
+                options?.onEnd();
+            });
+        }
+        if (options.volume !== undefined)
+            sound.setVolume(options.volume);
         sound.play();
+    }
+    /**
+     * Checks to see if a sound is currently playing.
+     * @param name The name of the sound to check.
+     * @returns A boolean indicating if the sound is currently playing.
+     */
+    public static isPlaying(name: string): boolean {
+        const sound = this._sounds.get(name);
+        return sound.isPlaying;
     }
     /**
      * Stops a sound from a name that was passed in from 'load'.
      * @param name The name of the sound.
      */
     public static stop(name: string): void {
-        if(!Engine.audioEngine.unlocked) {
+        if (!Engine.audioEngine.unlocked) {
             return;
         }
 

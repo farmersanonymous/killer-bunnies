@@ -9,6 +9,7 @@ import { RadarManager } from '../ui/radar';
 import { SoundManager } from '../assets/soundManager';
 import { Input } from '../input/input';
 import { BabylonStore } from '../store/babylonStore';
+import { MathUtil } from '../util/mathUtil';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -22,6 +23,9 @@ export class Game {
     #_onGameOver: () => void;
     #_bootstrap: Bootstrap;
     #_paused: boolean;
+    #_currentTrack: string;
+    #_gameOverTimer = 5;
+    
 
     /**
      * Constructor.
@@ -30,9 +34,26 @@ export class Game {
      */
     constructor(bootstrap: Bootstrap, onGameOver: () => void) {
         SoundManager.stop('Title');
-        SoundManager.play('Music', {
-            loop: true
-        });
+
+        const playRandomMusic = (): void  => {    
+            let musicTracks = [
+                'Music1',
+                'Music3',
+                'Music2'
+            ];
+    
+            if(this.#_currentTrack) 
+                musicTracks = musicTracks.filter(t => t !== this.#_currentTrack);
+    
+            this.#_currentTrack = musicTracks[MathUtil.randomInt(0, musicTracks.length - 1)];
+    
+            SoundManager.play(this.#_currentTrack, {
+                onEnd: playRandomMusic,
+                volume: 0.1
+            });
+        }
+
+        playRandomMusic();
 
         this.#_garden = new Garden();
         this.#_player = new Farmer();
@@ -78,11 +99,11 @@ export class Game {
         }
 
         if (this.#_player.health <= 0 && this.#_onGameOver) {
-            const callback = this.#_onGameOver;
-            this.#_onGameOver = null;
-            setTimeout(() => {
-                callback?.call(this.#_bootstrap);
-            }, 5000);
+            this.#_gameOverTimer -= BabylonStore.deltaTime;
+            if(this.#_gameOverTimer <= 0) {
+                SoundManager.stop(this.#_currentTrack);
+                this.#_onGameOver?.call(this.#_bootstrap);
+            }
         }
 
         this.#_player.update(this.#_garden, this.#_gui, this.#_roundHandler);

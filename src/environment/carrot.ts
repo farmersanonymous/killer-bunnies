@@ -2,6 +2,7 @@ import { Spawner } from "../assets/spawner";
 import { TransformNode, Vector3 } from "babylonjs";
 import { Farmer } from "../player/farmer";
 import { GUIManager } from "../ui/guiManager";
+import { MathUtil } from "../util/mathUtil";
 
 /**
  * The Carrot will be gatherable by the Farmer and Nabber rabbits. Used to purchase upgrades.
@@ -102,10 +103,7 @@ export class Carrot {
             return undefined;
         }
 
-        const min = 0;
-        const max = Math.floor(this._carrots.length - 1);
-        const randInt = Math.floor(Math.random() * (max - min + 1)) + min;
-        return this._carrots[randInt].root;
+        return this._carrots[MathUtil.randomInt(0, this._carrots.length - 1)].root;
     }
     /**
      * Disposes and releases all resources associated with the Carrot that was created with the passed in transform.

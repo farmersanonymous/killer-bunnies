@@ -103,7 +103,8 @@ export class Bootstrap {
         // This is the title sound so it needs to load as soon as possible.
         SoundManager.load('Title', 'https://storage.googleapis.com/farmer-assets/sound/meadowlark_daniel-simion.mp3').then(() => {
             SoundManager.play('Title', {
-                loop: true
+                loop: true,
+                volume: 0.1
             });
         });
 
@@ -195,7 +196,6 @@ export class Bootstrap {
         this.#_game.dispose();
         this.#_game = null;
         this.#_canvas.style.opacity = '0';
-        SoundManager.stop('Music');
         SoundManager.play('Title');
 
         // Show splash screen and wait 3 seconds before allowing input again.

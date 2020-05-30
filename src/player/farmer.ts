@@ -16,6 +16,8 @@ import { Input } from '../input/input';
 import { GUIManager } from '../ui/guiManager';
 import { Garden } from '../environment/garden';
 import { RoundHandler, RoundType } from '../gameplay/roundHandler';
+import { SoundManager } from '../assets/soundManager';
+import { MathUtil } from '../util/mathUtil';
 
 /**
  * The playable Farmer character.
@@ -32,7 +34,7 @@ export class Farmer extends BaseCollidable {
     #_weaponAnimator: Animator;
     #_skeleton: Skeleton;
     #_weaponSkeleton: Skeleton;
-    #_hitTimer = 0.25;
+    #_hitTimer = 0.75;
     #_bulletSpawnPoint: TransformNode;
 
     // Stats
@@ -98,6 +100,11 @@ export class Farmer extends BaseCollidable {
         // Initialize the character controller and subscribe to the onMove, onFire, and onRotate events.
         this.#_controller = new CharacterController(this);
         this.#_controller.onMove = (dir): void => {
+            
+            if(!SoundManager.isPlaying('Steps')) {
+                SoundManager.play('Steps');
+            }
+
             const deltaTime = BabylonStore.engine.getDeltaTime() / 1000;
             const moveDir = new Vector3(dir.y, 0, dir.x).normalize().scale(this.movementSpeed * deltaTime);
             this.#_root.position = Navigation.getClosestPoint(this.#_root.position.add(moveDir));
@@ -158,6 +165,11 @@ export class Farmer extends BaseCollidable {
      */
     public update(garden: Garden, gui: GUIManager, round: RoundHandler): void {
         if (this.health <= 0) {
+            // Only call once.
+            if(!this.#_controller.disabled) {
+                SoundManager.play('Die');
+            }
+
             this.#_animator.play(AnimatorState.Death, false);
             this.#_controller.disabled = true;
         }
@@ -178,6 +190,7 @@ export class Farmer extends BaseCollidable {
             if(carrot && (Input.isKeyPressed('e') || Input.isKeyPressed('gamepadRB'))) {
                 if(gui.addFarmerCarrot()) {
                     carrot.dispose();
+                    SoundManager.play(`Harvest${MathUtil.randomInt(1, 3)}`, { volume: 0.2 });
                 }
             }
 
@@ -196,7 +209,8 @@ export class Farmer extends BaseCollidable {
      */
     public onCollide(collidable: BaseCollidable): void {
         if (collidable instanceof StabberRabbit && collidable.attacking && this.#_hitTimer <= 0) {
-            this.#_hitTimer = 0.25;
+            SoundManager.play(`Pain${MathUtil.randomInt(1, 3)}`);
+            this.#_hitTimer = 0.75;
             this.#_health -= collidable.damage;
             this.#_animator.play(AnimatorState.TakeHit, false);
         }

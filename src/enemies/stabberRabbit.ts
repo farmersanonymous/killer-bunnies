@@ -10,6 +10,8 @@ import { Spawner } from '../assets/spawner';
 import { BabylonStore } from '../store/babylonStore';
 import { Bullet } from '../player/bullet';
 import { RoundHandler, RoundType } from '../gameplay/roundHandler';
+import { SoundManager } from '../assets/soundManager';
+import { MathUtil } from '../util/mathUtil';
 
 const RabbitAttackDistance = 3;
 
@@ -241,6 +243,10 @@ export class StabberRabbit extends BaseCollidable {
         this.#_health -= bullet.damage;
 
         if (this.#_health <= 0) {
+            if(this.#_state !== StabberRabbitState.Death) {
+                SoundManager.play(`SquealDeath${MathUtil.randomInt(1, 2)}`, { volume: 0.2 });
+            }
+
             this.#_state = StabberRabbitState.Death;
             Navigation.removeAgent(this.#_agent);
             this.#_agent = undefined;
@@ -260,6 +266,8 @@ export class StabberRabbit extends BaseCollidable {
                 if (this.#_state !== StabberRabbitState.Death)
                     this.#_animator.play(AnimatorState.Run);
             });
+
+            SoundManager.play(`Squeal${MathUtil.randomInt(1, 4)}`, { volume: 0.2 });
         }
     }
 

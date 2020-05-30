@@ -6,6 +6,7 @@ import { Spawner } from "../assets/spawner";
 import { Config } from "../gameplay/config";
 import { NabberRabbit } from "../enemies/nabberRabbit";
 import { RoundHandler } from "../gameplay/roundHandler";
+import { MathUtil } from "../util/mathUtil";
 
 /**
  * The Burrow will control how often and the spawn position of the Rabbit enemies.
@@ -24,7 +25,7 @@ export class Burrow {
      * @param round The round handler.
      */
     constructor(parent: TransformNode, round: RoundHandler) {
-        SoundManager.play("Burrow", {
+        SoundManager.play(`Burrow${MathUtil.randomInt(1, 2)}`, {
             position: parent.position
         });
 

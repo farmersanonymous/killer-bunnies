@@ -3,6 +3,7 @@ import { Spawner } from '../assets/spawner';
 import { Navigation } from '../gameplay/navigation';
 import { BaseCollidable } from '../collision/baseCollidable';
 import { CollisionGroup } from '../collision/collisionManager';
+import { MathUtil } from '../util/mathUtil';
 
 /**
  * Tha main Garden scene.
@@ -63,10 +64,7 @@ export class Garden extends BaseCollidable {
         let node: TransformNode;
         while(!node || node.getChildMeshes().length != 0) {
             // Generates a random integer to pass into burrow spawn points array.
-            const min = 0;
-            const max = Math.floor(this.#_burrowSpawnPoints.length - 1);
-            const randInt = Math.floor(Math.random() * (max - min + 1)) + min;
-            node = this.#_burrowSpawnPoints[randInt];
+            node = this.#_burrowSpawnPoints[MathUtil.randomInt(0, this.#_burrowSpawnPoints.length - 1)];
         }
         return node;
     }
@@ -79,10 +77,7 @@ export class Garden extends BaseCollidable {
         let node: TransformNode;
         while(!node || node.getChildMeshes().length != 0) {
             // Generates a random integer to pass into carrot spawn points array.
-            const min = 0;
-            const max = Math.floor(this.#_carrotSpawnPoints.length - 1);
-            const randInt = Math.floor(Math.random() * (max - min + 1)) + min;
-            node = this.#_carrotSpawnPoints[randInt];
+            node = this.#_carrotSpawnPoints[MathUtil.randomInt(0, this.#_carrotSpawnPoints.length - 1)];
         }
         return node;
     }
