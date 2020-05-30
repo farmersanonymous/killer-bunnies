@@ -19,6 +19,9 @@ function showLoadingScreenCallback(): void {
         return;
     }
 
+    //id='canvas' style='position:absolute; padding-left: 0; padding-right: 0; margin-left: 
+    // auto; margin-right: auto; display: block; 
+    // width:100vw; height:56vw; max-height: 100vh; max-width: 177.7777vh'
     // The full screen splash image that will be shown.
     splashDiv = document.createElement('div');
     splashDiv.id = 'splashDiv';
@@ -27,9 +30,16 @@ function showLoadingScreenCallback(): void {
     splashDiv.style.transition = 'opacity 1.5s ease';
     splashDiv.style.pointerEvents = 'none';
     splashDiv.style.background = 'url(https://storage.googleapis.com/farmer-assets/splashScreen/1/splash.jpg) no-repeat';
-    splashDiv.style.width = '100%';
-    splashDiv.style.height = '100%';
     splashDiv.style.backgroundSize = 'cover';
+    splashDiv.style.paddingLeft = "0";
+    splashDiv.style.paddingRight = "0";
+    splashDiv.style.marginLeft = "auto";
+    splashDiv.style.marginRight = "auto";
+    splashDiv.style.display = "block";
+    splashDiv.style.width = "100vw";
+    splashDiv.style.height = "56vw";
+    splashDiv.style.maxHeight = "100vh";
+    splashDiv.style.maxWidth = "177.7777vh";
 
     // The progress bar. Consists of two divs, a border and the fill color.
     const borderBarDiv = document.createElement('div');

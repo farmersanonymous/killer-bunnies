@@ -72,12 +72,14 @@ export class Game {
         this.#_gui.onPauseButtonPressed = (): void => {
             this.#_paused = !this.#_paused;
             this.#_player.disabled = this.#_paused;
+            this.#_garden.disabled = this.#_paused;
             this.#_roundHandler.onPause(this.#_paused);
         };
         window.addEventListener('blur', () => {
             if(!this.#_paused && !this.#_roundHandler.upgrading) {
                 this.#_paused = true;
                 this.#_player.disabled = this.#_paused;
+                this.#_garden.disabled = this.#_paused;
                 this.#_roundHandler.onPause(this.#_paused);
             }
             Input.flush();
@@ -91,6 +93,7 @@ export class Game {
         if((Input.isKeyPressed('p') || Input.isKeyPressed('gamepadStart')) && !this.#_roundHandler.upgrading) {
             this.#_paused = !this.#_paused;
             this.#_player.disabled = this.#_paused;
+            this.#_garden.disabled = this.#_paused;
             this.#_roundHandler.onPause(this.#_paused);
         }
 

@@ -149,7 +149,7 @@ export class GUIManager {
         this.#_nextRoundText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
         this.#_nextRoundText.heightInPixels = 40;
         this.#_nextRoundText.left = 0;
-        this.#_nextRoundText.top = 125;
+        this.#_nextRoundText.top = 120;
         this.#_dynamicTexture.addControl(this.#_nextRoundText);
 
         /**
@@ -233,7 +233,7 @@ export class GUIManager {
         this.#_roundNumberText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
         this.#_roundNumberText.heightInPixels = 40;
         this.#_roundNumberText.left = 0;
-        this.#_roundNumberText.top = 19;
+        this.#_roundNumberText.top = 15;
         this.#_dynamicTexture.addControl(this.#_roundNumberText);
 
         this.#_roundTimerText = new TextBlock('RoundTimer', '0:00');
@@ -245,7 +245,7 @@ export class GUIManager {
         this.#_roundTimerText.heightInPixels = 30;
         this.#_roundTimerText.width = 100;
         this.#_roundTimerText.left = -50;
-        this.#_roundTimerText.top = 69;
+        this.#_roundTimerText.top = 65;
         this.#_dynamicTexture.addControl(this.#_roundTimerText);
 
         this.#_carrotText = new TextBlock('CarrotCount', '0');
@@ -254,7 +254,7 @@ export class GUIManager {
         this.#_carrotText.fontSize = "16px";
         this.#_carrotText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
         this.#_carrotText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-        this.#_carrotText.top = 69;
+        this.#_carrotText.top = 65;
         this.#_carrotText.left = 80;
         this.#_carrotText.widthInPixels = 100;
         this.#_carrotText.heightInPixels = 30;
@@ -316,7 +316,7 @@ export class GUIManager {
         pauseText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
         pauseText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
         pauseText.heightInPixels = 150;
-        pauseText.top = -100;
+        pauseText.top = -120;
         this.#_pausePanelOverlay.addControl(pauseText);
 
         const playButton = new Button('PlayButton');

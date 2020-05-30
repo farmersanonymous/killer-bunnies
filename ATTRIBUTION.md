@@ -45,3 +45,4 @@ Public Domain Dedication
 Public Domain Dedication
 - [Burrow Created](https://freesound.org/people/vckhaze/sounds/380700/): CC0 1.0 Universal (CC0 1.0)
 Public Domain Dedication
+- [Siren](http://soundbible.com/1542-Air-Horn.html): Attribution 3.0 Unported (CC BY 3.0)

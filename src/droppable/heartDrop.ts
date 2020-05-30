@@ -27,6 +27,7 @@ export class HeartDrop {
         this.#_root = instance.rootNodes[0];
         this.#_root.position = position;
         this.#_root.scaling = this.#_root.scaling.scale(0.5);
+        this.#_root.computeWorldMatrix();
         this.#_heart = this.#_root.getChildMeshes()[0] as Mesh;
 
         HeartDrop._highlighter.addMesh(this.#_heart, Color3.Yellow());

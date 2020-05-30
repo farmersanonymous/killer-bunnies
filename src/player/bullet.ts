@@ -47,6 +47,7 @@ export class Bullet extends BaseCollidable {
         collider.parent = this.#_mesh;
         collider.position.y = -0.8;
         collider.isVisible = false;
+        collider.computeWorldMatrix();
         super.registerMesh(collider);
 
         // Setup the material for the bullet.

@@ -29,6 +29,7 @@ export class CarrotDrop {
         this.#_root.position = position;
         this.#_root.scaling = Vector3.One().scale(3);
         this.#_root.rotation = new Vector3(Angle.FromDegrees(90).radians(), 0, 0);
+        this.#_root.computeWorldMatrix();
         this.#_fleshMesh = this.#_root.getChildMeshes(false, m => m.name === 'Flesh')[0] as Mesh;
 
         CarrotDrop._highlighter.addMesh(this.#_fleshMesh, Color3.Yellow());

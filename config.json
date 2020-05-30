@@ -24,7 +24,7 @@
         {
             "name": "Garden",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/garden/10/Environment.gltf"
+            "url": "https://storage.googleapis.com/farmer-assets/garden/11/Environment.gltf"
         },
         {
             "name": "Shed",
@@ -65,6 +65,11 @@
             "name": "Heart",
             "type": "art",
             "url": "https://storage.googleapis.com/farmer-assets/heart/1/heart.gltf"
+        },
+        {
+            "name": "Basket",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/carrotSiren/2/CarrotSiren.gltf"
         },
         {
             "name": "Music1",
@@ -177,6 +182,11 @@
             "url": "https://storage.googleapis.com/farmer-assets/sound/maximize_008.ogg"
         },
         {
+            "name": "Siren",
+            "type": "sound",
+            "url": "https://storage.googleapis.com/farmer-assets/sound/siren.mp3"
+        },
+        {
             "name": "CarrotEmpty",
             "type": "image",
             "url": "https://storage.googleapis.com/farmer-assets/images/carrot-empty.png"
@@ -278,7 +288,7 @@
         "weaponDamage": 10,
         "weaponRange": 5,
         "weaponSpeed": 20,
-        "harvestTime": 5,
+        "harvestTime": 3,
         "upgradeHealth": 10,
         "upgradeDamage": 2,
         "upgradeHarvest": -0.2,

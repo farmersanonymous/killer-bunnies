@@ -24,6 +24,7 @@ export class Carrot {
         this.#_root.parent = parent;
         this.#_root.scaling = Vector3.One().scale(3);
         this.root.position.y = 0.25;
+        this.root.computeWorldMatrix();
         this.#_pickable = false;
 
         Carrot._carrots.push(this);

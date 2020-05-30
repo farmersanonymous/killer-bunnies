@@ -79,6 +79,7 @@ export class NabberRabbit extends BaseCollidable {
         this.#_root = instance.rootNodes[0];
         this.#_skeleton = instance.skeletons[0];
         this.#_root.position = pos;
+        this.#_root.computeWorldMatrix();
 
         const mesh = this.#_root.getChildMeshes()[0];
         this.#_material = (mesh.material as PBRMaterial);

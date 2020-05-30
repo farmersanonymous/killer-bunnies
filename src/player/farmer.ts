@@ -81,6 +81,8 @@ export class Farmer extends BaseCollidable {
         const spawner = Spawner.getSpawner('Farmer');
         const instance = spawner.instantiate();
         this.#_root = instance.rootNodes[0];
+        this.root.position = new Vector3(-5, 0, 0);
+        this.root.computeWorldMatrix();
         this.#_skeleton = instance.skeletons[0];
 
         const weaponSpawner = Spawner.getSpawner('Corncobber');
@@ -198,7 +200,7 @@ export class Farmer extends BaseCollidable {
             // If round is forify, make distance higher than requirement.
             if(round.type === RoundType.Rest)
                 distance = 6;
-            gui.updateHarvestTimer(this.getMesh(), distance, 5, this.#_harvestTime);
+            gui.updateHarvestTimer(this.getMesh(), distance, 7.5, this.#_harvestTime);
         }
     }
 

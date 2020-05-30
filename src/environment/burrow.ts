@@ -34,6 +34,7 @@ export class Burrow {
         const instance = spawner.instantiate();
         this.#_root = instance.rootNodes[0];
         this.#_root.parent = parent;
+        this.#_root.computeWorldMatrix();
 
         this.#_disposeTime = BabylonStore.time + Config.burrow.randomTimeLimit();
         this.#_spawnTimer = Config.burrow.randomRabbitSpawnFrequency();

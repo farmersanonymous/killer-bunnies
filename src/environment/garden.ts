@@ -1,4 +1,4 @@
-import { TransformNode, Mesh, MeshBuilder, Vector3 } from 'babylonjs';
+import { TransformNode, Mesh, AnimationGroup } from 'babylonjs';
 import { Spawner } from '../assets/spawner';
 import { Navigation } from '../gameplay/navigation';
 import { BaseCollidable } from '../collision/baseCollidable';
@@ -13,6 +13,7 @@ export class Garden extends BaseCollidable {
     #_burrowSpawnPoints: TransformNode[] = [];
     #_carrotSpawnPoints: TransformNode[] = [];
     #_harvestBasket: Mesh;
+    #_animation: AnimationGroup;
 
     /**
      * Constructor.
@@ -42,8 +43,14 @@ export class Garden extends BaseCollidable {
         const shed = Spawner.getSpawner('Shed');
         shed.instantiate();
 
-        this.#_harvestBasket = MeshBuilder.CreateBox('HarvestBasket', { size: 3 });
-        this.#_harvestBasket.position = new Vector3(22, 1.5, 0);
+        const basket = Spawner.getSpawner('Basket');
+        const instantiate = basket.instantiate();
+        const root = instantiate.rootNodes[0];
+        this.#_animation = instantiate.animationGroups[0];
+        this.#_animation.play(true);
+        
+        root.scaling = root.scaling.scale(3);
+        this.#_harvestBasket = root.getChildMeshes()[0] as Mesh;
 
         const colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
         colliders.forEach(c => {            
@@ -54,6 +61,17 @@ export class Garden extends BaseCollidable {
         const navMesh = this.#_rootNodes[0].getChildMeshes(false, m => m.name === 'GroundNavMesh');
         navMesh.forEach(n => n.setEnabled(false));
         Navigation.init(navMesh as Mesh[]);
+    }
+
+    /**
+     * Disables the garden and all of it's animations.
+     * @param value True if disabled, false if enabled.
+     */
+    public set disabled(value: boolean) {
+        if(value)
+            this.#_animation.pause();
+        else
+            this.#_animation.play();
     }
 
     /**
@@ -97,5 +115,6 @@ export class Garden extends BaseCollidable {
         super.dispose();
         this.#_harvestBasket.dispose();
         this.#_rootNodes.forEach(n => n.dispose());
+        this.#_animation.dispose();
     }
 }

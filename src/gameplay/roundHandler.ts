@@ -12,6 +12,7 @@ import { NabberRabbit } from '../enemies/nabberRabbit';
 import { CarrotDrop } from '../droppable/carrotDrop';
 import { Button, Vector2WithInfo } from 'babylonjs-gui';
 import { HeartDrop } from '../droppable/heartDrop';
+import { SoundManager } from '../assets/soundManager';
 
 /**
  * Amount of time, in seconds, that the rest round goes for.
@@ -188,6 +189,8 @@ export class RoundHandler {
 
         if (this.#_time <= 0) {
             if (this.#_type === RoundType.Defend) {
+                SoundManager.play('Siren');
+
                 this.#_gui.enableNextRoundTimer(true);
 
                 this.#_gui.setRoundTimer(this._getTimeString(defendTime));
