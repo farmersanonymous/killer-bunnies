@@ -39,10 +39,13 @@ export enum StabberRabbitState {
  */
 export class StabberRabbit extends BaseCollidable {
     private static _rabbits: StabberRabbit[] = [];
+    private static _superRabbit: boolean;
 
     #_maxHealth: number;
     #_health: number;
     #_damage: number;
+    #_speed: number;
+    #_super: boolean;
     #_spawnPosition: Vector3;
     #_state: StabberRabbitState;
     #_root: TransformNode;
@@ -68,13 +71,24 @@ export class StabberRabbit extends BaseCollidable {
 
         this.#_spawnPosition = pos.clone();
         this.#_state = StabberRabbitState.Attack;
-        this.#_health = Config.stabberRabbit.health;
-        this.#_damage = Config.stabberRabbit.damage;
 
         // The mesh is a player and can collide with the environment.
         const spawner = Spawner.getSpawner('Bunny');
         const instance = spawner.instantiate(true);
         this.#_root = instance.rootNodes[0];
+        
+        let modifier = 1;
+        if(StabberRabbit._superRabbit) {
+            this.#_super = true;
+            modifier = 3;
+            this.#_root.scaling = this.#_root.scaling.scale(2);
+            this.#_speed = Config.stabberRabbit.speed + 2;
+            StabberRabbit._superRabbit = false;
+        }
+        else
+            this.#_speed = Config.stabberRabbit.speed;
+        this.#_health = Config.stabberRabbit.health * modifier;
+        this.#_damage = Config.stabberRabbit.damage * modifier;
 
         this.#_skeleton = instance.skeletons[0];
         this.#_root.position = pos;
@@ -106,7 +120,7 @@ export class StabberRabbit extends BaseCollidable {
 
         this.#_animator.play(AnimatorState.Spawn, false, () => {
             this.#_animator.play(AnimatorState.Run);
-            this.#_agent = Navigation.addAgent(pos, Config.stabberRabbit.speed, this.#_root);
+            this.#_agent = Navigation.addAgent(pos, this.#_speed, this.#_root);
             super.registerMesh(mesh);
             
         });
@@ -133,6 +147,14 @@ export class StabberRabbit extends BaseCollidable {
     }
 
     /**
+     * Indicates that the next rabbit that spawns will be super, with increased health and damage.
+     * @param value True if super rabbit should spawn next.
+     */
+    public static set superRabbit(value: boolean) {
+        this._superRabbit = value;
+    }
+
+    /**
      * Sets whether this rabbit is currently disabled. It will pause all animations and will remove the agent from the navmesh.
      */
     public set disabled(value: boolean) {
@@ -142,7 +164,7 @@ export class StabberRabbit extends BaseCollidable {
             if (value)
                 Navigation.removeAgent(this.#_agent);
             else
-                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === StabberRabbitState.Attack ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
+                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_speed, this.#_root);
         }
     }
 
@@ -221,10 +243,6 @@ export class StabberRabbit extends BaseCollidable {
 
         // Health
         this.#_maxHealth += (Config.stabberRabbit.health * modifier);
-
-        // Speed
-        const speed = Config.stabberRabbit.speed;
-        Navigation.agentUpdateSpeed(this.#_agent, speed + (speed * modifier));
     }
 
     /**
@@ -233,7 +251,8 @@ export class StabberRabbit extends BaseCollidable {
     public retreat(): void {
         if (this.#_state !== StabberRabbitState.Death) {
             this.#_state = StabberRabbitState.Retreat;
-            Navigation.agentUpdateSpeed(this.#_agent, Config.stabberRabbit.retreatSpeed);
+            this.#_speed = Config.stabberRabbit.retreatSpeed;
+            Navigation.agentUpdateSpeed(this.#_agent, this.#_speed);
         }
     }
 
@@ -268,15 +287,19 @@ export class StabberRabbit extends BaseCollidable {
             });
         }
         else {
-            this.#_gothit = true;
-            Navigation.removeAgent(this.#_agent);
-            this.#_agent = undefined;
-            this.#_animator.play(AnimatorState.TakeHit, false, () => {
-                this.#_agent = Navigation.addAgent(this.#_root.position, this.#_state === StabberRabbitState.Attack ? Config.stabberRabbit.speed : Config.stabberRabbit.retreatSpeed, this.#_root);
-                this.#_gothit = false;
-                if (this.#_state !== StabberRabbitState.Death)
-                    this.#_animator.play(AnimatorState.Run);
-            });
+            // Only normal bunnies show a reaction to getting hit.
+            // Supers don't care about no stinkin bullets.
+            if(!this.#_super) {
+                this.#_gothit = true;
+                Navigation.removeAgent(this.#_agent);
+                this.#_agent = undefined;
+                this.#_animator.play(AnimatorState.TakeHit, false, () => {
+                    this.#_agent = Navigation.addAgent(this.#_root.position, this.#_speed, this.#_root);
+                    this.#_gothit = false;
+                    if (this.#_state !== StabberRabbitState.Death)
+                        this.#_animator.play(AnimatorState.Run);
+                });
+            }
 
             SoundManager.play(`Squeal${MathUtil.randomInt(1, 4)}`, { volume: 0.2 });
         }

@@ -16,6 +16,7 @@ import { CarrotDrop } from '../droppable/carrotDrop';
 import { SoundManager } from '../assets/soundManager';
 import { MathUtil } from '../util/mathUtil';
 import { HeartDrop } from '../droppable/heartDrop';
+import { StabberRabbit } from './stabberRabbit';
 
 const RabbitGatherDistance = 1;
 
@@ -168,6 +169,9 @@ export class NabberRabbit extends BaseCollidable {
             Navigation.agentGoTo(this.#_agent, this.#_spawnPosition);
 
             if (Vector3.Distance(this.#_spawnPosition, this.#_root.position) < 1) {
+                // Nabber Rabbit has escaped with a carrot. Spawn a super rabbit next time.
+                StabberRabbit.superRabbit = true;
+
                 this.dispose();
             }
         }
