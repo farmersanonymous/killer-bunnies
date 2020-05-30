@@ -15,6 +15,9 @@ const HEALTH_BAR_WIDTH = 262;
 export class GUIManager {
     #_dynamicTexture: AdvancedDynamicTexture;
     #_healthBar: Rectangle;
+    #_nextRoundText: TextBlock;
+    #_nextRoundPanel: Rectangle;
+    #_nextRoundTimerPanel: Rectangle;
     #_roundNumberText: TextBlock;
     #_roundTimerText: TextBlock;
     #_carrotText: TextBlock;
@@ -109,6 +112,45 @@ export class GUIManager {
             carrotempty.top = 65;
             this.#_dynamicTexture.addControl(carrotempty);
         }
+        
+        /**
+         * Timer for the period in between rounds.
+         */
+        this.#_nextRoundPanel = new Rectangle();
+        this.#_nextRoundPanel.thickness = 3;
+        this.#_nextRoundPanel.color = "#2b1d0e";
+        this.#_nextRoundPanel.background = "#654321";
+        this.#_nextRoundPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this.#_nextRoundPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        this.#_nextRoundPanel.top = 110;
+        this.#_nextRoundPanel.widthInPixels = 240;
+        this.#_nextRoundPanel.heightInPixels = 65;
+        this.#_nextRoundPanel.cornerRadius = 5;
+        this.#_dynamicTexture.addControl(this.#_nextRoundPanel);
+
+        this.#_nextRoundTimerPanel = new Rectangle();
+        this.#_nextRoundTimerPanel.thickness = 3;
+        this.#_nextRoundTimerPanel.color = "black";
+        this.#_nextRoundTimerPanel.background = "#2b1d0e";
+        this.#_nextRoundTimerPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this.#_nextRoundTimerPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        this.#_nextRoundTimerPanel.top = 125;
+        this.#_nextRoundTimerPanel.left = 0;
+        this.#_nextRoundTimerPanel.widthInPixels = 220;
+        this.#_nextRoundTimerPanel.heightInPixels = 40;
+        this.#_nextRoundTimerPanel.cornerRadius = 5;
+        this.#_dynamicTexture.addControl(this.#_nextRoundTimerPanel);
+
+        this.#_nextRoundText = new TextBlock('NextRoundNumber', 'Next Round In: 0:00');
+        this.#_nextRoundText.color = "white";
+        this.#_nextRoundText.fontFamily = "ActionMan";
+        this.#_nextRoundText.fontSize = "20px";
+        this.#_nextRoundText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this.#_nextRoundText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        this.#_nextRoundText.heightInPixels = 40;
+        this.#_nextRoundText.left = 0;
+        this.#_nextRoundText.top = 125;
+        this.#_dynamicTexture.addControl(this.#_nextRoundText);
 
         /**
          * The round panel, with timer and total carrots.
@@ -390,6 +432,23 @@ export class GUIManager {
      */
     public setRoundTimer(time: string): void {
         this.#_roundTimerText.text = time;
+    }
+    /**
+     * Sets the time left until the next round.
+     * @param time The time left until the next round.
+     */
+    public setNextRoundTimer(time: string): void {
+        this.#_nextRoundText.text = time;
+    }
+    /**
+     * Sets whether or not the next round timer is showing.
+     * @param enable Whether the next round timer should be showing.
+     */
+    public enableNextRoundTimer(enable: boolean): void {
+        const alpha = enable ? 1 : 0
+        this.#_nextRoundText.alpha = alpha;
+        this.#_nextRoundPanel.alpha = alpha;
+        this.#_nextRoundTimerPanel.alpha = alpha;
     }
     /**
      * Adds a pick icon to the gui manager and attaches it to a mesh.
