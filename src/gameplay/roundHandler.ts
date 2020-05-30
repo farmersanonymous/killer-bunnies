@@ -74,6 +74,7 @@ export class RoundHandler {
     constructor(guiManager: GUIManager) {
         this.#_gui = guiManager;
         this.#_gui.setRound(this.#_round);
+        this.#_gui.setRoundTimer(this._getTimeString(defendTime));
 
         this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
         this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
@@ -84,9 +85,16 @@ export class RoundHandler {
     /**
      * Formats the current round timer to a string.
      */
-    private _getTimeString(): string {
-        const seconds = Math.floor(this.#_time % 60)
-        return Math.floor(this.#_time / 60) + ':' + (seconds < 10 ? '0' : '') + seconds;
+    private _getTimeString(time: number): string {
+        const seconds = Math.floor(time % 60)
+        return Math.floor(time / 60) + ':' + (seconds < 10 ? '0' : '') + seconds;
+    }
+
+    /**
+     * Formats the current round timer to a string.
+     */
+    private _getNextRoundTimeString(time: number): string {
+        return 'Next Round In: ' + this._getTimeString(time);
     }
 
     /**
@@ -100,10 +108,6 @@ export class RoundHandler {
      * Updates the current round.
      */
     public update(farmer: Farmer, garden: Garden): void {
-        this.#_time -= BabylonStore.deltaTime;
-
-        this.#_gui.setRoundTimer(this._getTimeString())
-
         // Spawn more burrows during the defend round.
         if(this.#_type === RoundType.Defend) {
             this.#_burrowSpawnTimer -= BabylonStore.deltaTime;
@@ -124,7 +128,6 @@ export class RoundHandler {
         }
         else {
             if(Vector3.Distance(farmer.position, garden.harvestBasket.position) <= 5) {
-
                 if(farmer.useMouse)
                     this.#_gui.addPickIcon(garden.harvestBasket, 'EKey');
                 else
@@ -174,8 +177,19 @@ export class RoundHandler {
         StabberRabbit.updateAll(farmer, this);
         NabberRabbit.updateAll(farmer, this.#_gui, this);
 
+        this.#_time -= BabylonStore.deltaTime;
+        if (this.#_type === RoundType.Defend) {
+            this.#_gui.setRoundTimer(this._getTimeString(this.#_time))
+        } else {
+            this.#_gui.setNextRoundTimer(this._getNextRoundTimeString(this.#_time))
+        }
+
         if (this.#_time <= 0) {
             if (this.#_type === RoundType.Defend) {
+                this.#_gui.enableNextRoundTimer(true);
+
+                this.#_gui.setRoundTimer(this._getTimeString(defendTime));
+
                 // Player builds up their defenses for the next Defend round.
                 this.#_time = restTime;
                 this.#_type = RoundType.Rest;
@@ -191,6 +205,8 @@ export class RoundHandler {
 
                 Burrow.disposeAll();
             } else {
+                this.#_gui.enableNextRoundTimer(false);
+
                 // Player defends the farm from spawning enemies.
                 this.#_type = RoundType.Defend;
                 this.#_time = defendTime;
