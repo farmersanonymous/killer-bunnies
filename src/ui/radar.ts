@@ -15,9 +15,7 @@ class Radar {
         this.#_radar = new ArcRotateCamera("radar", Angle.FromDegrees(180).radians(), Angle.FromDegrees(0).radians(), 50, undefined, BabylonStore.scene);
         this.#_radar.mode = Camera.ORTHOGRAPHIC_CAMERA;
 
-        const garden = BabylonStore.scene.getNodeByName('Ground') as Mesh;
-        const size = garden.getBoundingInfo().boundingBox.extendSize;
-
+        const size = new Vector3(60, 0, 60);
         this.#_radar.orthoTop =  size.z/2;
         this.#_radar.orthoLeft = -(size.x+20)/2;
         this.#_radar.orthoBottom = -size.z/2;

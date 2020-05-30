@@ -10,6 +10,21 @@ import { SoundManager } from '../assets/soundManager';
 const HEALTH_BAR_WIDTH = 262;
 
 /**
+ * Interface used to get a reference to the webkit full screen functions for Safari.
+ */
+interface SafariDocument {
+    webkitExitFullscreen: () => Promise<void>;
+    webkitFullscreenElement: HTMLElement;
+}
+
+/**
+ * Interface used to get a reference to the webkit full screen functions for Safari.
+ */
+interface SafariElement {
+    webkitRequestFullscreen: () => Promise<void>;
+}
+
+/**
  * Handles all the UI that gets displayed on the screen during the Game.
  */
 export class GUIManager {
@@ -261,6 +276,52 @@ export class GUIManager {
         this.#_dynamicTexture.addControl(this.#_carrotText);
 
         /**
+         * The fullscreen button
+         */
+
+        const fullscreenButton = new Button('Fullscreen Button');
+        fullscreenButton.thickness = 3;
+        fullscreenButton.color = "#2b1d0e";
+        fullscreenButton.background = "#654321";
+        fullscreenButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        fullscreenButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        fullscreenButton.top = -20;
+        fullscreenButton.left = -20;
+        fullscreenButton.widthInPixels = 50;
+        fullscreenButton.heightInPixels = 50;
+        fullscreenButton.cornerRadius = 50;
+        this.#_dynamicTexture.addControl(fullscreenButton);
+
+        const fullscreenImage = ImageManager.get('Fullscreen');
+        fullscreenImage.width = "80%";
+        fullscreenImage.stretch = Image.STRETCH_UNIFORM;
+        fullscreenImage.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        fullscreenImage.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        fullscreenButton.addControl(fullscreenImage);
+
+        fullscreenButton.onPointerClickObservable.add(() => {
+            const safariDocument = document as unknown as SafariDocument;
+            if(!document.fullscreenElement && !safariDocument.webkitFullscreenElement) {
+                if(document.body.requestFullscreen)
+                    document.body.requestFullscreen();
+                else {
+                    const safariElement = document.body as unknown as SafariElement;
+                    if(safariElement && safariElement.webkitRequestFullscreen)
+                        safariElement.webkitRequestFullscreen();
+                }
+            }
+            else {
+                console.log(document.exitFullscreen);
+                if(document.exitFullscreen)
+                    document.exitFullscreen();
+                else {
+                    if(safariDocument && safariDocument.webkitExitFullscreen)
+                        safariDocument.webkitExitFullscreen();
+                }
+            }
+        });
+
+        /**
          * The pause button
          */
 
@@ -268,10 +329,10 @@ export class GUIManager {
         pauseButton.thickness = 3;
         pauseButton.color = "#2b1d0e";
         pauseButton.background = "#654321";
-        pauseButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        pauseButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
         pauseButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
         pauseButton.top = -20;
-        pauseButton.left = -20;
+        pauseButton.left = 20;
         pauseButton.widthInPixels = 50;
         pauseButton.heightInPixels = 50;
         pauseButton.cornerRadius = 50;
@@ -520,7 +581,7 @@ export class GUIManager {
      * @param mesh The Farmer mesh that will get linked to the slider.
      * @param distance The distance the Farmer is away from the harvest basket.
      * @param requirement The distance the Farmer has to be from the harvest basket in order for the timer to continue.
-     * @param time The time it takes for the harvest to complete.
+     * @param time The time it takes for the harvest of one carrot.
      */
     public updateHarvestTimer(mesh: AbstractMesh, distance: number, requirement: number, time: number): void {
         // Don't do anything if the Farmer has no carrots!
@@ -532,6 +593,8 @@ export class GUIManager {
             }
             return;
         }
+
+        time = time * this.#_carrots.length;
 
         if (distance <= requirement) {
             if (!this.#_harvestSlider) {

@@ -280,6 +280,11 @@
             "name": "RBButton",
             "type": "image",
             "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_RB.png"
+        },
+        {
+            "name": "Fullscreen",
+            "type": "image",
+            "url": "https://storage.googleapis.com/farmer-assets/images/fullscreen.png"
         }
     ],
     "player": {
@@ -288,10 +293,10 @@
         "weaponDamage": 10,
         "weaponRange": 5,
         "weaponSpeed": 20,
-        "harvestTime": 3,
+        "harvestTime": 0.5,
         "upgradeHealth": 10,
         "upgradeDamage": 2,
-        "upgradeHarvest": -0.2,
+        "upgradeHarvest": -0.1,
         "upgradeSpeed": 0.5,
         "upgradeInitialCost": 5,
         "upgradeIncrementCost": 5
