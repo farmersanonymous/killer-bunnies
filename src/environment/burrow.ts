@@ -7,6 +7,7 @@ import { Config } from "../gameplay/config";
 import { NabberRabbit } from "../enemies/nabberRabbit";
 import { RoundHandler } from "../gameplay/roundHandler";
 import { MathUtil } from "../util/mathUtil";
+import { RadarManager, BlipType } from "../ui/radar";
 
 /**
  * The Burrow will control how often and the spawn position of the Rabbit enemies.
@@ -41,6 +42,8 @@ export class Burrow {
 
         this.#_round = round;
         this.modifyDifficulty(this.#_round.getDifficultyModifier());
+
+        RadarManager.createBlip(this.#_root, BlipType.Burrow);
     }
 
     /**
@@ -69,6 +72,8 @@ export class Burrow {
                     new StabberRabbit((this.#_root.parent as TransformNode).position.clone(), this.#_round);
                 this.#_spawnTimer = Config.burrow.randomRabbitSpawnFrequency();
             }
+
+            RadarManager.updateBlip(this.#_root);
         }
     }
 
@@ -76,6 +81,7 @@ export class Burrow {
      * Release all resources associated with the Burrow.
      */
     public dispose(): void {
+        RadarManager.removeBlip(this.#_root);
         this.#_root.dispose();
         Burrow._burrows = Burrow._burrows.filter(bur => bur !== this);
     }

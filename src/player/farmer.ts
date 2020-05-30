@@ -12,7 +12,6 @@ import { StabberRabbit } from '../enemies/stabberRabbit';
 import { RadarManager, BlipType } from '../ui/radar'
 import { Config } from '../gameplay/config';
 import { Carrot } from '../environment/carrot';
-import { Input } from '../input/input';
 import { GUIManager } from '../ui/guiManager';
 import { Garden } from '../environment/garden';
 import { RoundHandler, RoundType } from '../gameplay/roundHandler';
@@ -187,7 +186,7 @@ export class Farmer extends BaseCollidable {
 
             // Try to get carrot.
             const carrot = Carrot.getPickableCarrot();
-            if(carrot && (Input.isKeyPressed('e') || Input.isKeyPressed('gamepadRB'))) {
+            if(carrot) {
                 if(gui.addFarmerCarrot()) {
                     carrot.dispose();
                     SoundManager.play(`Harvest${MathUtil.randomInt(1, 3)}`, { volume: 0.2 });

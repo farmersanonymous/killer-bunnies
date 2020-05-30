@@ -15,6 +15,7 @@ import { GUIManager } from '../ui/guiManager';
 import { CarrotDrop } from '../droppable/carrotDrop';
 import { SoundManager } from '../assets/soundManager';
 import { MathUtil } from '../util/mathUtil';
+import { HeartDrop } from '../droppable/heartDrop';
 
 const RabbitGatherDistance = 1;
 
@@ -97,7 +98,7 @@ export class NabberRabbit extends BaseCollidable {
             super.registerMesh(mesh);
 
         });
-        RadarManager.createBlip(this.#_root, BlipType.Stabber);
+        RadarManager.createBlip(this.#_root, BlipType.Nabber);
         NabberRabbit._rabbits.push(this);
 
         this.modifyDifficulty(round.getDifficultyModifier());
@@ -238,6 +239,15 @@ export class NabberRabbit extends BaseCollidable {
                 const worldMatrix = this.#_root.getWorldMatrix();
                 const worldPosition = worldMatrix.getRow(3).toVector3();
                 new CarrotDrop(worldPosition.add(Vector3.Up()));
+            }
+            // A chance to drop health if the Nabber doesn't already have a carrot.
+            else {
+                const healthChance = Scalar.RandomRange(0, 100);
+                if(healthChance <= 5) {
+                    const worldMatrix = this.#_root.getWorldMatrix();
+                    const worldPosition = worldMatrix.getRow(3).toVector3();
+                    new HeartDrop(worldPosition.add(Vector3.Up()));
+                }
             }
 
             if(this.#_state !== NabberRabbitState.Death) {

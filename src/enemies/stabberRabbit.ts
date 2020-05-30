@@ -12,6 +12,7 @@ import { Bullet } from '../player/bullet';
 import { RoundHandler, RoundType } from '../gameplay/roundHandler';
 import { SoundManager } from '../assets/soundManager';
 import { MathUtil } from '../util/mathUtil';
+import { HeartDrop } from '../droppable/heartDrop';
 
 const RabbitAttackDistance = 3;
 
@@ -74,6 +75,7 @@ export class StabberRabbit extends BaseCollidable {
         const spawner = Spawner.getSpawner('Bunny');
         const instance = spawner.instantiate(true);
         this.#_root = instance.rootNodes[0];
+
         this.#_skeleton = instance.skeletons[0];
         this.#_root.position = pos;
 
@@ -243,6 +245,14 @@ export class StabberRabbit extends BaseCollidable {
         this.#_health -= bullet.damage;
 
         if (this.#_health <= 0) {
+
+            const healthChance = Scalar.RandomRange(0, 100);
+            if(healthChance <= 5) {
+                const worldMatrix = this.#_root.getWorldMatrix();
+                const worldPosition = worldMatrix.getRow(3).toVector3();
+                new HeartDrop(worldPosition.add(Vector3.Up()));
+            }
+
             if(this.#_state !== StabberRabbitState.Death) {
                 SoundManager.play(`SquealDeath${MathUtil.randomInt(1, 2)}`, { volume: 0.2 });
             }

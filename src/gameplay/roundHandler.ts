@@ -11,6 +11,7 @@ import { Input } from '../input/input';
 import { NabberRabbit } from '../enemies/nabberRabbit';
 import { CarrotDrop } from '../droppable/carrotDrop';
 import { Button, Vector2WithInfo } from 'babylonjs-gui';
+import { HeartDrop } from '../droppable/heartDrop';
 
 /**
  * Amount of time, in seconds, that the rest round goes for.
@@ -42,7 +43,7 @@ export class RoundHandler {
     /**
      * The amount of time to count down from.
      */
-    #_time = 10;
+    #_time = 0;
 
     /**
      * The GUIManager instance used to update the round and round timer.
@@ -167,8 +168,9 @@ export class RoundHandler {
         }
 
         // Update all the carrots.
-        Carrot.updateAll(farmer, this.#_gui);
+        Carrot.updateAll(farmer);
         CarrotDrop.updateAll(farmer, this.#_gui);
+        HeartDrop.updateAll(farmer);
 
         // Update all the rabbits.
         StabberRabbit.updateAll(farmer, this);
@@ -187,6 +189,7 @@ export class RoundHandler {
                 NabberRabbit.retreatAll();
                 Carrot.disposeAll();
                 CarrotDrop.disposeAll();
+                HeartDrop.disposeAll();
                 this.#_gui.clearFarmerCarrots();
 
                 Burrow.disposeAll();
@@ -239,6 +242,7 @@ export class RoundHandler {
         NabberRabbit.disposeAll();
         Carrot.disposeAll();
         CarrotDrop.disposeAll();
+        HeartDrop.disposeAll();
         Burrow.disposeAll();
     }
 }

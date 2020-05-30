@@ -1,8 +1,8 @@
 import { Spawner } from "../assets/spawner";
 import { TransformNode, Vector3 } from "babylonjs";
 import { Farmer } from "../player/farmer";
-import { GUIManager } from "../ui/guiManager";
 import { MathUtil } from "../util/mathUtil";
+import { RadarManager, BlipType } from "../ui/radar";
 
 /**
  * The Carrot will be gatherable by the Farmer and Nabber rabbits. Used to purchase upgrades.
@@ -27,6 +27,8 @@ export class Carrot {
         this.#_pickable = false;
 
         Carrot._carrots.push(this);
+
+        RadarManager.createBlip(this.#_root, BlipType.Carrot);
     }
 
     /**
@@ -40,27 +42,19 @@ export class Carrot {
     /**
      * Updates the carrot every frame.
      * @param farmer The farmer (player character).
-     * @param gui The GUI for the game.
      */
-    public update(farmer: Farmer, gui: GUIManager): void {
+    public update(farmer: Farmer): void {
         const worldMatrix = this.#_root.getWorldMatrix();
         const pos = worldMatrix.getRow(3);
         this.#_pickable = Vector3.Distance(pos.toVector3(), farmer.position) < 1;
-        if(this.#_pickable) {
-            if(farmer.useMouse)
-                gui.addPickIcon(this.#_root.getChildMeshes()[0], 'EKey');
-            else
-                gui.addPickIcon(this.root.getChildMeshes()[0], 'RBButton');
-        }
-        else {
-            gui.removePickIcon(this.#_root.getChildMeshes()[0]);
-        }
+        RadarManager.updateBlip(this.#_root);
     }
 
     /**
      * Release all resources associated with the Carrot.
      */
     public dispose(): void {
+        RadarManager.removeBlip(this.#_root);
         this.#_root.dispose();
         Carrot._carrots = Carrot._carrots.filter(car => car !== this);
     }
@@ -68,11 +62,10 @@ export class Carrot {
     /**
      * Updates all the carrots.
      * @param farmer The farmer (player character).
-     * @param gui The GUI for the game.
      */
-    public static updateAll(farmer: Farmer, gui: GUIManager): void {
+    public static updateAll(farmer: Farmer): void {
         for(let i = 0; i < this._carrots.length; i++) {
-            this._carrots[i].update(farmer, gui);
+            this._carrots[i].update(farmer);
         }
     }
     /**

@@ -52,7 +52,10 @@ class Radar {
  */
 export enum BlipType {
     Player = 0,
-    Stabber = 1
+    Stabber = 1,
+    Nabber = 2,
+    Burrow = 3,
+    Carrot = 4
 }
 
 /**
@@ -60,8 +63,11 @@ export enum BlipType {
  */
 export class RadarManager {
     #_radar: Radar = null;
-    #_enemyMaterial: StandardMaterial = null;
+    #_stabberMaterial: StandardMaterial = null;
     #_playerMaterial: StandardMaterial = null;
+    #_nabberMaterial: StandardMaterial = null;
+    #_burrowMaterial: StandardMaterial = null;
+    #_carrotMaterial: StandardMaterial = null;
     #_blips: Map<TransformNode, Mesh> = new Map<TransformNode, Mesh>();
     
     private static _instance: RadarManager = null;
@@ -77,13 +83,40 @@ export class RadarManager {
     /**
      * Material used for enemy radar blips.
      */
-    private get enemyMaterial(): StandardMaterial {
-        if (this.#_enemyMaterial == null) {
-            this.#_enemyMaterial = new StandardMaterial('EnemyBlip', BabylonStore.scene);
-            this.#_enemyMaterial.disableLighting = true;
-            this.#_enemyMaterial.emissiveColor = Color3.Red();
+    private get stabberMaterial(): StandardMaterial {
+        if (this.#_stabberMaterial == null) {
+            this.#_stabberMaterial = new StandardMaterial('StabberBlip', BabylonStore.scene);
+            this.#_stabberMaterial.disableLighting = true;
+            this.#_stabberMaterial.emissiveColor = Color3.Magenta();
         }
-        return this.#_enemyMaterial;
+        return this.#_stabberMaterial;
+    }
+
+    private get nabberMaterial(): StandardMaterial {
+        if(this.#_nabberMaterial == null) {
+            this.#_nabberMaterial = new StandardMaterial('NabberBlip', BabylonStore.scene);
+            this.#_nabberMaterial.disableLighting = true;
+            this.#_nabberMaterial.emissiveColor = new Color3(255 / 255, 162 / 255, 172 / 255);
+        }
+        return this.#_nabberMaterial;
+    }
+
+    private get burrowMaterial(): StandardMaterial {
+        if(this.#_burrowMaterial == null) {
+            this.#_burrowMaterial = new StandardMaterial('BurrowBlip', BabylonStore.scene);
+            this.#_burrowMaterial.disableLighting = true;
+            this.#_burrowMaterial.emissiveColor = Color3.Black();
+        }
+        return this.#_burrowMaterial;
+    }
+
+    private get carrotMaterial(): StandardMaterial {
+        if(this.#_carrotMaterial == null) {
+            this.#_carrotMaterial = new StandardMaterial('CarrotBlip', BabylonStore.scene);
+            this.#_carrotMaterial.disableLighting = true;
+            this.carrotMaterial.emissiveColor = new Color3(255 / 255, 165 / 255, 0);
+        }
+        return this.#_carrotMaterial;
     }
 
     /**
@@ -114,8 +147,18 @@ export class RadarManager {
                 break;
             case BlipType.Stabber:
                 blip.scaling = new Vector3(blip.scaling.x/2, blip.scaling.y/2, blip.scaling.z/2);
-                blip.material = this.getInstance().enemyMaterial;
+                blip.material = this.getInstance().stabberMaterial;
                 break;
+            case BlipType.Nabber:
+                blip.scaling = new Vector3(blip.scaling.x/2, blip.scaling.y/2, blip.scaling.z/2);
+                blip.material = this.getInstance().nabberMaterial;
+                break;
+            case BlipType.Burrow:
+                blip.material = this.getInstance().burrowMaterial;
+                break;
+            case BlipType.Carrot:
+                blip.scaling = new Vector3(blip.scaling.x/2, blip.scaling.y/2, blip.scaling.z/2);
+                blip.material = this.getInstance().carrotMaterial;
         }
 
         this.getInstance().#_blips.set(root, blip);
@@ -139,7 +182,9 @@ export class RadarManager {
     public static updateBlip(root: TransformNode): void {
         const node = this.getInstance().#_blips.get(root);
         if (node != null) {
-            node.position = new Vector3(root.position.x, node.position.y, root.position.z)
+            const worldMatrix = root.getWorldMatrix();
+            const worldPosition = worldMatrix.getRow(3);
+            node.position = new Vector3(worldPosition.x, node.position.y, worldPosition.z);
         }
     }
     
@@ -148,7 +193,8 @@ export class RadarManager {
      */
     public static dispose(): void {
         this.getInstance().#_radar.dispose();
-        this.getInstance().#_enemyMaterial.dispose();
+        this.getInstance().#_nabberMaterial.dispose();
+        this.getInstance().#_stabberMaterial.dispose();
         this.getInstance().#_playerMaterial.dispose();
         this.getInstance().#_blips.forEach(b => b.dispose());
 

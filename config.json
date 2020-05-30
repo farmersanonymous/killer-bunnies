@@ -29,7 +29,7 @@
         {
             "name": "Shed",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/shed/1/Shed.gltf"
+            "url": "https://storage.googleapis.com/farmer-assets/shed/4/Shed.gltf"
         },
         {
             "name": "Fencing",
@@ -60,6 +60,11 @@
             "name": "Ground",
             "type": "art",
             "url": "https://storage.googleapis.com/farmer-assets/ground/2/Ground.gltf"
+        },
+        {
+            "name": "Heart",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/heart/1/heart.gltf"
         },
         {
             "name": "Music1",
