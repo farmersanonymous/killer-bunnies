@@ -4,7 +4,6 @@ import { Bootstrap } from '../index';
 import { GUIManager } from '../ui/guiManager';
 import { RoundHandler } from './roundHandler';
 import { Bullet } from '../player/bullet';
-import { CollisionManager } from '../collision/collisionManager';
 import { RadarManager } from '../ui/radar';
 import { SoundManager } from '../assets/soundManager';
 import { Input } from '../input/input';
@@ -119,8 +118,6 @@ export class Game {
         for(let i = 0; i < this.#_bullets.length; i++) {
             this.#_bullets[i].update();
         }
-
-        CollisionManager.update();
 
         // Updates the round.
         this.#_roundHandler.update(this.#_player, this.#_garden);

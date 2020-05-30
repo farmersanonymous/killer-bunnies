@@ -76,9 +76,9 @@ export class CollisionManager {
             const player = players[i];
             const enemies = this.collidables.get(CollisionGroup.Enemy);
             for(let j = 0; j < enemies.length; j++) {
-                const weaponMesh = enemies[i].getMesh('weapon');
+                const weaponMesh = enemies[j].getMesh('weapon');
                 if(weaponMesh && player.getMesh().intersectsMesh(weaponMesh)) {
-                    player.onCollide(enemies[i]);
+                    player.onCollide(enemies[j]);
                 }
             }
         }

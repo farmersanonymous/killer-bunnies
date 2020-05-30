@@ -199,6 +199,11 @@ export class Bootstrap {
                 BabylonStore.scene.render();
             }
         });
+
+        // Runs the update loop for the Babylon Engine after render. Will update all of the collisions.
+        BabylonObserverStore.registerAfterRender(() => {
+            CollisionManager.update();
+        });
     }
 
     private _onGameOver(): void {

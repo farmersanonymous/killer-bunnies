@@ -112,7 +112,7 @@ export class StabberRabbit extends BaseCollidable {
         
         const collider = MeshBuilder.CreateBox('collider', { width: 0.5, height: 1.5, depth: 0.5 });
         collider.parent = weaponPoint;
-        collider.position = weaponPoint.forward.scale(0.75);
+        collider.position = Vector3.Down().scale(0.75);
         collider.isVisible = false;
         super.registerMesh(collider, 'weapon');
         

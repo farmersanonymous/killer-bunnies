@@ -311,7 +311,6 @@ export class GUIManager {
                 }
             }
             else {
-                console.log(document.exitFullscreen);
                 if(document.exitFullscreen)
                     document.exitFullscreen();
                 else {
