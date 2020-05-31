@@ -3,6 +3,7 @@ import { Spawner } from "../assets/spawner";
 import { Farmer } from "../player/farmer";
 import { GUIManager } from "../ui/guiManager";
 import { BabylonStore } from "../store/babylonStore";
+import { RadarManager, BlipType } from '../ui/radar';
 
 /**
  * A carrot that has been dropped on the ground! Can be picked up by the Farmer.
@@ -36,6 +37,8 @@ export class CarrotDrop {
 
         CarrotDrop._carrots.push(this);
 
+        RadarManager.createBlip(this.#_root, BlipType.CarrotDrop);
+
         const animation = new Animation('carrotDrop', 'position.y', 30, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CYCLE);
         const keys = [
             {
@@ -62,6 +65,7 @@ export class CarrotDrop {
      * @param gui The GUI for the game.
      */
     public update(farmer: Farmer, gui: GUIManager): void {
+        RadarManager.updateBlip(this.#_root);
         if(Vector2.Distance(new Vector2(this.#_root.position.x, this.#_root.position.z), new Vector2(farmer.position.x, farmer.position.z)) < 1) {
             if(gui.addFarmerCarrot()) {
                 this.dispose();
@@ -74,6 +78,7 @@ export class CarrotDrop {
     public dispose(): void {
         CarrotDrop._highlighter.removeMesh(this.#_fleshMesh);
         this.#_root.dispose();
+        RadarManager.removeBlip(this.#_root);
         CarrotDrop._carrots = CarrotDrop._carrots.filter(car => car !== this);
     }
 

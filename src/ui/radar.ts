@@ -1,5 +1,6 @@
 import { Camera, Viewport, Mesh, MeshBuilder, StandardMaterial, TransformNode, Color3, Angle, ArcRotateCamera, Vector3 } from 'babylonjs'
 import { BabylonStore } from '../store/babylonStore'
+import { Spawner } from '../assets/spawner';
 
 /**
  * Camera and Mesh used to display radar.
@@ -53,7 +54,9 @@ export enum BlipType {
     Stabber = 1,
     Nabber = 2,
     Burrow = 3,
-    Carrot = 4
+    Carrot = 4,
+    HeartDrop = 5,
+    CarrotDrop = 6
 }
 
 /**
@@ -61,13 +64,16 @@ export enum BlipType {
  */
 export class RadarManager {
     #_radar: Radar = null;
-    #_stabberMaterial: StandardMaterial = null;
+    #_alarmSpawner: Spawner;
+    #_heartSpawner: Spawner;
+    #_carrotSpawner: Spawner;
     #_playerMaterial: StandardMaterial = null;
     #_nabberMaterial: StandardMaterial = null;
     #_burrowMaterial: StandardMaterial = null;
     #_carrotMaterial: StandardMaterial = null;
+    #_stabberMaterial: StandardMaterial = null;
     #_blips: Map<TransformNode, Mesh> = new Map<TransformNode, Mesh>();
-    
+
     private static _instance: RadarManager = null;
 
     /**
@@ -78,9 +84,24 @@ export class RadarManager {
         RadarManager._instance = this;
     }
 
-    /**
-     * Material used for enemy radar blips.
-     */
+    private get carrotMesh(): Mesh {
+        if (!this.#_carrotSpawner) {
+            this.#_carrotSpawner = Spawner.getSpawner('Carrot');
+        }
+
+        const mesh = this.#_carrotSpawner.instantiate().rootNodes[0];
+        mesh.getChildMeshes().forEach(element => { element.layerMask = 0x10000000; }); 
+        return mesh as Mesh;
+    }
+
+    private get heartMesh(): Mesh {
+        if (!this.#_heartSpawner) {
+            this.#_heartSpawner = Spawner.getSpawner('Heart');
+        }
+
+        return this.#_heartSpawner.instantiate().rootNodes[0].getChildMeshes()[0] as Mesh;
+    }
+
     private get stabberMaterial(): StandardMaterial {
         if (this.#_stabberMaterial == null) {
             this.#_stabberMaterial = new StandardMaterial('StabberBlip', BabylonStore.scene);
@@ -117,9 +138,6 @@ export class RadarManager {
         return this.#_carrotMaterial;
     }
 
-    /**
-     * Material used for the player radar blip.
-     */
     private get playerMaterial(): StandardMaterial {
         if (this.#_playerMaterial == null) {
             this.#_playerMaterial = new StandardMaterial('PlayerBlip', BabylonStore.scene);
@@ -130,13 +148,32 @@ export class RadarManager {
     }
     
     /**
+     * 
+     * @param blipType 
+     */
+    private static getBlipMesh(blipType: BlipType): Mesh {
+        if (blipType == BlipType.CarrotDrop) {
+            const blip = this.getInstance().carrotMesh;
+            blip.rotation.x = Angle.FromDegrees(90).radians();
+            return blip;
+        } else if (blipType == BlipType.HeartDrop) {
+            const blip = this.getInstance().heartMesh;
+            blip.rotation.y = Angle.FromDegrees(90).radians();
+            return blip;
+        } else {
+            const blip = MeshBuilder.CreateDisc('Blip', { radius: 1.25, sideOrientation: Mesh.DOUBLESIDE }, BabylonStore.scene);
+            blip.rotation.x = Angle.FromDegrees(90).radians();
+            return blip;
+        }
+    }
+
+    /**
      * Creates a radar blip.
      * @param root The root TransformNode to associate with the new radar blip.
      * @param blipType The type of radar blip to create.
      */
     public static createBlip(root: TransformNode, blipType: BlipType): void {
-        const blip = MeshBuilder.CreateDisc('Blip', { radius: 1.25, sideOrientation: Mesh.DOUBLESIDE }, BabylonStore.scene);
-        blip.rotation.x = Angle.FromDegrees(90).radians()
+        const blip = this.getBlipMesh(blipType);
         blip.layerMask = 0x10000000;
 
         switch (blipType) {
@@ -157,6 +194,13 @@ export class RadarManager {
             case BlipType.Carrot:
                 blip.scaling = new Vector3(blip.scaling.x/2, blip.scaling.y/2, blip.scaling.z/2);
                 blip.material = this.getInstance().carrotMaterial;
+                break;
+            case BlipType.HeartDrop:
+                //blip.scaling = new Vector3(10, 10, 10);
+                break;
+            case BlipType.CarrotDrop:
+                blip.scaling = new Vector3(10, 5, 10);
+                break;
         }
 
         this.getInstance().#_blips.set(root, blip);

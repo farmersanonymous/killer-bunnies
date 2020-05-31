@@ -2,6 +2,7 @@ import { HighlightLayer, TransformNode, Vector3, Mesh, Color3, Animation, Vector
 import { BabylonStore } from "../store/babylonStore";
 import { Spawner } from "../assets/spawner";
 import { Farmer } from "../player/farmer";
+import { RadarManager, BlipType } from '../ui/radar';
 
 /**
  * A header that has been dropped on the ground! When the Farmer walks near it, it will heal him.
@@ -34,6 +35,8 @@ export class HeartDrop {
 
         HeartDrop._hearts.push(this);
 
+        RadarManager.createBlip(this.#_root, BlipType.HeartDrop);
+
         const animation = new Animation('carrotDrop', 'position.y', 30, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CYCLE);
         const keys = [
             {
@@ -59,6 +62,7 @@ export class HeartDrop {
      * @param farmer The farmer (player character).
      */
     public update(farmer: Farmer): void {
+        RadarManager.updateBlip(this.#_root);
         if(Vector2.Distance(new Vector2(this.#_root.position.x, this.#_root.position.z), new Vector2(farmer.position.x, farmer.position.z)) < 1) {
             farmer.modifyHealth(10);
             this.dispose();
@@ -71,6 +75,7 @@ export class HeartDrop {
     public dispose(): void {
         HeartDrop._highlighter.removeMesh(this.#_heart);
         this.#_root.dispose();
+        RadarManager.removeBlip(this.#_root);
         HeartDrop._hearts = HeartDrop._hearts.filter(h => h !== this);
     }
 
