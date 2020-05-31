@@ -28,6 +28,20 @@ export class Garden extends BaseCollidable {
         const carrotParent = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name === 'SpawnPoints_Plants');
         this.#_carrotSpawnPoints = carrotParent[0].getChildTransformNodes();
 
+        // Tree spawn points.
+        const tree1Spawner = Spawner.getSpawner('Tree1');
+        const tree2Spawner = Spawner.getSpawner('Tree2');
+        const tree1SpawnPoints = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name.startsWith('SpawnPoint_Tree01'));
+        const tree2SpawnPoints = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name.startsWith('SpawnPoint_Tree02'));
+        tree1SpawnPoints.forEach(t => {
+            const root = tree1Spawner.instantiate().rootNodes[0];
+            root.parent = t;
+        });
+        tree2SpawnPoints.forEach(t => {
+            const root = tree2Spawner.instantiate().rootNodes[0];
+            root.parent = t;
+        });
+
         const wellSpawner = Spawner.getSpawner('Well');
         wellSpawner.instantiate();
 

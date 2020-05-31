@@ -24,7 +24,7 @@
         {
             "name": "Garden",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/garden/12/Environment.gltf"
+            "url": "https://storage.googleapis.com/farmer-assets/garden/13/Environment.gltf"
         },
         {
             "name": "Shed",
@@ -70,6 +70,16 @@
             "name": "Basket",
             "type": "art",
             "url": "https://storage.googleapis.com/farmer-assets/carrotSiren/2/CarrotSiren.gltf"
+        },
+        {
+            "name": "Tree1",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/tree01/1/Tree01.glb"
+        },
+        {
+            "name": "Tree2",
+            "type": "art",
+            "url": "https://storage.googleapis.com/farmer-assets/tree02/1/Tree02.glb"
         },
         {
             "name": "Music1",
