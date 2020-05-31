@@ -329,12 +329,12 @@
     "stabberRabbit": {
         "health": 30,
         "damage": 10,
-        "speed": 5,
+        "speed": 4,
         "retreatSpeed": 10
     },
     "nabberRabbit": {
         "health": 20,
-        "speed": 7,
+        "speed": 6,
         "retreatSpeed": 10
     },
     "carrot": {
