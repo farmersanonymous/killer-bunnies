@@ -64,6 +64,8 @@ function showLoadingScreenCallback(): void {
     const anyKeyDiv = document.createElement('div');
     anyKeyDiv.id = 'anyKeyDiv';
     anyKeyDiv.className = 'w3-center';
+    anyKeyDiv.style.fontFamily = 'ActionMan';
+    anyKeyDiv.style.fontSize = '24px';
     anyKeyDiv.style.position = 'fixed';
     anyKeyDiv.style.bottom = '25px';
     anyKeyDiv.style.left = '50%';
@@ -111,7 +113,7 @@ export class Bootstrap {
         BabylonStore.scene.useRightHandedSystem = true;
 
         // This is the title sound so it needs to load as soon as possible.
-        SoundManager.load('Title', 'https://storage.googleapis.com/farmer-assets/sound/meadowlark_daniel-simion.mp3').then(() => {
+        SoundManager.load('Title', 'https://storage.googleapis.com/farmer-assets/sound/bensound-energy.mp3').then(() => {
             SoundManager.play('Title', {
                 loop: true,
                 volume: 0.1
