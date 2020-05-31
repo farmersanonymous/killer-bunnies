@@ -56,7 +56,8 @@ export enum BlipType {
     Burrow = 3,
     Carrot = 4,
     HeartDrop = 5,
-    CarrotDrop = 6
+    CarrotDrop = 6,
+    Basket = 7
 }
 
 /**
@@ -64,7 +65,7 @@ export enum BlipType {
  */
 export class RadarManager {
     #_radar: Radar = null;
-    #_alarmSpawner: Spawner;
+    #_basketSpawner: Spawner;
     #_heartSpawner: Spawner;
     #_carrotSpawner: Spawner;
     #_playerMaterial: StandardMaterial = null;
@@ -90,6 +91,16 @@ export class RadarManager {
         }
 
         const mesh = this.#_carrotSpawner.instantiate().rootNodes[0];
+        mesh.getChildMeshes().forEach(element => { element.layerMask = 0x10000000; }); 
+        return mesh as Mesh;
+    }
+
+    private get basketMesh(): Mesh {
+        if (!this.#_basketSpawner) {
+            this.#_basketSpawner = Spawner.getSpawner('Basket');
+        }
+
+        const mesh = this.#_basketSpawner.instantiate().rootNodes[0];
         mesh.getChildMeshes().forEach(element => { element.layerMask = 0x10000000; }); 
         return mesh as Mesh;
     }
@@ -160,6 +171,10 @@ export class RadarManager {
             const blip = this.getInstance().heartMesh;
             blip.rotation.y = Angle.FromDegrees(90).radians();
             return blip;
+        } else if (blipType == BlipType.Basket) {
+            const blip = this.getInstance().basketMesh;
+            //blip.rotation.x = Angle.FromDegrees(90).radians();
+            return blip;
         } else {
             const blip = MeshBuilder.CreateDisc('Blip', { radius: 1.25, sideOrientation: Mesh.DOUBLESIDE }, BabylonStore.scene);
             blip.rotation.x = Angle.FromDegrees(90).radians();
@@ -200,6 +215,9 @@ export class RadarManager {
                 break;
             case BlipType.CarrotDrop:
                 blip.scaling = new Vector3(10, 5, 10);
+                break;
+            case BlipType.Basket:
+                blip.scaling = new Vector3(3, 3, 3);
                 break;
         }
 
