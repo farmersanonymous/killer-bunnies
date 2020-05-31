@@ -130,10 +130,23 @@ export class RoundHandler {
         }
         else {
             if(Vector3.Distance(farmer.position, garden.harvestBasket.position) <= 5) {
-                if(farmer.useMouse)
+                if(BabylonStore.isMobile) {
+                    this.#_gui.addPickIcon(garden.harvestBasket, 'TAP', 0, () => {
+                        if(!this.upgrading) {
+                            farmer.disabled = true;
+                            this.#_upgrading = true;
+                            this.#_upgradeButtons = this.#_gui.showUpgradeMenu(farmer, () => {
+                                this.#_upgrading = false;
+                                farmer.disabled = false;
+                            });
+                        }
+                    });
+                }
+                else if(farmer.useMouse)
                     this.#_gui.addPickIcon(garden.harvestBasket, 'EKey');
                 else
                     this.#_gui.addPickIcon(garden.harvestBasket, 'AButton');
+
                 if((Input.isKeyPressed('e') || Input.isKeyPressed('gamepadA')) && !this.upgrading) {
                     farmer.disabled = true;
                     this.#_upgrading = true;

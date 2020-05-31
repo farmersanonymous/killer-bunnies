@@ -17,6 +17,13 @@ export class BabylonStore {
     }
 
     /**
+     * Returns true if running on mobile.
+     */
+    public static get isMobile(): boolean {
+        return /Mobi/.test(navigator.userAgent);
+    }
+
+    /**
      * Creates a Babylon Engine.
      * @param args The arguments for the engine.
      */

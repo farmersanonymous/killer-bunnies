@@ -1,5 +1,5 @@
-import { AdvancedDynamicTexture, TextBlock, Rectangle, Image, Control, Button, Slider } from 'babylonjs-gui';
-import { PerformanceMonitor, Scalar, AbstractMesh } from 'babylonjs';
+import { AdvancedDynamicTexture, TextBlock, Rectangle, Image, Control, Button, Slider, Ellipse } from 'babylonjs-gui';
+import { PerformanceMonitor, Scalar, AbstractMesh, Vector2 } from 'babylonjs';
 import { BabylonObserverStore } from '../store/babylonObserverStore';
 import { ImageManager } from './imageManager';
 import { Config } from '../gameplay/config';
@@ -39,17 +39,21 @@ export class GUIManager {
     #_pausePanel: Rectangle;
     #_pausePanelOverlay: Rectangle;
     #_updateHandle: number;
-    #_pickIcons: Map<AbstractMesh, Image> = new Map<AbstractMesh, Image>();
+    #_pickIcons: Map<AbstractMesh, Control> = new Map<AbstractMesh, Control>();
     #_carrots: Image[] = [];
     #_harvestSlider: Slider;
     #_harvestTimer: number;
     #_upgradePanel: Rectangle;
+
+    #_leftStick: Ellipse;
+    #_rightStick: Ellipse;
 
     /**
      * Constructor.
      */
     constructor() {
         this.#_dynamicTexture = AdvancedDynamicTexture.CreateFullscreenUI('UI');
+        // this.#_dynamicTexture.renderAtIdealSize = true;
         this.#_dynamicTexture.idealWidth = 1200;
 
         /**
@@ -127,7 +131,7 @@ export class GUIManager {
             carrotempty.top = 65;
             this.#_dynamicTexture.addControl(carrotempty);
         }
-        
+
         /**
          * Timer for the period in between rounds.
          */
@@ -301,20 +305,20 @@ export class GUIManager {
 
         fullscreenButton.onPointerClickObservable.add(() => {
             const safariDocument = document as unknown as SafariDocument;
-            if(!document.fullscreenElement && !safariDocument.webkitFullscreenElement) {
-                if(document.body.requestFullscreen)
+            if (!document.fullscreenElement && !safariDocument.webkitFullscreenElement) {
+                if (document.body.requestFullscreen)
                     document.body.requestFullscreen();
                 else {
                     const safariElement = document.body as unknown as SafariElement;
-                    if(safariElement && safariElement.webkitRequestFullscreen)
+                    if (safariElement && safariElement.webkitRequestFullscreen)
                         safariElement.webkitRequestFullscreen();
                 }
             }
             else {
-                if(document.exitFullscreen)
+                if (document.exitFullscreen)
                     document.exitFullscreen();
                 else {
-                    if(safariDocument && safariDocument.webkitExitFullscreen)
+                    if (safariDocument && safariDocument.webkitExitFullscreen)
                         safariDocument.webkitExitFullscreen();
                 }
             }
@@ -454,6 +458,151 @@ export class GUIManager {
                 fpsText.text = 'FPS: ' + performanceMonitor.averageFPS.toFixed(0);
             });
         }
+
+        const sideJoystickOffset = 150;
+        const bottomJoystickOffset = -50;
+        function makeThumbArea(name: string, thickness: number, color: string, background: string): Ellipse {
+            const rect = new Ellipse();
+            rect.name = name;
+            rect.thickness = thickness;
+            rect.color = color;
+            rect.background = background;
+            rect.paddingLeft = "0px";
+            rect.paddingRight = "0px";
+            rect.paddingTop = "0px";
+            rect.paddingBottom = "0px";
+            return rect;
+        }
+
+        if (BabylonStore.isMobile) {
+            const ui2 = AdvancedDynamicTexture.CreateFullscreenUI('UI2');
+
+            const leftStick = makeThumbArea("leftThumb", 2, "blue", null);
+            leftStick.height = "150px";
+            leftStick.width = "150px";
+            leftStick.isPointerBlocker = true;
+            leftStick.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            leftStick.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+            leftStick.alpha = 0.4;
+            leftStick.left = sideJoystickOffset;
+            leftStick.top = bottomJoystickOffset;
+
+            const leftInnerThumbContainer = makeThumbArea("leftInnterThumb", 4, "blue", null);
+            leftInnerThumbContainer.height = "40px";
+            leftInnerThumbContainer.width = "40px";
+            leftInnerThumbContainer.isPointerBlocker = true;
+            leftInnerThumbContainer.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            leftInnerThumbContainer.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+
+            const leftPuck = makeThumbArea("leftPuck", 0, "blue", "blue");
+            leftPuck.height = "20px";
+            leftPuck.width = "20px";
+            leftPuck.isPointerBlocker = true;
+            leftPuck.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            leftPuck.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+
+            let leftIsDown = false;
+            leftStick.onPointerDownObservable.add(function (coordinates) {
+                leftPuck.isVisible = true;
+                const left = coordinates.x - (leftStick._currentMeasure.width * .5) - sideJoystickOffset;
+                leftPuck.left = left;
+                const top = BabylonStore.engine.getRenderHeight() - coordinates.y - (leftStick._currentMeasure.height * .5) + bottomJoystickOffset;
+                leftPuck.top = top * -1;
+                leftIsDown = true;
+                leftStick.alpha = 0.9;
+                GUIManager.onLeftStickMove?.(new Vector2(left, top).normalize());
+            });
+
+            leftStick.onPointerUpObservable.add(function () {
+                leftIsDown = false;
+                leftPuck.isVisible = false;
+                leftStick.alpha = 0.4;
+                GUIManager.onLeftStickMove?.(undefined);
+            });
+
+
+            leftStick.onPointerMoveObservable.add(function (coordinates) {
+                if (leftIsDown) {
+                    const xAddPos = coordinates.x - (leftStick._currentMeasure.width * .5) - sideJoystickOffset;
+                    const yAddPos = BabylonStore.engine.getRenderHeight() - coordinates.y - (leftStick._currentMeasure.height * .5) + bottomJoystickOffset;
+                    const left = xAddPos;
+                    const top = yAddPos * -1;
+                    leftPuck.left = left;
+                    leftPuck.top = top;
+
+                    GUIManager.onLeftStickMove?.(new Vector2(left, top * -1).normalize());
+                }
+            });
+
+            ui2.addControl(leftStick);
+            leftStick.addControl(leftInnerThumbContainer);
+            leftStick.addControl(leftPuck);
+
+            const rightStick = makeThumbArea("rightThumb", 2, "red", null);
+            rightStick.height = "150px";
+            rightStick.width = "150px";
+            rightStick.isPointerBlocker = true;
+            rightStick.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            rightStick.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+            rightStick.alpha = 0.4;
+            rightStick.left = -sideJoystickOffset;
+            rightStick.top = bottomJoystickOffset;
+
+            const rightInnerThumbContainer = makeThumbArea("rightInnterThumb", 4, "red", null);
+            rightInnerThumbContainer.height = "40px";
+            rightInnerThumbContainer.width = "40px";
+            rightInnerThumbContainer.isPointerBlocker = true;
+            rightInnerThumbContainer.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            rightInnerThumbContainer.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+
+            const rightPuck = makeThumbArea("rightPuck", 0, "red", "red");
+            rightPuck.height = "20px";
+            rightPuck.width = "20px";
+            rightPuck.isPointerBlocker = true;
+            rightPuck.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            rightPuck.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            rightPuck.isVisible = false;
+
+            let rightIsDown = false;
+            rightStick.onPointerDownObservable.add(function (coordinates) {
+                console.log(coordinates);
+                rightPuck.isVisible = true;
+                const left = BabylonStore.engine.getRenderWidth() - coordinates.x - (rightStick._currentMeasure.width * .5) - sideJoystickOffset;
+                rightPuck.left = left * -1;
+                const top = BabylonStore.engine.getRenderHeight() - coordinates.y - (rightStick._currentMeasure.height * .5) + bottomJoystickOffset;
+                rightPuck.top = top * -1;
+                rightIsDown = true;
+                rightStick.alpha = 0.9;
+                GUIManager.onRightStickMove?.(new Vector2(left, top).normalize());
+            });
+
+            rightStick.onPointerUpObservable.add(function () {
+                rightIsDown = false;
+                rightPuck.isVisible = false;
+                rightStick.alpha = 0.4;
+                GUIManager.onRightStickMove?.(undefined);
+            });
+
+            rightStick.onPointerMoveObservable.add(function (coordinates) {
+                if (rightIsDown) {
+                    const xAddRot = BabylonStore.engine.getRenderWidth() - coordinates.x - (rightStick._currentMeasure.width * .5) - sideJoystickOffset;
+                    const yAddRot = BabylonStore.engine.getRenderHeight() - coordinates.y - (rightStick._currentMeasure.height * .5) + bottomJoystickOffset;
+                    const left = xAddRot * -1;
+                    const top = yAddRot * -1;
+                    rightPuck.left = left;
+                    rightPuck.top = top;
+
+                    GUIManager.onRightStickMove?.(new Vector2(left * -1, top * -1).normalize());
+                }
+            });
+
+            ui2.addControl(rightStick);
+            rightStick.addControl(rightInnerThumbContainer);
+            rightStick.addControl(rightPuck);
+
+            this.#_leftStick = leftStick;
+            this.#_rightStick = rightStick;
+        }
     }
 
     /**
@@ -468,6 +617,9 @@ export class GUIManager {
             this.#_dynamicTexture.removeControl(this.#_pausePanel);
             this.#_dynamicTexture.removeControl(this.#_pausePanelOverlay);
         }
+
+        this.#_leftStick.isVisible = !value;
+        this.#_rightStick.isVisible = !value;
     }
 
     /**
@@ -515,22 +667,54 @@ export class GUIManager {
      * @param mesh The mesh to attach the pick icon to.
      * @param imageName The name of the image to use for the icon.
      * @param offset The offset y in pixels.
+     * @param callback Callback in the casse of imageName === tap, for mobile.
      */
-    public addPickIcon(mesh: AbstractMesh, imageName: string, offset = -100): void {
+    public addPickIcon(mesh: AbstractMesh, imageName: string, offset = -100, callback?: () => void): void {
         if (this.#_pickIcons.has(mesh)) {
             return;
         }
 
-        const image = ImageManager.get(imageName);
-        image.widthInPixels = 32;
-        image.heightInPixels = 32;
-        this.#_dynamicTexture.addControl(image);
-        image.linkWithMesh(mesh);
-        image.linkOffsetYInPixels = offset;
-        mesh.onDisposeObservable.add(() => {
-            this.removePickIcon(mesh);
-        });
-        this.#_pickIcons.set(mesh, image);
+        // For mobile. Not the best way to do it, but running out of time.
+        if (imageName === 'TAP') {
+            const button = new Button();
+            button.thickness = 3;
+            button.color = "#2b1d0e";
+            button.background = "#654321";
+            button.widthInPixels = 120;
+            button.heightInPixels = 65;
+            button.cornerRadius = 5;
+            button.onPointerClickObservable.add(() => {
+                callback?.();
+            });
+            this.#_dynamicTexture.addControl(button);
+
+            const text = new TextBlock('TAP', imageName);
+            text.color = 'white';
+            text.fontFamily = 'ActionMan';
+            text.fontSize = '32px';
+            text.widthInPixels = 100;
+            text.heightInPixels = 32;
+            button.addControl(text);
+
+            button.linkWithMesh(mesh);
+            button.linkOffsetYInPixels = offset;
+            mesh.onDisposeObservable.add(() => {
+                this.removePickIcon(mesh);
+            });
+            this.#_pickIcons.set(mesh, button);
+        }
+        else {
+            const image = ImageManager.get(imageName);
+            image.widthInPixels = 32;
+            image.heightInPixels = 32;
+            this.#_dynamicTexture.addControl(image);
+            image.linkWithMesh(mesh);
+            image.linkOffsetYInPixels = offset;
+            mesh.onDisposeObservable.add(() => {
+                this.removePickIcon(mesh);
+            });
+            this.#_pickIcons.set(mesh, image);
+        }
     }
     /**
      * Removes the pick icon from the gui manager.
@@ -649,6 +833,12 @@ export class GUIManager {
         let totalCarrots = parseInt(this.#_carrotText.text);
         onClose;
         this.#_dynamicTexture.addControl(this.#_pausePanel);
+
+        // Turn off controller when viewing upgrades.
+        if (BabylonStore.isMobile) {
+            this.#_rightStick.isVisible = false;
+            this.#_leftStick.isVisible = false;
+        }
 
         this.#_upgradePanel = new Rectangle();
         this.#_upgradePanel.thickness = 3;
@@ -1053,7 +1243,7 @@ export class GUIManager {
         this.#_upgradePanel.addControl(closeButton);
 
         // Add UI for controller.
-        if(!farmer.useMouse) {
+        if (!farmer.useMouse && !BabylonStore.isMobile) {
             // B Button to close.
             const bButton = ImageManager.get('BButton');
             bButton.widthInPixels = 32;
@@ -1111,7 +1301,7 @@ export class GUIManager {
             updateSingleUpgrade(moveSpeedButton, currentMoveSpeedText, newMoveSpeedText, moveSpeedCost, noMoveSpeedIcon, farmer.movementSpeed, Config.player.upgradeSpeed, farmer.speedCost, 1);
         }
         healthButton.onPointerClickObservable.add(() => {
-            if(!healthButton.isEnabled)
+            if (!healthButton.isEnabled)
                 return;
 
             SoundManager.play('Select');
@@ -1120,7 +1310,7 @@ export class GUIManager {
             updateUpgrades();
         });
         damageButton.onPointerClickObservable.add(() => {
-            if(!damageButton.isEnabled)
+            if (!damageButton.isEnabled)
                 return;
 
             SoundManager.play('Select');
@@ -1129,7 +1319,7 @@ export class GUIManager {
             updateUpgrades();
         });
         harvestButton.onPointerClickObservable.add(() => {
-            if(!harvestButton.isEnabled)
+            if (!harvestButton.isEnabled)
                 return;
 
             SoundManager.play('Select');
@@ -1138,7 +1328,7 @@ export class GUIManager {
             updateUpgrades();
         });
         moveSpeedButton.onPointerClickObservable.add(() => {
-            if(!moveSpeedButton.isEnabled)
+            if (!moveSpeedButton.isEnabled)
                 return;
 
             SoundManager.play('Select');
@@ -1164,6 +1354,12 @@ export class GUIManager {
      */
     public hideUpgradePanel(): boolean {
         if (this.#_upgradePanel) {
+            // Turn on controller when hiding upgrades.
+            if (BabylonStore.isMobile) {
+                this.#_rightStick.isVisible = true;
+                this.#_leftStick.isVisible = true;
+            }
+
             const textControl = this.#_upgradePanel.getChildByName('CarrotCount') as TextBlock;
             this.#_carrotText.text = textControl.text;
             this.#_dynamicTexture.removeControl(this.#_upgradePanel);
@@ -1186,4 +1382,12 @@ export class GUIManager {
      * An event that gets triggered whenever the pause button in the corner gets pressed.
      */
     public onPauseButtonPressed: () => void;
+    /**
+     * An event that gets triggered when the left virtual controller stick is moved. For mobile.
+     */
+    public static onLeftStickMove: (dir: Vector2) => void;
+    /**
+     * An event that gets triggered when the right virtual controller stick is moved. For mobile.
+     */
+    public static onRightStickMove: (dir: Vector2) => void;
 }

@@ -1,8 +1,9 @@
-import { Vector2, Vector3, Matrix, VirtualJoystick } from 'babylonjs';
+import { Vector2, Vector3, Matrix } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
 import { Farmer } from './farmer';
 import { Input } from '../input/input';
 import { BabylonObserverStore } from '../store/babylonObserverStore';
+import { GUIManager } from '../ui/guiManager';
 
 /**
  * Handles input for the player character.
@@ -17,16 +18,27 @@ export class CharacterController {
      * @param player The player character that needs to be controlled. 
      */
     constructor(player: Farmer) {
-        let leftJoystick: VirtualJoystick;
-        let rightJoystick: VirtualJoystick;
-        if (/Mobi/.test(navigator.userAgent)) {
-            leftJoystick = new VirtualJoystick(true);
-            rightJoystick = new VirtualJoystick(false)
-        }
-
         let hasMoved = false;
         let hasFired = false;
         let hasFiredController = false;
+
+        // Virtual controllers.
+        let virtualControllerMove: Vector2 = undefined;
+        let virtualControllerRotate: Vector2 = undefined;
+        GUIManager.onLeftStickMove = (dir): void => {
+            virtualControllerMove = dir;
+            if(dir === undefined) {
+                this.onMoveEnd?.();
+            }
+        }
+
+        GUIManager.onRightStickMove = (dir): void => {
+            virtualControllerRotate = dir;
+            if(dir === undefined) {
+                this.onFireEnd?.();
+            }
+        }
+
         this.#_updateHandle = BabylonObserverStore.registerAfterRender(() => {
             if (this.#_disabled) {
                 return;
@@ -48,47 +60,21 @@ export class CharacterController {
             }
             if (Input.isKeyDown('pointerDown')) {
                 // Spawn bullet.
-                this.onFire?.call(this);
+                this.onFire?.();
                 hasFired = true;
             }
             else if (hasFired) {
-                this.onFireEnd?.call(this);
+                this.onFireEnd?.();
                 hasFired = false;
             }
 
-            if (leftJoystick && leftJoystick.pressed) {
-                if (leftJoystick.deltaPosition.x > 0.1 || leftJoystick.deltaPosition.x < 0.1) {
-                    x = leftJoystick.deltaPosition.x;
-                }
-                if (leftJoystick.deltaPosition.y > 0.1 || leftJoystick.deltaPosition.y < 0.1) {
-                    y = leftJoystick.deltaPosition.y;
-                }
-            }
-
-            if (rightJoystick && rightJoystick.pressed) {
-                if (rightJoystick.deltaPosition.x > 0.5 || rightJoystick.deltaPosition.x < 0.5 ||
-                    rightJoystick.deltaPosition.y > 0.5 || rightJoystick.deltaPosition.y < 0.5) {
-                    this.onRotate?.call(this, new Vector2(-rightJoystick.deltaPosition.x, rightJoystick.deltaPosition.y));
-                    this.onFire?.call(this);
-                    hasFiredController = true;
-                }
-                else if(hasFiredController) {
-                    this.onFireEnd?.call(this);
-                    hasFiredController = false;
-                }
-            }
-            else if(hasFiredController) {
-                this.onFireEnd?.call(this);
-                hasFiredController = false;
-            }
-
-            // Enables the useMouse flag to override joystick movement if the mouse has been moved.
-            BabylonStore.scene.onPointerMove = (): void => {
+            // Enables the useMouse flag to override joystick movement if the mouse has been interacted with.
+            BabylonStore.scene.onPointerObservable.add(() => {
                 if (this.#_disabled) {
                     return;
                 }
                 this.#_useMouse = true;
-            }
+            });
 
             // If a game pad exists, handle input.
             if (Input.isControllerConnected) {
@@ -101,18 +87,18 @@ export class CharacterController {
                 }
 
                 if (Input.controllerRightTrigger > 0.5) {
-                    this.onFire?.call(this);
+                    this.onFire?.();
                     hasFiredController = true;
                 }
                 else if (hasFiredController) {
-                    this.onFireEnd?.call(this);
+                    this.onFireEnd?.();
                     hasFiredController = false;
                 }
 
                 // 0.5 is used to handle any quick twitches that happen when doing fast rotations, might need to tweak still.
                 if (Input.controllerRightStick.x > 0.5 || Input.controllerRightStick.x < -0.5 ||
                     Input.controllerRightStick.y > 0.5 || Input.controllerRightStick.y < -0.5) {
-                    this.onRotate?.call(this, new Vector2(-Input.controllerRightStick.x, -Input.controllerRightStick.y));
+                    this.onRotate?.(new Vector2(-Input.controllerRightStick.x, -Input.controllerRightStick.y));
                     this.#_useMouse = false;
                 }
             }
@@ -124,15 +110,25 @@ export class CharacterController {
                 projectedFarmerPosition.y *= BabylonStore.engine.getRenderHeight();
 
                 const dir = new Vector2(projectedFarmerPosition.x - BabylonStore.scene.pointerX, projectedFarmerPosition.y - BabylonStore.scene.pointerY);
-                this.onRotate?.call(this, dir.normalize());
+                this.onRotate?.(dir.normalize());
+            }
+
+            if(virtualControllerMove) {
+                x = virtualControllerMove.x;
+                y = virtualControllerMove.y;
+            }
+
+            if(virtualControllerRotate) {
+                this.onRotate?.(virtualControllerRotate);
+                this.onFire?.();
             }
 
             if (x != 0 || y != 0) {
-                this.onMove?.call(this, new Vector2(x, y));
+                this.onMove?.(new Vector2(x, y));
                 hasMoved = true;
             }
             else if (hasMoved) {
-                this.onMoveEnd?.call(this);
+                this.onMoveEnd?.();
                 hasMoved = false;
             }
         });

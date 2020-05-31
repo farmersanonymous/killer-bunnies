@@ -1,4 +1,4 @@
-import { ExecuteCodeAction, ActionManager, GenericPad, GamepadManager, StickValues, Xbox360Pad, DualShockPad } from "babylonjs";
+import { ExecuteCodeAction, ActionManager, GenericPad, GamepadManager, StickValues, Xbox360Pad, DualShockPad, Vector2 } from "babylonjs";
 import { BabylonStore } from "../store/babylonStore";
 
 /**
@@ -13,6 +13,7 @@ export class Input {
     private static _isInit = false;
     private static _keyMap: Map<string, boolean> = new Map<string, boolean>();
     private static _prevMap: Map<string, boolean> = new Map<string, boolean>();
+    private static _touchPositions: Map<number, Vector2> = new Map<number, Vector2>();
     private static genericPad: GenericPad = null;
 
     private constructor() { /** Static class. */ }
@@ -37,11 +38,24 @@ export class Input {
 
         // Events that get triggered when any mouse button is clicked/released.
         BabylonStore.scene.onPointerDown = (evt): void => {
-            this.mapInput('pointerDown', true && evt.pointerType === 'mouse' && evt.button === 0);
+            if(evt.pointerType === 'mouse')
+                this.mapInput('pointerDown', true && evt.button === 0);
+            else if(evt.pointerType === 'touch') {
+                this.mapInput(`touch${evt.pointerId}`, true);
+                this._touchPositions.set(evt.pointerId, new Vector2(evt.screenX, evt.screenY));
+            }
         };
-        BabylonStore.scene.onPointerUp = (): void => {
-            this.mapInput('pointerDown', false);
+        BabylonStore.scene.onPointerUp = (evt): void => {
+            if(evt.pointerType === 'mouse')
+                this.mapInput('pointerDown', false);
+            else if(evt.pointerType === 'touch') {
+                this.mapInput(`touch${evt.pointerId}`, false);
+                this._touchPositions.delete(evt.pointerId);
+            }
         };
+        BabylonStore.scene.onPointerMove = (evt): void => {
+            this._touchPositions.set(evt.pointerId, new Vector2(evt.screenX, evt.screenY));
+        }
 
         // Handle game pad management. We currently only support one game pad. Unplug the existing game pad in order to use a new one.
         const gamepadManager = new GamepadManager();
@@ -79,6 +93,22 @@ export class Input {
      */
     public static isKeyDown(key: string): boolean {
         return this._keyMap.get(key);
+    }
+
+    /**
+     * Gets all fingers touching the touch screen.
+     * @returns An array of all the finger ids touching the touch screen.
+     */
+    public static getTouches(): number[] {
+        return [...this._keyMap].filter(k => k[0].startsWith('touch')).map(t => parseInt(t[0].replace('touch', '')));
+    }
+    /**
+     * Gets the current position of a finger.
+     * @param id The id of the touch event.
+     * @returns The current position of a finger. Will return undefined if the id is not a touch event.
+     */
+    public static getTouchPosition(id: number): Vector2 {
+        return this._touchPositions.get(id);
     }
 
     /**
@@ -147,8 +177,12 @@ export class Input {
     }
 
     private static mapInput(key: string, value: boolean): void {
-        this._keyMap.set(key, value);
-        this.onAnyDown?.call(this);
+        if(value) {
+            this._keyMap.set(key, value);
+            this.onAnyDown?.call(this);
+        }
+        else
+            this._keyMap.delete(key);
     }
 
     private static mapControllerInput(data: number, value: boolean): void {

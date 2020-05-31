@@ -148,6 +148,22 @@ export class Farmer extends BaseCollidable {
 
         //
         RadarManager.createBlip(this.#_root, BlipType.Player);
+
+        /*
+        //component - is an object from the midle of the scene :))
+        this.getMesh().computeWorldMatrix(true);
+        const radius = this.getMesh().getBoundingInfo().boundingSphere.radiusWorld + 10;
+            
+        const aspectRatio = BabylonStore.engine.getAspectRatio(BabylonStore.camera);
+        let halfMinFov = BabylonStore.camera.fov / 2;
+        if (aspectRatio < 1) {
+            halfMinFov = Math.atan( aspectRatio * Math.tan(BabylonStore.camera.fov / 2) );
+        }
+        
+        const viewRadius = Math.abs( radius / Math.sin(halfMinFov));
+        console.log(viewRadius);
+        BabylonStore.camera.radius = viewRadius;
+        */
     }
 
     /**

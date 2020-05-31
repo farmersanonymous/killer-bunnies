@@ -1,4 +1,4 @@
-import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader, Engine, Angle } from 'babylonjs';
+import { Vector3, HemisphericLight, DefaultLoadingScreen, SceneLoader, Engine, Angle, Camera } from 'babylonjs';
 import { BabylonStore } from './store/babylonStore';
 import { Loader, LoaderType } from './assets/loader';
 import { Input } from './input/input';
@@ -121,9 +121,10 @@ export class Bootstrap {
         });
 
         // Creates the main camera.
-        BabylonStore.createCamera('mainCamera', Angle.FromDegrees(205).radians(), Angle.FromDegrees(45).radians(), 30, Vector3.Zero(), BabylonStore.scene, true);
+        BabylonStore.createCamera('mainCamera', Angle.FromDegrees(205).radians(), Angle.FromDegrees(45).radians(), 50, Vector3.Zero(), BabylonStore.scene, true);
         BabylonStore.scene.activeCameras.push(BabylonStore.camera);
         BabylonStore.scene.cameraToUseForPointers = BabylonStore.camera;
+        BabylonStore.camera.fovMode = Camera.FOVMODE_HORIZONTAL_FIXED;
 
         // Create a default light for the scene. A light is needed for the PBR materials that we will be downloading later.
         new HemisphericLight("light1", new Vector3(0, 1, 0), BabylonStore.scene);
@@ -139,11 +140,11 @@ export class Bootstrap {
 
         // Adds the files that need to be downloaded into the loader.
         Config.assets.forEach(a => {
-            if(a.type === 'art')
+            if (a.type === 'art')
                 Loader.addDownload(a.name, LoaderType.Art, a.url);
-            else if(a.type === 'sound')
+            else if (a.type === 'sound')
                 Loader.addDownload(a.name, LoaderType.Sound, a.url);
-            else if(a.type === 'image')
+            else if (a.type === 'image')
                 Loader.addDownload(a.name, LoaderType.Image, a.url);
         });
 
@@ -187,7 +188,7 @@ export class Bootstrap {
         // Runs the update loop for the Babylon Engine. Will update the game if it exists.
         BabylonObserverStore.registerBeforeRender(() => {
             BabylonStore.update();
-            if(this.#_game) {
+            if (this.#_game) {
                 this.#_game.update();
             }
 
@@ -213,7 +214,10 @@ export class Bootstrap {
         this.#_game.dispose();
         this.#_game = null;
         this.#_canvas.style.opacity = '0';
-        SoundManager.play('Title');
+        SoundManager.play('Title', {
+            loop: true,
+            volume: 0.1
+        });
 
         // Show splash screen and wait 3 seconds before allowing input again.
         BabylonStore.engine.displayLoadingUI();
