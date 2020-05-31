@@ -267,7 +267,7 @@ export class StabberRabbit extends BaseCollidable {
         if (this.#_health <= 0) {
 
             const healthChance = Scalar.RandomRange(0, 100);
-            if(healthChance <= 5) {
+            if(healthChance <= 10 || this.#_super) {
                 const worldMatrix = this.#_root.getWorldMatrix();
                 const worldPosition = worldMatrix.getRow(3).toVector3();
                 new HeartDrop(worldPosition.add(Vector3.Up()));

@@ -30,6 +30,9 @@ export class HeartDrop {
         this.#_root.computeWorldMatrix();
         this.#_heart = this.#_root.getChildMeshes()[0] as Mesh;
 
+        // Freeze world matrix after position is set.
+        this.#_root.getChildMeshes().forEach(m => m.freezeWorldMatrix());
+
         HeartDrop._highlighter.addMesh(this.#_heart, Color3.Yellow());
 
         HeartDrop._hearts.push(this);

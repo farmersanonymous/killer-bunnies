@@ -313,8 +313,8 @@
     },
     "burrow": {
         "spawnFrequency": {
-            "min": 5,
-            "max": 10
+            "min": 10,
+            "max": 15
         },
         "timeLimit": {
             "min": 30,
@@ -324,7 +324,7 @@
             "min": 5,
             "max": 10
         },
-        "nabberSpawnRatio": 0.2
+        "nabberSpawnRatio": 0.1
     },
     "stabberRabbit": {
         "health": 30,

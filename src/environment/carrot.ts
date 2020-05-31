@@ -27,6 +27,9 @@ export class Carrot {
         this.root.computeWorldMatrix();
         this.#_pickable = false;
 
+        // Freeze world matrix after position is set.
+        this.#_root.getChildMeshes().forEach(m => m.freezeWorldMatrix());
+
         Carrot._carrots.push(this);
 
         RadarManager.createBlip(this.#_root, BlipType.Carrot);
