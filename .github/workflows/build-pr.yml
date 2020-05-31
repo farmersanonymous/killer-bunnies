@@ -47,3 +47,6 @@ jobs:
 
     - name: Upload fonts
       run: gsutil -h "Cache-Control:no-cache, max-age=0" cp -r ./fonts gs://farmer-hosting/prs/$PULL_NUMBER/fonts
+
+    - name: Upload assets
+      run: gsutil -h "Cache-Control:no-cache, max-age=0" cp -r ./assets gs://farmer-hosting/prs/$PULL_NUMBER/assets
