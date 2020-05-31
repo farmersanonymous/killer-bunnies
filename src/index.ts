@@ -29,7 +29,7 @@ function showLoadingScreenCallback(): void {
     splashDiv.style.opacity = '1';
     splashDiv.style.transition = 'opacity 1.5s ease';
     splashDiv.style.pointerEvents = 'none';
-    splashDiv.style.background = 'url(https://storage.googleapis.com/farmer-assets/splashScreen/3/splash.png) no-repeat';
+    splashDiv.style.background = 'url(assets/images/splash.png) no-repeat';
     splashDiv.style.backgroundSize = 'cover';
     splashDiv.style.paddingLeft = "0";
     splashDiv.style.paddingRight = "0";
@@ -115,7 +115,7 @@ export class Bootstrap {
         BabylonStore.scene.useRightHandedSystem = true;
 
         // This is the title sound so it needs to load as soon as possible.
-        SoundManager.load('Title', 'https://storage.googleapis.com/farmer-assets/sound/bensound-energy.mp3').then(() => {
+        SoundManager.load('Title', 'assets/sounds/bensound-energy.mp3').then(() => {
             SoundManager.play('Title', {
                 loop: true,
                 volume: 0.1

@@ -54,247 +54,242 @@
         {
             "name": "Well",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/well/3/Well.gltf"
+            "url": "assets/well/Well.gltf"
         },
         {
             "name": "Ground",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/ground/16/Ground.gltf"
+            "url": "assets/ground/Ground.gltf"
         },
         {
             "name": "Heart",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/heart/1/heart.gltf"
+            "url": "assets/heart/heart.gltf"
         },
         {
             "name": "Basket",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/carrotSiren/2/CarrotSiren.gltf"
+            "url": "assets/siren/CarrotSiren.gltf"
         },
         {
             "name": "Tree1",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/tree01/1/Tree01.glb"
+            "url": "assets/tree01/Tree01.glb"
         },
         {
             "name": "Tree2",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/tree02/1/Tree02.glb"
+            "url": "assets/tree02/Tree02.glb"
         },
         {
             "name": "Music1",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-happyrock.mp3"
+            "url": "assets/sounds/bensound-happyrock.mp3"
         },
         {
             "name": "Music2",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-punky.mp3"
+            "url": "assets/sounds/bensound-punky.mp3"
         },
         {
             "name": "Music3",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/bensound-happiness.mp3"
+            "url": "assets/sounds/bensound-happiness.mp3"
         },
         {
             "name": "Die",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/die1.wav"
+            "url": "assets/sounds/die.wav"
         },
         {
             "name": "Pain1",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/pain1.wav"
+            "url": "assets/sounds/pain1.wav"
         },
         {
             "name": "Pain2",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/pain2.wav"
+            "url": "assets/sounds/pain2.wav"
         },
         {
             "name": "Pain3",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/pain3.wav"
+            "url": "assets/sounds/pain3.wav"
         },
         {
             "name": "Shoot",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/shot_02.ogg"
+            "url": "assets/sounds/shot_02.mp3"
         },
         {
             "name": "Squeal1",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/squeal_1.wav"
+            "url": "assets/sounds/squeal_1.wav"
         },
         {
             "name": "Squeal2",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/squeal_2.wav"
+            "url": "assets/sounds/squeal_2.wav"
         },
         {
             "name": "Squeal3",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/squeal_3.wav"
+            "url": "assets/sounds/squeal_3.wav"
         },
         {
             "name": "Squeal4",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/squeal_4.wav"
+            "url": "assets/sounds/squeal_4.wav"
         },
         {
             "name": "SquealDeath1",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/squeak_death_1.wav"
+            "url": "assets/sounds/squeak_death_1.wav"
         },
         {
             "name": "SquealDeath2",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/squeak_death_2.wav"
+            "url": "assets/sounds/squeak_death_2.wav"
         },
         {
             "name": "Harvest1",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/harvest_1.mp3"
+            "url": "assets/sounds/harvest_1.mp3"
         },
         {
             "name": "Harvest2",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/harvest_2.mp3"
+            "url": "assets/sounds/harvest_2.mp3"
         },
         {
             "name": "Harvest3",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/harvest_3.mp3"
+            "url": "assets/sounds/harvest_3.mp3"
         },
         {
             "name": "Burrow1",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/burrow_1.mp3"
+            "url": "assets/sounds/burrow_1.mp3"
         },
         {
             "name": "Burrow2",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/burrow_2.mp3"
+            "url": "assets/sounds/burrow_2.mp3"
         },
         {
             "name": "Steps",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/steps.mp3"
+            "url": "assets/sounds/steps.mp3"
         },
         {
             "name": "Select",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/select_001.ogg"
+            "url": "assets/sounds/select_001.mp3"
         },
         {
             "name": "OpenUpgrade",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/maximize_008.ogg"
+            "url": "assets/sounds/maximize_008.mp3"
         },
         {
             "name": "Siren",
             "type": "sound",
-            "url": "https://storage.googleapis.com/farmer-assets/sound/siren.mp3"
+            "url": "assets/sounds/siren.mp3"
         },
         {
             "name": "CarrotEmpty",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/carrot-empty.png"
+            "url": "assets/images/carrot-empty.png"
         },
         {
             "name": "CarrotFill",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/carrot-fill.png"
+            "url": "assets/images/carrot-fill.png"
         },
         {
             "name": "Heart",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/heart.png"
+            "url": "assets/images/heart.png"
         },
         {
             "name": "Timer",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/timer.png"
+            "url": "assets/images/timer.png"
         },
         {
             "name": "Pause",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/pause.png"
+            "url": "assets/images/pause.png"
         },
         {
             "name": "Play",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/play.png"
+            "url": "assets/images/play.png"
         },
         {
             "name": "EKey",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/e-key.png"
+            "url": "assets/images/e-key.png"
         },
         {
             "name": "Boots",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/boots.png"
+            "url": "assets/images/boots.png"
         },
         {
             "name": "CorncobberIcon",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/corncobber-icon.png"
+            "url": "assets/images/corncobber-icon.png"
         },
         {
             "name": "CarrotBasket",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/carrotbasket.png"
+            "url": "assets/images/carrotbasket.png"
         },
         {
             "name": "Arrow",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/arrow.png"
+            "url": "assets/images/arrow.png"
         },
         {
             "name": "CircleNo",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/circle-no.png"
+            "url": "assets/images/circle-no.png"
         },
         {
             "name": "AButton",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_A.png"
+            "url": "assets/images/XboxOne_A.png"
         },
         {
             "name": "BButton",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_B.png"
+            "url": "assets/images/XboxOne_B.png"
         },
         {
             "name": "UpButton",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_Dpad_Up.png"
+            "url": "assets/images/XboxOne_Dpad_Up.png"
         },
         {
             "name": "LeftButton",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_Dpad_Left.png"
+            "url": "assets/images/XboxOne_Dpad_Left.png"
         },
         {
             "name": "RightButton",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_Dpad_Right.png"
+            "url": "assets/images/XboxOne_Dpad_Right.png"
         },
         {
             "name": "DownButton",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_Dpad_Down.png"
-        },
-        {
-            "name": "RBButton",
-            "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/XboxOne_RB.png"
+            "url": "assets/images/XboxOne_Dpad_Down.png"
         },
         {
             "name": "Fullscreen",
             "type": "image",
-            "url": "https://storage.googleapis.com/farmer-assets/images/fullscreen.png"
+            "url": "assets/images/fullscreen.png"
         }
     ],
     "player": {
