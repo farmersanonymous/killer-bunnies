@@ -29,7 +29,7 @@ function showLoadingScreenCallback(): void {
     splashDiv.style.opacity = '1';
     splashDiv.style.transition = 'opacity 1.5s ease';
     splashDiv.style.pointerEvents = 'none';
-    splashDiv.style.background = 'url(https://storage.googleapis.com/farmer-assets/splashScreen/1/splash.jpg) no-repeat';
+    splashDiv.style.background = 'url(https://storage.googleapis.com/farmer-assets/splashScreen/2/splash.png) no-repeat';
     splashDiv.style.backgroundSize = 'cover';
     splashDiv.style.paddingLeft = "0";
     splashDiv.style.paddingRight = "0";
