@@ -4,52 +4,52 @@
         {
             "name": "Farmer",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/farmer/6/Farmer.gltf"
+            "url": "assets/farmer/Farmer.gltf"
         },
         {
             "name": "Corncobber",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/weapon/2/Corncobber.gltf"
+            "url": "assets/corncobber/Corncobber.gltf"
         },
         {
             "name": "Bunny",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/stabbyBunny/6/StabbyBunny.gltf"
+            "url": "assets/bunny/StabbyBunny.gltf"
         },
         {
             "name": "StabberWeapon",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/stabbyWeapon/2/CarrotShiv.gltf"
+            "url": "assets/bunnyShiv/CarrotShiv.gltf"
         },
         {
             "name": "Garden",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/garden/14/Environment.gltf"
+            "url": "assets/garden/Environment.gltf"
         },
         {
             "name": "Shed",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/shed/4/Shed.gltf"
+            "url": "assets/shed/Shed.gltf"
         },
         {
             "name": "Fencing",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/fencing/2/Fencing.gltf"
+            "url": "assets/fencing/Fencing.gltf"
         },
         {
             "name": "Burrow",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/burrow/4/Burrow.gltf"
+            "url": "assets/burrow/Burrow.gltf"
         },
         {
             "name": "Carrot",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/carrot/4/Carrot.gltf"
+            "url": "assets/carrot/Carrot.gltf"
         },
         {
             "name": "Meteorite",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/meteorite/5/Meteorite.gltf"
+            "url": "assets/meteorite/Meteorite.gltf"
         },
         {
             "name": "Well",
@@ -59,7 +59,7 @@
         {
             "name": "Ground",
             "type": "art",
-            "url": "https://storage.googleapis.com/farmer-assets/ground/12/Ground.gltf"
+            "url": "https://storage.googleapis.com/farmer-assets/ground/16/Ground.gltf"
         },
         {
             "name": "Heart",
