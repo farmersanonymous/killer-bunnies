@@ -618,8 +618,10 @@ export class GUIManager {
             this.#_dynamicTexture.removeControl(this.#_pausePanelOverlay);
         }
 
-        this.#_leftStick.isVisible = !value;
-        this.#_rightStick.isVisible = !value;
+        if(this.#_leftStick && this.#_rightStick) {
+            this.#_leftStick.isVisible = !value;
+            this.#_rightStick.isVisible = !value;
+        }
     }
 
     /**
