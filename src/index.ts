@@ -108,7 +108,9 @@ export class Bootstrap {
         this.#_canvas.style.opacity = '0';
 
         // Create the Babylon Scene. Enable collisions and make sure to use right-handed (OpenGL) coordinate system.
-        BabylonStore.createScene(BabylonStore.engine);
+        BabylonStore.createScene(BabylonStore.engine, {
+            useGeometryUniqueIdsMap: true
+        });
         BabylonStore.scene.collisionsEnabled = true;
         BabylonStore.scene.useRightHandedSystem = true;
 

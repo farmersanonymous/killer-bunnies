@@ -33,6 +33,9 @@ export class CarrotDrop {
         this.#_root.computeWorldMatrix();
         this.#_fleshMesh = this.#_root.getChildMeshes(false, m => m.name === 'Flesh')[0] as Mesh;
 
+        // Freeze world matrix after position is set.
+        this.#_root.getChildMeshes().forEach(m => m.freezeWorldMatrix());
+
         CarrotDrop._highlighter.addMesh(this.#_fleshMesh, Color3.Yellow());
 
         CarrotDrop._carrots.push(this);

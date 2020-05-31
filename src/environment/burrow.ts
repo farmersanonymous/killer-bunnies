@@ -36,6 +36,9 @@ export class Burrow {
         this.#_root.parent = parent;
         this.#_root.computeWorldMatrix();
 
+        // Freeze world matrix after position is set.
+        this.#_root.getChildMeshes().forEach(m => m.freezeWorldMatrix());
+
         this.#_disposeTime = BabylonStore.time + Config.burrow.randomTimeLimit();
         this.#_spawnTimer = Config.burrow.randomRabbitSpawnFrequency();
 

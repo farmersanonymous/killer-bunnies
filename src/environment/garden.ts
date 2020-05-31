@@ -32,15 +32,25 @@ export class Garden extends BaseCollidable {
         // Tree spawn points.
         const tree1Spawner = Spawner.getSpawner('Tree1');
         const tree2Spawner = Spawner.getSpawner('Tree2');
+
         const tree1SpawnPoints = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name.startsWith('SpawnPoint_Tree01'));
         const tree2SpawnPoints = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name.startsWith('SpawnPoint_Tree02'));
+
+        const tree1 = tree1Spawner.instantiate().rootNodes[0].getChildMeshes() as Mesh[];
+        tree1.forEach(t => t.isVisible = false);
+        const tree2 = tree2Spawner.instantiate().rootNodes[0].getChildMeshes() as Mesh[];
+        tree2.forEach(t => t.isVisible = false);
         tree1SpawnPoints.forEach(t => {
-            const root = tree1Spawner.instantiate().rootNodes[0];
-            root.parent = t;
+            const transform = new TransformNode('Tree');
+            const instances = tree1.map(t => t.createInstance(t.name));
+            instances.forEach(i => i.parent = transform);
+            transform.parent = t;
         });
         tree2SpawnPoints.forEach(t => {
-            const root = tree2Spawner.instantiate().rootNodes[0];
-            root.parent = t;
+            const transform = new TransformNode('Tree');
+            const instances = tree2.map(t => t.createInstance(t.name));
+            instances.forEach(i => i.parent = transform);
+            transform.parent = t;
         });
 
         const wellSpawner = Spawner.getSpawner('Well');

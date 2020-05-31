@@ -248,7 +248,7 @@ export class NabberRabbit extends BaseCollidable {
             // A chance to drop health if the Nabber doesn't already have a carrot.
             else {
                 const healthChance = Scalar.RandomRange(0, 100);
-                if(healthChance <= 5) {
+                if(healthChance <= 10) {
                     const worldMatrix = this.#_root.getWorldMatrix();
                     const worldPosition = worldMatrix.getRow(3).toVector3();
                     new HeartDrop(worldPosition.add(Vector3.Up()));
