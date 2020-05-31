@@ -91,7 +91,8 @@ export class RadarManager {
         }
 
         const mesh = this.#_carrotSpawner.instantiate().rootNodes[0];
-        mesh.getChildMeshes().forEach(element => { element.layerMask = 0x10000000; }); 
+        mesh.getChildMeshes().forEach(element => { element.layerMask = 0x10000000; });
+        mesh.name = 'CarrotBlip';
         return mesh as Mesh;
     }
 
@@ -101,7 +102,8 @@ export class RadarManager {
         }
 
         const mesh = this.#_basketSpawner.instantiate().rootNodes[0];
-        mesh.getChildMeshes().forEach(element => { element.layerMask = 0x10000000; }); 
+        mesh.getChildMeshes().forEach(element => { element.layerMask = 0x10000000; });
+        mesh.name = 'BasketBlip';
         return mesh as Mesh;
     }
 
@@ -110,7 +112,9 @@ export class RadarManager {
             this.#_heartSpawner = Spawner.getSpawner('Heart');
         }
 
-        return this.#_heartSpawner.instantiate().rootNodes[0].getChildMeshes()[0] as Mesh;
+        const mesh = this.#_heartSpawner.instantiate().rootNodes[0].getChildMeshes()[0] as Mesh;
+        mesh.name = 'HeartBlip';
+        return mesh as Mesh;
     }
 
     private get stabberMaterial(): StandardMaterial {
@@ -165,19 +169,31 @@ export class RadarManager {
     private static getBlipMesh(blipType: BlipType): Mesh {
         if (blipType == BlipType.CarrotDrop) {
             const blip = this.getInstance().carrotMesh;
+            blip.scaling = new Vector3(10, 5, 10);
             blip.rotation.x = Angle.FromDegrees(90).radians();
             return blip;
         } else if (blipType == BlipType.HeartDrop) {
             const blip = this.getInstance().heartMesh;
-            blip.rotation.y = Angle.FromDegrees(90).radians();
+            blip.scaling = new Vector3(1.5, 1.5, 1.5);
+            blip.rotation = new Vector3(Angle.FromDegrees(180).radians(), 
+                                        Angle.FromDegrees(180).radians(),
+                                        Angle.FromDegrees(90).radians());
             return blip;
         } else if (blipType == BlipType.Basket) {
             const blip = this.getInstance().basketMesh;
-            //blip.rotation.x = Angle.FromDegrees(90).radians();
+            blip.scaling = new Vector3(3, 3, 3);
             return blip;
         } else {
             const blip = MeshBuilder.CreateDisc('Blip', { radius: 1.25, sideOrientation: Mesh.DOUBLESIDE }, BabylonStore.scene);
             blip.rotation.x = Angle.FromDegrees(90).radians();
+
+            switch (blipType) {
+                case BlipType.Nabber:
+                case BlipType.Carrot:
+                case BlipType.Stabber:
+                    blip.scaling = new Vector3(blip.scaling.x/2, blip.scaling.y/2, blip.scaling.z/2);
+                    break;
+            }
             return blip;
         }
     }
@@ -196,28 +212,16 @@ export class RadarManager {
                 blip.material = this.getInstance().playerMaterial;
                 break;
             case BlipType.Stabber:
-                blip.scaling = new Vector3(blip.scaling.x/2, blip.scaling.y/2, blip.scaling.z/2);
                 blip.material = this.getInstance().stabberMaterial;
                 break;
             case BlipType.Nabber:
-                blip.scaling = new Vector3(blip.scaling.x/2, blip.scaling.y/2, blip.scaling.z/2);
                 blip.material = this.getInstance().nabberMaterial;
                 break;
             case BlipType.Burrow:
                 blip.material = this.getInstance().burrowMaterial;
                 break;
             case BlipType.Carrot:
-                blip.scaling = new Vector3(blip.scaling.x/2, blip.scaling.y/2, blip.scaling.z/2);
                 blip.material = this.getInstance().carrotMaterial;
-                break;
-            case BlipType.HeartDrop:
-                //blip.scaling = new Vector3(10, 10, 10);
-                break;
-            case BlipType.CarrotDrop:
-                blip.scaling = new Vector3(10, 5, 10);
-                break;
-            case BlipType.Basket:
-                blip.scaling = new Vector3(3, 3, 3);
                 break;
         }
 
@@ -254,8 +258,10 @@ export class RadarManager {
     public static dispose(): void {
         this.getInstance().#_radar.dispose();
         this.getInstance().#_nabberMaterial.dispose();
-        this.getInstance().#_stabberMaterial.dispose();
+        this.getInstance().#_carrotMaterial.dispose();
+        this.getInstance().#_burrowMaterial.dispose();
         this.getInstance().#_playerMaterial.dispose();
+        this.getInstance().#_stabberMaterial.dispose();
         this.getInstance().#_blips.forEach(b => b.dispose());
 
         this._instance = null;

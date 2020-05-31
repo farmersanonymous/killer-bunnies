@@ -140,9 +140,9 @@ export class Garden extends BaseCollidable {
      */
     public dispose(): void {
         super.dispose();
+        RadarManager.removeBlip(this.#_harvestBasket.parent as TransformNode);
         this.#_harvestBasket.dispose();
         this.#_rootNodes.forEach(n => n.dispose());
         this.#_animation.dispose();
-        RadarManager.removeBlip(this.#_harvestBasket.parent as TransformNode);
     }
 }
