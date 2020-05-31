@@ -4,6 +4,7 @@ import { Navigation } from '../gameplay/navigation';
 import { BaseCollidable } from '../collision/baseCollidable';
 import { CollisionGroup } from '../collision/collisionManager';
 import { MathUtil } from '../util/mathUtil';
+import { RadarManager, BlipType } from '../ui/radar';
 
 /**
  * Tha main Garden scene.
@@ -76,6 +77,8 @@ export class Garden extends BaseCollidable {
         root.scaling = root.scaling.scale(3);
         this.#_harvestBasket = root.getChildMeshes()[0] as Mesh;
 
+        RadarManager.createBlip(root, BlipType.Basket);
+
         const colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
         colliders.forEach(c => {            
             c.isVisible = false;
@@ -137,6 +140,7 @@ export class Garden extends BaseCollidable {
      */
     public dispose(): void {
         super.dispose();
+        RadarManager.removeBlip(this.#_harvestBasket.parent as TransformNode);
         this.#_harvestBasket.dispose();
         this.#_rootNodes.forEach(n => n.dispose());
         this.#_animation.dispose();
