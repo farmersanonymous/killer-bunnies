@@ -14,11 +14,3 @@ A game built to submit to a [Game Jam](https://itch.io/jam/gamedevtv-community-j
 3. Next type `npm run start`.
 4. Open up your browser and go to the url: `localhost:3700`. It will hot reload with any changes made on the index.html or in the src directory.
 5. (Optional) In order to test the webpack build chain manually, type `npm run build`.
-
-## Deployments
-
-Continuous Deployments are setup for triggers when a Pull Request is created or when a commit is pushed on the develop branch. When that happens, that commit will be webpacked and deployed to the Google Cloud Platform.
-
-To access the latest build from develop, go here: https://storage.googleapis.com/farmer-hosting/branches/develop/index.html
-
-To access any pull request build, go here https://storage.googleapis.com/farmer-hosting/prs/xxx/index.html where xxx is the pull request number.
