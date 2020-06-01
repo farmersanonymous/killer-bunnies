@@ -15,6 +15,7 @@ export class Garden extends BaseCollidable {
     #_carrotSpawnPoints: TransformNode[] = [];
     #_harvestBasket: Mesh;
     #_animation: AnimationGroup;
+    #_staticNodes: TransformNode[] = []; 
 
     /**
      * Constructor.
@@ -79,16 +80,16 @@ export class Garden extends BaseCollidable {
         let colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
 
         const gateSpawner = Spawner.getSpawner('Gate');
-        gateSpawner.instantiate();
+        this.#_staticNodes.push(gateSpawner.instantiate().rootNodes[0]);
 
         const wellSpawner = Spawner.getSpawner('Well');
-        wellSpawner.instantiate();
+        this.#_staticNodes.push(wellSpawner.instantiate().rootNodes[0]);
 
         const meteoriteSpawner = Spawner.getSpawner('Meteorite');
-        meteoriteSpawner.instantiate();
+        this.#_staticNodes.push(meteoriteSpawner.instantiate().rootNodes[0]);
 
         const gardenGround = Spawner.getSpawner('Ground');
-        gardenGround.instantiate();
+        this.#_staticNodes.push(gardenGround.instantiate().rootNodes[0]);
 
         const shedSpawner = Spawner.getSpawner('Shed');
         const shed = shedSpawner.instantiate();
@@ -172,5 +173,6 @@ export class Garden extends BaseCollidable {
         this.#_harvestBasket.dispose();
         this.#_rootNodes.forEach(n => n.dispose());
         this.#_animation.dispose();
+        this.#_staticNodes.forEach(n => n.dispose());
     }
 }
