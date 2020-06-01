@@ -52,8 +52,34 @@ export class Garden extends BaseCollidable {
             instances.forEach(i => i.parent = transform);
             transform.parent = t;
         });
+
+        const fenceASpawner = Spawner.getSpawner('FenceA');
+        const fenceBSpawner = Spawner.getSpawner('FenceB');
         
+        const fenceASpawnPoints = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name.startsWith('SpawnPoint_FenceA'));
+        const fenceBSpawnPoints = this.#_rootNodes[0].getChildTransformNodes(false, n => n.name.startsWith('SpawnPoint_FenceB'));
+
+        const fenceA = fenceASpawner.instantiate().rootNodes[0].getChildMeshes() as Mesh[];
+        fenceA.forEach(f => f.isVisible = false);
+        const fenceB = fenceBSpawner.instantiate().rootNodes[0].getChildMeshes() as Mesh[];
+        fenceB.forEach(f => f.isVisible = false);
+        fenceASpawnPoints.forEach(f => {
+            const transform = new TransformNode('Fence');
+            const instances = fenceA.map(f => f.createInstance(f.name));
+            instances.forEach(i => i.parent = transform);
+            transform.parent = f;
+        });
+        fenceBSpawnPoints.forEach(f => {
+            const transform = new TransformNode('Fence');
+            const instances = fenceB.map(f => f.createInstance(f.name));
+            instances.forEach(i => i.parent = transform);
+            transform.parent = f;
+        });
+
         let colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
+
+        const gateSpawner = Spawner.getSpawner('Gate');
+        gateSpawner.instantiate();
 
         const wellSpawner = Spawner.getSpawner('Well');
         wellSpawner.instantiate();
@@ -63,9 +89,6 @@ export class Garden extends BaseCollidable {
 
         const gardenGround = Spawner.getSpawner('Ground');
         gardenGround.instantiate();
-
-        const fencing = Spawner.getSpawner('Fencing');
-        fencing.instantiate();
 
         const shedSpawner = Spawner.getSpawner('Shed');
         const shed = shedSpawner.instantiate();

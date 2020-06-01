@@ -32,14 +32,24 @@
             "url": "assets/shed/Shed.gltf"
         },
         {
-            "name": "Fencing",
-            "type": "art",
-            "url": "assets/fencing/Fencing.gltf"
-        },
-        {
             "name": "Burrow",
             "type": "art",
             "url": "assets/burrow/Burrow.gltf"
+        },
+        {
+            "name": "FenceA",
+            "type": "art",
+            "url": "assets/fenceA/FenceA.gltf"
+        },
+        {
+            "name": "FenceB",
+            "type": "art",
+            "url": "assets/fenceB/FenceB.gltf"
+        },
+        {
+            "name": "Gate",
+            "type": "art",
+            "url": "assets/gate/Gate.gltf"
         },
         {
             "name": "Carrot",
