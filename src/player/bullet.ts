@@ -16,6 +16,10 @@ export class Bullet extends BaseCollidable {
      * Callback that will get fired when a bullet is about to be disposed.
      */
     public static onBulletDisposed: (bullet: Bullet) => void;
+    /**
+     * The number of bullets that have been fired for this game.
+     */
+    public static bulletCount = 0;
 
     #_mesh: Mesh;
     #_disposeTime: number;
@@ -60,6 +64,8 @@ export class Bullet extends BaseCollidable {
         SoundManager.play('Shoot', {
             volume: 0.2
         });
+
+        Bullet.bulletCount += 1;
     }
 
     /**

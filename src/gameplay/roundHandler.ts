@@ -211,8 +211,6 @@ export class RoundHandler {
                 // Player builds up their defenses for the next Defend round.
                 this.#_time = restTime;
                 this.#_type = RoundType.Rest;
-                this.#_burrowSpawnTimer = Config.burrow.randomSpawnFrequency();
-                this.#_carrotSpawnTimer = Config.carrot.randomSpawnFrequency();
                 
                 this.#_gui.setRound(++this.#_round);
                 StabberRabbit.retreatAll();
@@ -230,6 +228,9 @@ export class RoundHandler {
                 this.#_type = RoundType.Defend;
                 this.#_time = defendTime;
                 this.#_gui.removePickIcon(garden.harvestBasket);
+
+                this.#_burrowSpawnTimer = 0;
+                this.#_carrotSpawnTimer = 0;
                 
                 // Hides the upgrade panel in case it is still visible.
                 if(this.#_gui.hideUpgradePanel()) {
@@ -254,6 +255,14 @@ export class RoundHandler {
      */
     public get type(): RoundType {
         return this.#_type;
+    }
+
+    /**
+     * The current round number.
+     * @returns The current round number.
+     */
+    public get round(): number {
+        return this.#_round;
     }
 
     /**

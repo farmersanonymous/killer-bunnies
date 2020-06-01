@@ -8,6 +8,8 @@ import { CollisionManager } from './collision/collisionManager';
 import { SoundManager } from './assets/soundManager';
 import { Config } from './gameplay/config';
 
+let blinkIntervalHandle: NodeJS.Timeout = undefined;
+
 /**
  * Callback that will get triggered when the loading screen is to show. Also shows progress through a progress bar.
  */
@@ -74,8 +76,12 @@ function showLoadingScreenCallback(): void {
     anyKeyDiv.style.width = '60%';
     anyKeyDiv.style.color = 'white';
     anyKeyDiv.style.display = 'none';
-    anyKeyDiv.innerHTML = "Press any key to continue";
+    anyKeyDiv.innerHTML = "Press any button to continue";
     splashDiv.appendChild(anyKeyDiv);
+
+    blinkIntervalHandle = setInterval(() => {
+        anyKeyDiv.style.opacity = (anyKeyDiv.style.opacity === '0' ? '1' : '0');
+    }, 1000);
 
     document.body.appendChild(splashDiv);
 }
@@ -85,6 +91,11 @@ function showLoadingScreenCallback(): void {
 function hideLoadingScreenCallback(): void {
     const splashDiv = document.getElementById('splashDiv');
     splashDiv.style.opacity = '0';
+
+    const anyKeyDiv = document.getElementById('anyKeyDiv');
+    anyKeyDiv.style.opacity = '1';
+    clearInterval(blinkIntervalHandle);
+    blinkIntervalHandle = undefined;
 }
 
 /**
@@ -189,7 +200,6 @@ export class Bootstrap {
     public run(): void {
         // Runs the update loop for the Babylon Engine. Will update the game if it exists.
         BabylonObserverStore.registerBeforeRender(() => {
-            BabylonStore.update();
             if (this.#_game) {
                 this.#_game.update();
             }

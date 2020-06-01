@@ -6,6 +6,10 @@ import { Config } from '../gameplay/config';
 import { BabylonStore } from '../store/babylonStore';
 import { Farmer } from '../player/farmer';
 import { SoundManager } from '../assets/soundManager';
+import { Bullet } from '../player/bullet';
+import { StabberRabbit } from '../enemies/stabberRabbit';
+import { NabberRabbit } from '../enemies/nabberRabbit';
+import { CarrotDrop } from '../droppable/carrotDrop';
 
 const HEALTH_BAR_WIDTH = 262;
 
@@ -823,6 +827,192 @@ export class GUIManager {
         }
 
         return undefined;
+    }
+
+    /**
+     * Shows the game over screen.
+     * @param round The round that the game ended on.
+     * @param callback Function that will get called when main menu button is clicked.
+     */
+    public showGameOverScreen(round: number, callback: () => void): void {
+        // Turn off controller when viewing game over screen.
+        if (BabylonStore.isMobile) {
+            this.#_rightStick.isVisible = false;
+            this.#_leftStick.isVisible = false;
+        }
+
+        const panel = new Rectangle();
+        panel.thickness = 3;
+        panel.color = "#2b1d0e";
+        panel.background = "#654321";
+        panel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        panel.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        panel.widthInPixels = 400;
+        panel.heightInPixels = 400;
+        panel.cornerRadius = 5;
+        this.#_dynamicTexture.addControl(panel);
+
+        const gameOverText = new TextBlock('GameOver', 'GAME OVER');
+        gameOverText.color = "white";
+        gameOverText.fontFamily = "ActionMan";
+        gameOverText.fontSize = "45px";
+        gameOverText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        gameOverText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        gameOverText.heightInPixels = 50;
+        gameOverText.left = 0;
+        gameOverText.top = 15;
+        panel.addControl(gameOverText);
+
+        const roundText = new TextBlock('Round', 'You made it to round...');
+        roundText.color = "white";
+        roundText.fontFamily = "ActionMan";
+        roundText.fontSize = "25px";
+        roundText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        roundText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        roundText.heightInPixels = 40;
+        roundText.left = 0;
+        roundText.top = 55;
+        panel.addControl(roundText);
+
+        const roundText2 = new TextBlock('Round', round.toString());
+        roundText2.color = "white";
+        roundText2.fontFamily = "ActionMan";
+        roundText2.fontSize = "80px";
+        roundText2.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        roundText2.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        roundText2.heightInPixels = 100;
+        roundText2.left = 0;
+        roundText2.top = 80;
+        panel.addControl(roundText2);
+
+        const timeText = new TextBlock('TimeText', `Lasted for`);
+        timeText.color = "white";
+        timeText.fontFamily = "ActionMan";
+        timeText.fontSize = "15px";
+        timeText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        timeText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        timeText.heightInPixels = 20;
+        timeText.left = -100;
+        timeText.top = 200;
+        panel.addControl(timeText);
+
+        const timeCount = new TextBlock('TimeCount', BabylonStore.time.toFixed(0) + ' seconds');
+        timeCount.color = "white";
+        timeCount.fontFamily = "ActionMan";
+        timeCount.fontSize = "15px";
+        timeCount.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        timeCount.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        timeCount.heightInPixels = 20;
+        timeCount.left = 100;
+        timeCount.top = 200;
+        panel.addControl(timeCount);
+
+        const bulletText = new TextBlock('BulletText', `Corn Kernels Shot`);
+        bulletText.color = "white";
+        bulletText.fontFamily = "ActionMan";
+        bulletText.fontSize = "15px";
+        bulletText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        bulletText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        bulletText.heightInPixels = 20;
+        bulletText.left = -100;
+        bulletText.top = 220;
+        panel.addControl(bulletText);
+
+        const bulletCount = new TextBlock('BulletText', Bullet.bulletCount.toString());
+        bulletCount.color = "white";
+        bulletCount.fontFamily = "ActionMan";
+        bulletCount.fontSize = "15px";
+        bulletCount.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        bulletCount.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        bulletCount.heightInPixels = 20;
+        bulletCount.left = 100;
+        bulletCount.top = 220;
+        panel.addControl(bulletCount);
+
+        const bunnyText = new TextBlock('BunnyText', `Bunnies Killed`);
+        bunnyText.color = "white";
+        bunnyText.fontFamily = "ActionMan";
+        bunnyText.fontSize = "15px";
+        bunnyText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        bunnyText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        bunnyText.heightInPixels = 20;
+        bunnyText.left = -100;
+        bunnyText.top = 240;
+        panel.addControl(bunnyText);
+
+        const bunnyKilled = new TextBlock('BunnyKilled', (StabberRabbit.rabbitCount + NabberRabbit.rabbitCount).toString());
+        bunnyKilled.color = "white";
+        bunnyKilled.fontFamily = "ActionMan";
+        bunnyKilled.fontSize = "15px";
+        bunnyKilled.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        bunnyKilled.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        bunnyKilled.heightInPixels = 20;
+        bunnyKilled.left = 100;
+        bunnyKilled.top = 240;
+        panel.addControl(bunnyKilled);
+
+        const carrotStolenText = new TextBlock('CarrotStolen', `Carrots Taken`);
+        carrotStolenText.color = "white";
+        carrotStolenText.fontFamily = "ActionMan";
+        carrotStolenText.fontSize = "15px";
+        carrotStolenText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        carrotStolenText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        carrotStolenText.heightInPixels = 20;
+        carrotStolenText.left = -100;
+        carrotStolenText.top = 260;
+        panel.addControl(carrotStolenText);
+
+        const carrotText = new TextBlock('CarrotText', NabberRabbit.carrotCount.toString());
+        carrotText.color = "white";
+        carrotText.fontFamily = "ActionMan";
+        carrotText.fontSize = "15px";
+        carrotText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        carrotText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        carrotText.heightInPixels = 20;
+        carrotText.left = 100;
+        carrotText.top = 260;
+        panel.addControl(carrotText);
+
+        const carrotGatheredText = new TextBlock('CarrotGathered', `Carrots Gathered`);
+        carrotGatheredText.color = "white";
+        carrotGatheredText.fontFamily = "ActionMan";
+        carrotGatheredText.fontSize = "15px";
+        carrotGatheredText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        carrotGatheredText.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        carrotGatheredText.heightInPixels = 20;
+        carrotGatheredText.left = -100;
+        carrotGatheredText.top = 280;
+        panel.addControl(carrotGatheredText);
+
+        const carrotText2 = new TextBlock('CarrotText2', (Farmer.carrotCount + CarrotDrop.carrotCount).toString());
+        carrotText2.color = "white";
+        carrotText2.fontFamily = "ActionMan";
+        carrotText2.fontSize = "15px";
+        carrotText2.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        carrotText2.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        carrotText2.heightInPixels = 20;
+        carrotText2.left = 100;
+        carrotText2.top = 280;
+        panel.addControl(carrotText2);
+
+        const closeButton = Button.CreateSimpleButton('CloseButton', 'Main Menu');
+        closeButton.color = 'white';
+        closeButton.fontSize = '18px';
+        closeButton.fontFamily = "ActionMan";
+        closeButton.background = "#2b1d0e";
+        closeButton.widthInPixels = 120;
+        closeButton.heightInPixels = 32;
+        closeButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        closeButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        closeButton.cornerRadius = 50;
+        closeButton.left = 0;
+        closeButton.top = 330;
+        panel.addControl(closeButton);
+
+        closeButton.onPointerClickObservable.add(() => {
+            SoundManager.play('Select');
+            callback?.();
+        });
     }
 
     /**

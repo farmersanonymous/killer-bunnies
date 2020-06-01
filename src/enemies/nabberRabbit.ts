@@ -42,6 +42,15 @@ export enum NabberRabbitState {
  * The rabbit that will try and stab the farmer.
  */
 export class NabberRabbit extends BaseCollidable {
+    /**
+     * The number of Nabber Rabbits that have been killed.
+     */
+    public static rabbitCount = 0;
+    /**
+     * The amount of carrots that have been stolen.
+     */
+    public static carrotCount = 0;
+
     private static _rabbits: NabberRabbit[] = [];
 
     #_maxHealth: number;
@@ -171,6 +180,7 @@ export class NabberRabbit extends BaseCollidable {
             if (Vector3.Distance(this.#_spawnPosition, this.#_root.position) < 1) {
                 // Nabber Rabbit has escaped with a carrot. Spawn a super rabbit next time.
                 StabberRabbit.superRabbit = true;
+                NabberRabbit.carrotCount += 1;
 
                 this.dispose();
             }
@@ -264,6 +274,7 @@ export class NabberRabbit extends BaseCollidable {
             this.#_agent = undefined;
             super.dispose();
             RadarManager.removeBlip(this.#_root);
+            NabberRabbit.rabbitCount += 1;
             this.#_animator.play(AnimatorState.RabbitDeath, false, () => {
                 this.#_deathTimer = 0;
             });

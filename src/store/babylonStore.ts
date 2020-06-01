@@ -98,6 +98,13 @@ export class BabylonStore {
     }
 
     /**
+     * Resets the time value back to 0.
+     */
+    public static resetTime(): void {
+        this._time = 0;
+    }
+
+    /**
      * The amount of time since the application has started, in seconds.
      * @returns The amount of time since the application has started.
      */

@@ -308,8 +308,8 @@
     },
     "burrow": {
         "spawnFrequency": {
-            "min": 10,
-            "max": 15
+            "min": 8,
+            "max": 12
         },
         "timeLimit": {
             "min": 30,

@@ -9,6 +9,9 @@ import { SoundManager } from '../assets/soundManager';
 import { Input } from '../input/input';
 import { BabylonStore } from '../store/babylonStore';
 import { MathUtil } from '../util/mathUtil';
+import { StabberRabbit } from '../enemies/stabberRabbit';
+import { NabberRabbit } from '../enemies/nabberRabbit';
+import { CarrotDrop } from '../droppable/carrotDrop';
 
 /**
  * Starts a Game. Each instance is it's own self contained Game and can be created and disposed at will.
@@ -24,6 +27,8 @@ export class Game {
     #_paused: boolean;
     #_currentTrack: string;
     #_gameOverTimer = 5;
+
+    #_gameOverMenu = false;
     
 
     /**
@@ -100,11 +105,21 @@ export class Game {
             return;
         }
 
+        // Updates game time when not paused.
+        BabylonStore.update();
+
         if (this.#_player.health <= 0 && this.#_onGameOver) {
             this.#_gameOverTimer -= BabylonStore.deltaTime;
-            if(this.#_gameOverTimer <= 0) {
-                SoundManager.stop(this.#_currentTrack);
-                this.#_onGameOver?.call(this.#_bootstrap);
+            if(this.#_gameOverTimer <= 0 && !this.#_gameOverMenu) {
+                this.#_paused = true;
+                StabberRabbit.disableAll(true);
+                NabberRabbit.disableAll(true);
+                this.#_garden.disabled = true;
+                this.#_gui.showGameOverScreen(this.#_roundHandler.round, () => {
+                    SoundManager.stop(this.#_currentTrack);
+                    this.#_onGameOver?.call(this.#_bootstrap);
+                });
+                this.#_gameOverMenu = true;
             }
         }
 
@@ -127,6 +142,15 @@ export class Game {
      * Release all resources associated with this Game.
      */
     public dispose(): void {
+        // Reset stats.
+        Bullet.bulletCount = 0;
+        StabberRabbit.rabbitCount = 0;
+        NabberRabbit.rabbitCount = 0;
+        NabberRabbit.carrotCount = 0;
+        Farmer.carrotCount = 0;
+        CarrotDrop.carrotCount = 0;
+        BabylonStore.resetTime();
+
         BabylonStore.scene.stopAllAnimations();
 
         Bullet.onBulletCreated = null;

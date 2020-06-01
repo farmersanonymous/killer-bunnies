@@ -9,6 +9,11 @@ import { RadarManager, BlipType } from '../ui/radar';
  * A carrot that has been dropped on the ground! Can be picked up by the Farmer.
  */
 export class CarrotDrop {
+    /**
+     * The amount of carrots that have been gathered.
+     */
+    public static carrotCount = 0;
+
     private static _carrots: CarrotDrop[] = [];
     private static _highlighter: HighlightLayer;
 
@@ -71,6 +76,7 @@ export class CarrotDrop {
         RadarManager.updateBlip(this.#_root);
         if(Vector2.Distance(new Vector2(this.#_root.position.x, this.#_root.position.z), new Vector2(farmer.position.x, farmer.position.z)) < 1) {
             if(gui.addFarmerCarrot()) {
+                CarrotDrop.carrotCount += 1;
                 this.dispose();
             }
         }

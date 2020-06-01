@@ -22,6 +22,11 @@ import { MathUtil } from '../util/mathUtil';
  * The playable Farmer character.
  */
 export class Farmer extends BaseCollidable {
+    /**
+     * The amount of carrots that have been gathered.
+     */
+    public static carrotCount = 0;
+
     #_controller: CharacterController;
     #_camera: PlayerCameraController;
     #_root: TransformNode;
@@ -148,22 +153,6 @@ export class Farmer extends BaseCollidable {
 
         //
         RadarManager.createBlip(this.#_root, BlipType.Player);
-
-        /*
-        //component - is an object from the midle of the scene :))
-        this.getMesh().computeWorldMatrix(true);
-        const radius = this.getMesh().getBoundingInfo().boundingSphere.radiusWorld + 10;
-            
-        const aspectRatio = BabylonStore.engine.getAspectRatio(BabylonStore.camera);
-        let halfMinFov = BabylonStore.camera.fov / 2;
-        if (aspectRatio < 1) {
-            halfMinFov = Math.atan( aspectRatio * Math.tan(BabylonStore.camera.fov / 2) );
-        }
-        
-        const viewRadius = Math.abs( radius / Math.sin(halfMinFov));
-        console.log(viewRadius);
-        BabylonStore.camera.radius = viewRadius;
-        */
     }
 
     /**
@@ -206,6 +195,7 @@ export class Farmer extends BaseCollidable {
             const carrot = Carrot.getPickableCarrot();
             if(carrot) {
                 if(gui.addFarmerCarrot()) {
+                    Farmer.carrotCount += 1;
                     carrot.dispose();
                     SoundManager.play(`Harvest${MathUtil.randomInt(1, 3)}`, { volume: 0.2 });
                 }

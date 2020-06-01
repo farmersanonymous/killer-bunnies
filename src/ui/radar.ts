@@ -257,11 +257,11 @@ export class RadarManager {
      */
     public static dispose(): void {
         this.getInstance().#_radar.dispose();
-        this.getInstance().#_nabberMaterial.dispose();
-        this.getInstance().#_carrotMaterial.dispose();
-        this.getInstance().#_burrowMaterial.dispose();
-        this.getInstance().#_playerMaterial.dispose();
-        this.getInstance().#_stabberMaterial.dispose();
+        this.getInstance().nabberMaterial.dispose();
+        this.getInstance().carrotMaterial.dispose();
+        this.getInstance().burrowMaterial.dispose();
+        this.getInstance().playerMaterial.dispose();
+        this.getInstance().stabberMaterial.dispose();
         this.getInstance().#_blips.forEach(b => b.dispose());
 
         this._instance = null;

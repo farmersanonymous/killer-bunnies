@@ -40,23 +40,13 @@ export class Burrow {
         this.#_root.getChildMeshes().forEach(m => m.freezeWorldMatrix());
 
         this.#_disposeTime = BabylonStore.time + Config.burrow.randomTimeLimit();
-        this.#_spawnTimer = Config.burrow.randomRabbitSpawnFrequency();
+        this.#_spawnTimer = 0;
 
         Burrow._burrows.push(this);
 
         this.#_round = round;
-        this.modifyDifficulty(this.#_round.getDifficultyModifier());
 
         RadarManager.createBlip(this.#_root, BlipType.Burrow);
-    }
-
-    /**
-     * Modifies the burrow's spawn timer based on a given value.
-     * @param modifier Difficulty modifier used to calculate new spawn timer value.
-     */
-    public modifyDifficulty(modifier: number): void {
-        const newMax = this.#_spawnTimer - (Config.burrow.spawnFrequency.min * modifier)
-        this.#_spawnTimer = Scalar.RandomRange(Config.burrow.spawnFrequency.max, newMax);
     }
 
     /**

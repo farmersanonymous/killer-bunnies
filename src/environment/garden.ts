@@ -52,6 +52,8 @@ export class Garden extends BaseCollidable {
             instances.forEach(i => i.parent = transform);
             transform.parent = t;
         });
+        
+        let colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
 
         const wellSpawner = Spawner.getSpawner('Well');
         wellSpawner.instantiate();
@@ -65,12 +67,16 @@ export class Garden extends BaseCollidable {
         const fencing = Spawner.getSpawner('Fencing');
         fencing.instantiate();
 
-        const shed = Spawner.getSpawner('Shed');
-        shed.instantiate();
+        const shedSpawner = Spawner.getSpawner('Shed');
+        const shed = shedSpawner.instantiate();
+        const shedCollider = shed.rootNodes[0].getChildMeshes(false, m => m.name === 'Collider_Shed');
+        colliders = colliders.concat(shedCollider);
 
         const basket = Spawner.getSpawner('Basket');
         const instantiate = basket.instantiate();
         const root = instantiate.rootNodes[0];
+        const basketCollider = root.getChildMeshes(false, m => m.name === 'Collider_CarrotSiren');
+        colliders = colliders.concat(basketCollider);
         this.#_animation = instantiate.animationGroups[0];
         this.#_animation.play(true);
         
@@ -79,7 +85,6 @@ export class Garden extends BaseCollidable {
 
         RadarManager.createBlip(root, BlipType.Basket);
 
-        const colliders = this.#_rootNodes[0].getChildMeshes(false, m => m.name.startsWith('Collider'));
         colliders.forEach(c => {            
             c.isVisible = false;
             super.registerMesh(c, c.name);

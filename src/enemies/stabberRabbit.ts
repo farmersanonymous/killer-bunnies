@@ -38,6 +38,11 @@ export enum StabberRabbitState {
  * The rabbit that will try and stab the farmer.
  */
 export class StabberRabbit extends BaseCollidable {
+    /**
+     * The number of Stabber Rabbits that have been killed.
+     */
+    public static rabbitCount = 0;
+
     private static _rabbits: StabberRabbit[] = [];
     private static _superRabbit: boolean;
 
@@ -281,6 +286,7 @@ export class StabberRabbit extends BaseCollidable {
             Navigation.removeAgent(this.#_agent);
             this.#_agent = undefined;
             super.dispose();
+            StabberRabbit.rabbitCount += 1;
             RadarManager.removeBlip(this.#_root);
             this.#_animator.play(AnimatorState.RabbitDeath, false, () => {
                 this.#_deathTimer = 0;
