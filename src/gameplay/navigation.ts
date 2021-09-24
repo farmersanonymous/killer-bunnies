@@ -1,5 +1,6 @@
 import { RecastJSPlugin, Mesh, Vector3, ICrowd, TransformNode } from 'babylonjs';
 import { BabylonStore } from '../store/babylonStore';
+import * as Recast from '../libraries/recast-detour';
 
 /**
  * A Navigation utility class that will handle generating and interacting with the NavMesh. It will also handle AI agents moving around the map.
@@ -15,7 +16,7 @@ export class Navigation {
      * @param meshes The meshes that will be used to generate the NavMesh.
      */
     public static init(meshes: Mesh[]): void {
-        this._plugin = new RecastJSPlugin();
+        this._plugin = new RecastJSPlugin(Recast);
 
         this._plugin.createNavMesh(meshes, {
             cs: 0.2,
