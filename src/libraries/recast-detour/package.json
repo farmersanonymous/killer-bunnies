@@ -1,0 +1,43 @@
+{
+  "_from": "recast-detour@1.3.0",
+  "_id": "recast-detour@1.3.0",
+  "_inBundle": false,
+  "_integrity": "sha512-d69n2yZl79MFynmAs/Vkkt2J6RYkBkdO5JOw3T7NfkGD9sltRAnstFVTH9mYJwBgOgdlXuzbUBV6EgpscTMzvA==",
+  "_location": "/recast-detour",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "recast-detour@1.3.0",
+    "name": "recast-detour",
+    "escapedName": "recast-detour",
+    "rawSpec": "1.3.0",
+    "saveSpec": null,
+    "fetchSpec": "1.3.0"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/recast-detour/-/recast-detour-1.3.0.tgz",
+  "_shasum": "d21532b219d10c6b6b578ac5220b8e50f4db3790",
+  "_spec": "recast-detour@1.3.0",
+  "_where": "C:\\Users\\eric\\source\\repos\\killer-bunnies",
+  "author": "",
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "recastjs is a port of recastnavigation and a thin abstraction layer using emscripten. https://github.com/emscripten-core/emscripten\r This port allows the use of recastnavigation in your browser using JavaScript or WebAssembly.",
+  "keywords": [
+    "recast",
+    "detour",
+    "navigation",
+    "navmesh"
+  ],
+  "license": "ISC",
+  "main": "recast.js",
+  "name": "recast-detour",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.3.0"
+}
